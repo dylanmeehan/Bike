@@ -9,7 +9,7 @@ L = 1.02
 B = 0.3
 H = 0.9
 # trail is zero
-C = 0 
+C = 0
 
 # gains
 K1 = 71.
