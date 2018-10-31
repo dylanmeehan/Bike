@@ -30,11 +30,11 @@ def runBicycleTest(state = np.array([0, 0, 0, np.pi/8, 0, 0, 0, 3]), \
 
     zdot = rhs.rhs(state,u)
 
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
-
     #update state. Euler Integration
     prevState = state
     state = state + zdot*timestep
+
+    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
 
     #check if bike has fallen
     if (np.abs(phi) >= np.pi/4):

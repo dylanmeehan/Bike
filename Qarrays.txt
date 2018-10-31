@@ -1,0 +1,1 @@
+Q1: 10,000 iterations. Started from basically vertical. Determinism. 

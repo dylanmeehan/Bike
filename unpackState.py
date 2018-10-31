@@ -11,3 +11,7 @@ def unpackState(state):
   v =  state[7];
 
   return(np.array([t, x, y, phi, psi, delta, phi_dot, v]))
+
+#def unpackStates(states):
+#  [ts, xs, ys, phis, psis, deltas, phi_dots, vs] = \
+#    np.apply_along_axis(unpackState, 1, states).T
