@@ -3,81 +3,39 @@ import rhs
 import matplotlib.pyplot as plt
 import graph
 from unpackState import *
+from tableBased import *
 
-class Qlearning(object):
+class Qlearning(TableBased):
 
-  #descretize action space
-  action_space = [-2, -1, 0, 1, 2]
-  num_actions = len(action_space)
+  def __init__(self ):
+    super(Qlearning, self).__init__()
+    self.Q = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,\
+      self.len_delta_grid, self.num_actions))
 
-  #descretize state space
-  #phibins = [-.8, -.5, -.35, -.2, -.1, -.05, 0, .05, .1, .2, .35, .5, .8 ]
-  #phi_dotbins = [-2, -1, -.5, -.25, -.1, -.05, 0, .05, .1, .25, .5, 1, 2]
-  #deltabins = [-1.6, -.8, -.4, -.2, -.1, -.05, 0, .05, .1, .2, .4, .8, 1.6]
-
-  phibins = [-.8, -.35, -.2, -.12, -.07, -.03, 0, .03, .07, .12, .2, .35, .8 ]
-  phi_dotbins = [-2, -.5,  -.3, -.1,  0, .1, .3,  .5,  2]
-  deltabins = [-1.6,  -.4, -.2, -.1,  0,  .1, .2, 0.4, 1.6]
-  num_states = len(phibins)*len(phi_dotbins)*len(deltabins)
-
-  timestep = 1/50
-
-  def __init__(self, Q = np.zeros((num_states,num_actions)) ):
-
-    self.Q = Q
-
-  def step(self, state, u):
-    # take in a state and an action
-      zdot = rhs.rhs(state,u)
-
-      #update state. Euler Integration
-      prevState = state
-      state = state + zdot*self.timestep
-
-      [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
-
-      if (np.abs(phi) >= np.pi/4):
-        #print("Bike has fallen; Test Failure")
-        done = True
-        reward = 0
-      else:
-        reward = self.timestep
-        done = False
-
-      return (state, reward, done)
-
-  def act_index(self, state_bucket, epsilon):
+  #given state_grid_point (a discritized state)
+  def act_index(self, state_index, epsilon):
     #pick a random action sometimes
     if np.random.random() < epsilon:
-        a = np.random.randint(0, len(self.action_space))
+        a = np.random.randint(0, self.num_actions)
         # return a random index in the action space
         return a
 
     #pick the action with the highest Q value
-    return np.argmax(self.Q[state_bucket])
-      #returns the index of the maximum value of the 1D array Q[state]
+    return np.argmax(self.Q[state_index])
+      #returns the index of the maximum value of the 1D array Q[state_index]
+      #that index corresponds to a specific action
 
   def action_from_index(self, action_index):
-    return self.action_space[action_index]
+    return self.action_grid[action_index]
 
-  def discretize(self, state):
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
-
-    phi_index = np.digitize(phi,self.phibins)-1
-    phi_dot_index = np.digitize(phi_dot, self.phi_dotbins)-1
-    delta_index = np.digitize(delta,self.deltabins)-1
-
-    state_bucket = phi_index*len(self.phi_dotbins)*len(self.deltabins) \
-    + phi_dot_index*len(self.deltabins)  + delta_index
-
-    return state_bucket
-
-  def update_Q(self, s_index, reward, a_index, s_next_index, done, alpha, gamma):
-    max_q_next = np.max(self.Q[s_next_index,:])
+  def update_Q(self, s_indicies, reward, a_index, s_next_indicies, done, alpha, gamma):
+    max_q_next = np.max(
+      self.Q[s_next_indicies[0],s_next_indicies[1],s_next_indicies[2],:])
 
     #don't update Q if the simulation has terminated
-    self.Q[s_index,a_index] += alpha * (1.0-done) * \
-      (reward+gamma*max_q_next-self.Q[s_index,a_index])
+    self.Q[s_indicies[0],s_indicies[1],s_indicies[2],a_index] +=\
+          alpha * (1.0-done) * (reward+gamma*max_q_next-\
+            self.Q[s_indicies[0],s_indicies[1],s_indicies[2],a_index])
 
   def getStartingState(self, state_flag = 0):
     starting_states = {
@@ -98,7 +56,8 @@ class Qlearning(object):
     total_reward = 0
     total_time = 0
 
-    state_bucket = self.discretize(state)
+    # return index of closest point to phi, phi_dot, and delta
+    state_grid_point = self.discretize(state)
 
     maxNumTimeSteps = int(tmax/self.timestep)+1
 
@@ -115,22 +74,22 @@ class Qlearning(object):
 
     count = 0;
     while( (count < maxNumTimeSteps) and (not done)):
-      action_index = self.act_index(state_bucket, epsilon)
+      action_index = self.act_index(state_grid_point, epsilon)
       action = self.action_from_index(action_index)
 
       new_state, reward, done = self.step(state, action)
-      new_state_bucket = self.discretize(new_state)
+      new_state_grid_point = self.discretize(new_state)
 
       if (not isTesting):
-        self.update_Q(state_bucket, reward, action_index, \
-          new_state_bucket, done, alpha, gamma)
+        self.update_Q(state_grid_point, reward, action_index, \
+          new_state_grid_point, done, alpha, gamma)
 
       total_reward += reward
       if (not done):
         total_time += self.timestep
 
       state = new_state
-      state_bucket = new_state_bucket
+      state_grid_point = new_state_grid_point
 
       if isTesting:
         states[count,:] = state
@@ -145,7 +104,7 @@ class Qlearning(object):
 
   def train(self, epsilon = 1, epsilon_decay = 0.9998, epsilon_min = 0.05, \
     gamma = 1, alpha = 0.5, alpha_decay = 0.9998, alpha_min = 0.1, \
-    num_epsiodes = 10000, tmax = 10, state_flag = 0):
+    num_epsiodes = 5000, tmax = 10, state_flag = 0):
 
     reward_history = []
     reward_averaged = []
@@ -182,7 +141,10 @@ class Qlearning(object):
       epsilons.append(epsilon)
 
     #end of for loop
-    np.savetxt("Q.csv", self.Q, delimiter=",")
+    np.savetxt("Q.csv", \
+      self.Q.reshape((self.num_states, self.num_actions)), delimiter=",")
+
+    self.Qreal = self.Q
 
     print("avg reward(time) at end:" + str(average_reward50))
     print("num episodes:" + str(episode))
@@ -198,7 +160,14 @@ class Qlearning(object):
 
 
   def test(self, Qfile = "Q.csv", tmax = 10, state_flag = 0):
-    self.Q = np.genfromtxt(Qfile, delimiter=',')
+    savedQ = np.genfromtxt(Qfile, delimiter=',')
+    self.Q = savedQ.reshape((self.len_phi_grid, self.len_phi_dot_grid, \
+      self.len_delta_grid, self.num_actions))
+
+    #print(self.Q.shape)
+    print("Check equality:" + str(np.array_equal(self.Q, self.Qreal)))
+    self.Q = self.Qreal
+    print("Check equality:" + str(np.array_equal(self.Q, self.Qreal)))
 
     epsilon = 0
     gamma = 1
@@ -214,6 +183,6 @@ class Qlearning(object):
 
 Qlearning_model = Qlearning()
 Qlearning_model.train(state_flag = 0)
-print(Qlearning_model.Q)
+#print(Qlearning_model.Q)
 
-Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 1)
+Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0)
