@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import graph
 from unpackState import *
 from tableBased import *
+from scipy.interpolate import RegularGridInterpolator
 
 class ValueIteration(TableBased):
 
@@ -25,19 +26,32 @@ class ValueIteration(TableBased):
   # given state_grid_point_index (a discritized state 3 tuple).
   # return the index of the action to take
   def act_index(self, state_grid_point_index, epsilon):
-     return np.argmax(self.U[state_grid_point_index])
+    print("utilities: " + str(self.U[state_grid_point_index]))
+    print("action: " + str(np.argmax(self.U[state_grid_point_index])))
+    return np.argmax(self.U[state_grid_point_index])
 
   # return a value for the (continous) new state
-  def get_value(self,new_state):
-    new_state3_index = self.discretize(new_state)
+  #interpolater
+  def get_value(self,new_state3):
+    #interpolate
+    #switching the interpolator makes the code take much longer.
+    #I should only set up the interpolater once per episode
+    #return self.itp([new_state3[0],new_state3[1],new_state3[2]])
+
+    #dont interpolate
+    new_state3_index = self.discretize(state3_to_state(new_state3))
     return self.U[new_state3_index]
 
 
-  def train(self, gamma = 1, num_episodes = 10, state_flag = 0):
+  def train(self, gamma = 0.99, num_episodes = 100, state_flag = 0):
 
     n_episode = 0
 
     while (n_episode < num_episodes):
+
+      #self.itp = RegularGridInterpolator(\
+      #  (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U)
+
       #exhaustively loop through all states
       for phi_index in range(self.len_phi_grid):
         for phi_dot_index in range(self.len_phi_dot_grid):
@@ -53,14 +67,20 @@ class ValueIteration(TableBased):
               action = self.get_action_from_index(action_index)
               (new_state, _, _) = self.step(state, action)
 
-              Qtemp[action_index] = gamma*self.get_value(new_state)
+              new_state3 = self.state_grid_points[state3_index]
+              Qtemp[action_index] = gamma*self.get_value(new_state3)
 
-            self.U[state3_index] = self.get_reward(state) + np.max(Qtemp)
+            #If the bike fell down, set the reward to 0
+            if (self.get_reward(state) == 0):
+              self.U[state3_index] = 0
+            else:
+              self.U[state3_index] = self.get_reward(state) + np.max(Qtemp)
 
       n_episode += 1
       print('Epsiode: ' + str(n_episode))
 
     print("done trianing")
+    print(self.U)
     np.savetxt("valueIteration_U.csv", self.U.reshape(self.num_states), \
         delimiter = ",")
 
@@ -81,7 +101,7 @@ class ValueIteration(TableBased):
 
 
 VIteration_model = ValueIteration()
-#VIteration_model.train()
+VIteration_model.train()
 
 VIteration_model.test(Ufile = "valueIteration_U.csv", tmax = 10, state_flag = 0,
       gamma = 1)
