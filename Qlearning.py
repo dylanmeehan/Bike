@@ -12,8 +12,8 @@ class Qlearning(TableBased):
     self.Q = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,\
       self.len_delta_grid, self.num_actions))
 
-  #given state_grid_point (a discritized state)
-  def act_index(self, state_index, epsilon):
+  #given state_grid_point_index. A 3-tuple. (a discritized state)
+  def act_index(self, state_grid_point_index, epsilon):
     #pick a random action sometimes
     if np.random.random() < epsilon:
         a = np.random.randint(0, self.num_actions)
@@ -21,12 +21,9 @@ class Qlearning(TableBased):
         return a
 
     #pick the action with the highest Q value
-    return np.argmax(self.Q[state_index])
+    return np.argmax(self.Q[state_grid_point_index])
       #returns the index of the maximum value of the 1D array Q[state_index]
       #that index corresponds to a specific action
-
-  def action_from_index(self, action_index):
-    return self.action_grid[action_index]
 
   def update_Q(self, s_indicies, reward, a_index, s_next_indicies, done, alpha, gamma):
     max_q_next = np.max(
@@ -36,14 +33,6 @@ class Qlearning(TableBased):
     self.Q[s_indicies[0],s_indicies[1],s_indicies[2],a_index] +=\
           alpha * (1.0-done) * (reward+gamma*max_q_next-\
             self.Q[s_indicies[0],s_indicies[1],s_indicies[2],a_index])
-
-  def getStartingState(self, state_flag = 0):
-    starting_states = {
-      0: np.array([0, 0, 0, 0.01, 0, 0, 0, 3]),
-      1: np.array([0, 0, 0, np.pi/32, 0, 0, 0, 3]),
-      2: np.array([0, 0, 0, np.random.uniform(-np.pi/16, np.pi/16) , 0, 0, 0, 3])
-    }
-    return starting_states[state_flag]
 
   # state_flag = 0 is a flag. Tells function to call getStartingState()
   # to give a proper state, pass in a state vector
@@ -57,7 +46,7 @@ class Qlearning(TableBased):
     total_time = 0
 
     # return index of closest point to phi, phi_dot, and delta
-    state_grid_point = self.discretize(state)
+    state_grid_point_index = self.discretize(state)
 
     maxNumTimeSteps = int(tmax/self.timestep)+1
 
@@ -74,22 +63,22 @@ class Qlearning(TableBased):
 
     count = 0;
     while( (count < maxNumTimeSteps) and (not done)):
-      action_index = self.act_index(state_grid_point, epsilon)
+      action_index = self.act_index(state_grid_point_index, epsilon)
       action = self.action_from_index(action_index)
 
       new_state, reward, done = self.step(state, action)
-      new_state_grid_point = self.discretize(new_state)
+      new_state_grid_point_index = self.discretize(new_state)
 
       if (not isTesting):
-        self.update_Q(state_grid_point, reward, action_index, \
-          new_state_grid_point, done, alpha, gamma)
+        self.update_Q(state_grid_point_index, reward, action_index, \
+          new_state_grid_point_index, done, alpha, gamma)
 
       total_reward += reward
       if (not done):
         total_time += self.timestep
 
       state = new_state
-      state_grid_point = new_state_grid_point
+      state_grid_point_index = new_state_grid_point_index
 
       if isTesting:
         states[count,:] = state
@@ -141,10 +130,10 @@ class Qlearning(TableBased):
       epsilons.append(epsilon)
 
     #end of for loop
+
+
     np.savetxt("Q.csv", \
       self.Q.reshape((self.num_states, self.num_actions)), delimiter=",")
-
-    self.Qreal = self.Q
 
     print("avg reward(time) at end:" + str(average_reward50))
     print("num episodes:" + str(episode))
@@ -163,11 +152,6 @@ class Qlearning(TableBased):
     savedQ = np.genfromtxt(Qfile, delimiter=',')
     self.Q = savedQ.reshape((self.len_phi_grid, self.len_phi_dot_grid, \
       self.len_delta_grid, self.num_actions))
-
-    #print(self.Q.shape)
-    print("Check equality:" + str(np.array_equal(self.Q, self.Qreal)))
-    self.Q = self.Qreal
-    print("Check equality:" + str(np.array_equal(self.Q, self.Qreal)))
 
     epsilon = 0
     gamma = 1
