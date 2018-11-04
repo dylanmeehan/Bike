@@ -31,6 +31,29 @@ class TableBased(object):
   def __init__(self):
     pass
 
+  def action_from_index(self, action_index):
+    return self.action_grid[action_index]
+
+  # return the 3-tuple of the indicies of the state grid point closest to state
+  def discretize(self, state):
+    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
+
+    #we don't know when Q has been updated, so make a new interpolator object
+
+    closest_phi_point = np.abs(phi-self.phi_grid).argmin()
+    closest_phi_dot_point = np.abs(phi_dot-self.phi_dot_grid).argmin()
+    closest_delta_point = np.abs(delta-self.delta_grid).argmin()
+
+    return (closest_phi_point, closest_phi_dot_point, closest_delta_point)
+
+  def getStartingState(self, state_flag = 0):
+    starting_states = {
+      0: np.array([0, 0, 0, 0.01, 0, 0, 0, 3]),
+      1: np.array([0, 0, 0, np.pi/32, 0, 0, 0, 3]),
+      2: np.array([0, 0, 0, np.random.uniform(-np.pi/16, np.pi/16) , 0, 0, 0, 3])
+    }
+    return starting_states[state_flag]
+
   #given: state (a state in the continous space)
   #       u (an action in the continoue state)
   #return: (state, reward, isDone)
@@ -53,14 +76,3 @@ class TableBased(object):
         isDone = False
 
       return (state, reward, isDone)
-
-  def discretize(self, state):
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
-
-    #we don't know when Q has been updated, so make a new interpolator object
-
-    closest_phi_point = np.abs(phi-self.phi_grid).argmin()
-    closest_phi_dot_point = np.abs(phi_dot-self.phi_dot_grid).argmin()
-    closest_delta_point = np.abs(delta-self.delta_grid).argmin()
-
-    return (closest_phi_point, closest_phi_dot_point, closest_delta_point)
