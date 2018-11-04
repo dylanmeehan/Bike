@@ -34,66 +34,9 @@ class Qlearning(TableBased):
           alpha * (1.0-done) * (reward+gamma*max_q_next-\
             self.Q[s_indicies[0],s_indicies[1],s_indicies[2],a_index])
 
-  # state_flag = 0 is a flag. Tells function to call getStartingState()
-  # to give a proper state, pass in a state vector
-  def simulate_episode(self, epsilon, gamma, alpha, tmax,
-    isTesting, state_flag = 0):
-
-    state = self.getStartingState(state_flag)
-
-    done = False
-    total_reward = 0
-    total_time = 0
-
-    # return index of closest point to phi, phi_dot, and delta
-    state_grid_point_index = self.discretize(state)
-
-    maxNumTimeSteps = int(tmax/self.timestep)+1
-
-    if isTesting:
-      #create arrays before loop
-      success = True
-      numStates = state.size
-      states = np.zeros([maxNumTimeSteps, numStates])
-      motorCommands = np.zeros([maxNumTimeSteps, 1])
-
-      #initialize starting values of arrays
-      states[1,:] = state
-      motorCommands[1] = 0
-
-    count = 0;
-    while( (count < maxNumTimeSteps) and (not done)):
-      action_index = self.act_index(state_grid_point_index, epsilon)
-      action = self.action_from_index(action_index)
-
-      new_state, reward, done = self.step(state, action)
-      new_state_grid_point_index = self.discretize(new_state)
-
-      if (not isTesting):
-        self.update_Q(state_grid_point_index, reward, action_index, \
-          new_state_grid_point_index, done, alpha, gamma)
-
-      total_reward += reward
-      if (not done):
-        total_time += self.timestep
-
-      state = new_state
-      state_grid_point_index = new_state_grid_point_index
-
-      if isTesting:
-        states[count,:] = state
-        motorCommands[count] = action
-
-      count += 1
-
-    if (not isTesting):
-      states = False; motorCommands = False;
-
-    return [total_reward, total_time, states, motorCommands]
-
   def train(self, epsilon = 1, epsilon_decay = 0.9998, epsilon_min = 0.05, \
     gamma = 1, alpha = 0.5, alpha_decay = 0.9998, alpha_min = 0.1, \
-    num_epsiodes = 5000, tmax = 10, state_flag = 0):
+    num_epsiodes = 500, tmax = 10, state_flag = 0):
 
     reward_history = []
     reward_averaged = []
@@ -148,13 +91,12 @@ class Qlearning(TableBased):
     plt.show()
 
 
-  def test(self, Qfile = "Q.csv", tmax = 10, state_flag = 0):
+  def test(self, Qfile = "Q.csv", tmax = 10, state_flag = 0, gamma = 1):
     savedQ = np.genfromtxt(Qfile, delimiter=',')
     self.Q = savedQ.reshape((self.len_phi_grid, self.len_phi_dot_grid, \
       self.len_delta_grid, self.num_actions))
 
     epsilon = 0
-    gamma = 1
     alpha = 0
 
     reward, time, states, motorCommands = \
@@ -166,7 +108,7 @@ class Qlearning(TableBased):
 
 
 Qlearning_model = Qlearning()
-Qlearning_model.train(state_flag = 0)
+Qlearning_model.train()
 #print(Qlearning_model.Q)
 
-Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0)
+Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0, gamma =1)

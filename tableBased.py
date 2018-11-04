@@ -23,18 +23,23 @@ class TableBased(object):
   len_delta_grid = len(delta_grid)
   num_states = len_phi_grid * len_phi_dot_grid * len_delta_grid
 
-  #3 tuple. one dimension for each state variable
-  state_grid_points = (phi_grid, phi_dot_grid, delta_grid)
+  # make stategrid.
+  # a mesh where each point is a 3 tuple. one dimension for each state variable
+  phi_points, phi_dot_points,  delta_points  = \
+    np.meshgrid(phi_grid, phi_dot_grid, delta_grid, indexing='ij')
+  state_grid_points = np.rec.fromarrays([phi_points, phi_dot_points, delta_points],\
+    names='phi_points,phi_dot_points,delta_points')
 
   timestep = 1/50
 
   def __init__(self):
     pass
 
-  def action_from_index(self, action_index):
+  def get_action_from_index(self, action_index):
     return self.action_grid[action_index]
 
   # return the 3-tuple of the indicies of the state grid point closest to state
+  #return a state3 variable
   def discretize(self, state):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
 
@@ -76,3 +81,60 @@ class TableBased(object):
         isDone = False
 
       return (state, reward, isDone)
+
+  # state_flag = 0 is a flag. Tells function to call getStartingState()
+  # to give a proper state, pass in a state vector
+  def simulate_episode(self, epsilon, gamma, alpha, tmax,
+    isTesting, state_flag = 0):
+
+    state = self.getStartingState(state_flag)
+
+    done = False
+    total_reward = 0
+    total_time = 0
+
+    # return index of closest point to phi, phi_dot, and delta
+    state_grid_point_index = self.discretize(state)
+
+    maxNumTimeSteps = int(tmax/self.timestep)+1
+
+    if isTesting:
+      #create arrays before loop
+      success = True
+      numStates = state.size
+      states = np.zeros([maxNumTimeSteps, numStates])
+      motorCommands = np.zeros([maxNumTimeSteps, 1])
+
+      #initialize starting values of arrays
+      states[1,:] = state
+      motorCommands[1] = 0
+
+    count = 0;
+    while( (count < maxNumTimeSteps) and (not done)):
+      action_index = self.act_index(state_grid_point_index, epsilon)
+      action = self.get_action_from_index(action_index)
+
+      new_state, reward, done = self.step(state, action)
+      new_state_grid_point_index = self.discretize(new_state)
+
+      if (not isTesting):
+        self.update_Q(state_grid_point_index, reward, action_index, \
+          new_state_grid_point_index, done, alpha, gamma)
+
+      total_reward += reward
+      if (not done):
+        total_time += self.timestep
+
+      state = new_state
+      state_grid_point_index = new_state_grid_point_index
+
+      if isTesting:
+        states[count,:] = state
+        motorCommands[count] = action
+
+      count += 1
+
+    if (not isTesting):
+      states = False; motorCommands = False;
+
+    return [total_reward, total_time, states, motorCommands]
