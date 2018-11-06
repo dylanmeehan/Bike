@@ -4,6 +4,7 @@ from unpackState import *
 
 #graph variables about a bicycle simulation
 def graph(states, motorCommands):
+
   [ts, xs, ys, phis, psis, deltas, phi_dots, vs] =  \
     np.apply_along_axis(unpackState, 1, states).T
 
