@@ -12,7 +12,6 @@ class ValueIteration(TableBased):
     super(ValueIteration, self).__init__()
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
 
-
   def get_reward(self,state):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
 
@@ -20,8 +19,7 @@ class ValueIteration(TableBased):
     if (abs(phi) > np.pi/4):
       return 0
     else:
-      return (1-phi)**2
-
+      return (1-abs(phi))**2
 
   # take in a (continuous) state
   def calc_best_action_and_utility(self, state):
@@ -51,7 +49,6 @@ class ValueIteration(TableBased):
     state = state3_to_state(state3)
 
     (best_action_index, _) = self.calc_best_action_and_utility(state)
-    print(best_action_index)
     return best_action_index
 
   # return a value for the (continous) new_state3
@@ -67,14 +64,14 @@ class ValueIteration(TableBased):
     return self.U[new_state3_index]
 
 
-  def train(self, gamma = 0.99, num_episodes = 10, state_flag = 0):
+  def train(self, gamma = 0.99, num_episodes = 300, state_flag = 0):
 
     n_episode = 0
 
     while (n_episode < num_episodes):
 
-      self.itp = RegularGridInterpolator(\
-        (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U)
+      #self.itp = RegularGridInterpolator(\
+      #  (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U)
 
       #exhaustively loop through all states
       for phi_index in range(self.len_phi_grid):
@@ -88,13 +85,11 @@ class ValueIteration(TableBased):
             (_, max_Qtemp) = self.calc_best_action_and_utility(state)
 
 
-            #If the bike fell down, set the reward to 0
+            #If the bike fell down, set the value to 0
             if (self.get_reward(state) == 0):
               self.U[state3_index] = 0
             else:
               self.U[state3_index] = self.get_reward(state) + gamma*max_Qtemp
-
-
 
       n_episode += 1
       print('Epsiode: ' + str(n_episode))
@@ -121,7 +116,7 @@ class ValueIteration(TableBased):
 
 
 VIteration_model = ValueIteration()
-#VIteration_model.train()
+VIteration_model.train()
 
 VIteration_model.test(Ufile = "valueIteration_U.csv", tmax = 10, state_flag = 0,
       gamma = 1)

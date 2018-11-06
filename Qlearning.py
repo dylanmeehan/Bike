@@ -36,7 +36,7 @@ class Qlearning(TableBased):
 
   def train(self, epsilon = 1, epsilon_decay = 0.9998, epsilon_min = 0.05, \
     gamma = 1, alpha = 0.5, alpha_decay = 0.9998, alpha_min = 0.1, \
-    num_epsiodes = 500, tmax = 10, state_flag = 0):
+    num_epsiodes = 1000, tmax = 10, state_flag = 0):
 
     reward_history = []
     reward_averaged = []
@@ -92,9 +92,11 @@ class Qlearning(TableBased):
 
 
   def test(self, Qfile = "Q.csv", tmax = 10, state_flag = 0, gamma = 1):
+
     savedQ = np.genfromtxt(Qfile, delimiter=',')
     self.Q = savedQ.reshape((self.len_phi_grid, self.len_phi_dot_grid, \
       self.len_delta_grid, self.num_actions))
+    print("in test, read Q")
 
     epsilon = 0
     alpha = 0

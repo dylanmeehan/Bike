@@ -134,6 +134,11 @@ class TableBased(object):
 
       count += 1
 
+    if isTesting:
+    #trim off zero values. This avoids the graph drawing a line to the origin.
+      states = states[:count,:]
+      motorCommands = motorCommands[:count]
+
     if (not isTesting):
       states = False; motorCommands = False;
 
