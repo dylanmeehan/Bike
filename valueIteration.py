@@ -43,7 +43,7 @@ class ValueIteration(TableBased):
     return self.U[new_state3_index]
 
 
-  def train(self, gamma = 0.99, num_episodes = 100, state_flag = 0):
+  def train(self, gamma = 0.99, num_episodes = 10, state_flag = 0):
 
     n_episode = 0
 
@@ -51,7 +51,7 @@ class ValueIteration(TableBased):
 
       #self.itp = RegularGridInterpolator(\
       #  (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U)
-
+      count = 0
       #exhaustively loop through all states
       for phi_index in range(self.len_phi_grid):
         for phi_dot_index in range(self.len_phi_dot_grid):
@@ -70,14 +70,20 @@ class ValueIteration(TableBased):
               new_state3 = self.state_grid_points[state3_index]
               Qtemp[action_index] = gamma*self.get_value(new_state3)
 
+            print(Qtemp)
+
+
+            count += 1
             #If the bike fell down, set the reward to 0
             if (self.get_reward(state) == 0):
               self.U[state3_index] = 0
             else:
               self.U[state3_index] = self.get_reward(state) + np.max(Qtemp)
 
+
+
       n_episode += 1
-      print('Epsiode: ' + str(n_episode))
+      print('Epsiode: ' + str(n_episode) + "count: " + str(count))
 
     print("done trianing")
     print(self.U)
