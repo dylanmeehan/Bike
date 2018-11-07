@@ -1,0 +1,5 @@
+Descriptions of bicycle simulations
+
+VI2: Value Iteration 2. 11/7/18. Shaping of 1 - abs(phi) - phi_dot*sign(phi)/10.
+    Linear Interpolation to get values for states. 30 episodes of value iteration.
+    Bicycle Balanced for all 10s!!
