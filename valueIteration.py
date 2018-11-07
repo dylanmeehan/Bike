@@ -12,17 +12,20 @@ class ValueIteration(TableBased):
     super(ValueIteration, self).__init__()
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
 
-  def get_reward(self,state):
+  def get_reward(self,state, is_shaping = True):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
 
     # test ifbike has fallen
     if (abs(phi) > np.pi/4):
       return 0
     else:
-      return (1-abs(phi))**2
+      if is_shaping:
+        return (1-(abs(phi)) - np.sign(phi)*phi_dot/10) #basic reward shaping
+      else:
+        return 1 #no shapping
 
   # take in a (continuous) state
-  def calc_best_action_and_utility(self, state):
+  def calc_best_action_and_utility(self, state, do_interpolation):
 
     Qtemp = np.zeros(self.num_actions)
 
@@ -31,7 +34,7 @@ class ValueIteration(TableBased):
       (new_state, _, _) = self.step(state, action)
 
       new_state3 = state_to_state3(new_state)
-      Qtemp[action_index] = self.get_value(new_state3)
+      Qtemp[action_index] = self.get_value(new_state3, do_interpolation)
 
    # print(Qtemp)
 
@@ -48,30 +51,36 @@ class ValueIteration(TableBased):
     state3 = self.state_grid_points[state_grid_point_index]
     state = state3_to_state(state3)
 
-    (best_action_index, _) = self.calc_best_action_and_utility(state)
+    (best_action_index, _) = self.calc_best_action_and_utility(state, False)
     return best_action_index
 
   # return a value for the (continous) new_state3
   #interpolater
-  def get_value(self,new_state3):
+  def get_value(self,new_state3, do_interpolation):
     #interpolate
     #switching the interpolator makes the code take much longer.
     #I should only set up the interpolater once per episode
-    #return self.itp([new_state3[0],new_state3[1],new_state3[2]])
+    if do_interpolation:
+      return self.itp([new_state3[0],new_state3[1],new_state3[2]])
 
+    else:
     #dont interpolate
-    new_state3_index = self.discretize(state3_to_state(new_state3))
-    return self.U[new_state3_index]
+      new_state3_index = self.discretize(state3_to_state(new_state3))
+      return self.U[new_state3_index]
 
 
-  def train(self, gamma = 0.99, num_episodes = 300, state_flag = 0):
+  def train(self, gamma = 0.95, num_episodes = 30, state_flag = 0,
+    do_interpolation = True):
 
     n_episode = 0
 
     while (n_episode < num_episodes):
 
-      #self.itp = RegularGridInterpolator(\
-      #  (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U)
+      if do_interpolation:
+        self.itp = RegularGridInterpolator(\
+          (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
+          bounds_error = False, fill_value = 0)
+          # false bounds error causes us to extrapolate values out of range
 
       #exhaustively loop through all states
       for phi_index in range(self.len_phi_grid):
@@ -82,7 +91,8 @@ class ValueIteration(TableBased):
             state3 = self.state_grid_points[state3_index]
             state = state3_to_state(state3)
 
-            (_, max_Qtemp) = self.calc_best_action_and_utility(state)
+            (_, max_Qtemp) = \
+             self.calc_best_action_and_utility(state,do_interpolation)
 
 
             #If the bike fell down, set the value to 0
