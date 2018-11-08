@@ -13,8 +13,8 @@ class ValueIteration(TableBased):
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
     self.setup_step_table()
 
-  def get_reward(self,state, is_shaping = 1):
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
+  def get_reward(self,state8, is_shaping = 1):
+    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
     # test ifbike has fallen
     if (abs(phi) > np.pi/4):
@@ -26,7 +26,7 @@ class ValueIteration(TableBased):
         return (1-(abs(phi)) - np.sign(phi)*phi_dot/10) #basic reward shaping
 
 
-  # take in a (continuous) state
+  #givenL state
   def calc_best_action_and_utility(self, state3_index, do_interpolation):
 
     Qtemp = np.zeros(self.num_actions)
@@ -36,8 +36,8 @@ class ValueIteration(TableBased):
 
     for action_index in range(self.num_actions):
 
-      new_state = self.step_fast(state3_index, action_index)
-      new_state3 = state_to_state3(new_state)
+      new_state8 = self.step_fast(state3_index, action_index)
+      new_state3 = state8_to_state3(new_state8)
 
       Qtemp[action_index] = self.get_value(new_state3, do_interpolation)
 
@@ -46,9 +46,8 @@ class ValueIteration(TableBased):
 
     return (best_action_index, max_Qtemp)
 
-  # called by simulate state.
-  # given state_grid_point_index (a discritized state 3 tuple).
-  # return the index of the action to take
+  # given: state3_index (a discritized state 3 tuple).
+  # return: the index of the best action to take
   def act_index(self, state3_index, epsilon):
 
     (best_action_index, _) = self.calc_best_action_and_utility(state3_index, False)
@@ -65,18 +64,10 @@ class ValueIteration(TableBased):
 
     else:
     #dont interpolate
-      new_state3_index = self.discretize(state3_to_state(new_state3))
+      new_state3_index = self.discretize(state3_to_state8(new_state3))
       return self.U[new_state3_index]
 
-  #given: phi_index, phi_dot_index, delta_index
-  #returns:c ontinous, full - 8 variable, state for this index
-  def state_from_indicies(self, phi_index, phi_dot_index, delta_index):
-    state3_index = (phi_index, phi_dot_index, delta_index)
-    state3 = self.state_grid_points[state3_index]
-    return state3_to_state(state3)
-
-
-  def train(self, gamma = 0.95, num_episodes = 30, state_flag = 0,
+  def train(self, gamma = 0.95, num_episodes = 3, state_flag = 0,
     do_interpolation = True):
 
     n_episode = 0
@@ -95,18 +86,18 @@ class ValueIteration(TableBased):
           for delta_i in range (self.len_delta_grid):
 
             state3_index = (phi_i, phi_dot_i, delta_i)
-            state = self.state_from_indicies(phi_i, phi_dot_i, delta_i)
+            state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
 
             (_, max_Qtemp) = \
              self.calc_best_action_and_utility(state3_index,do_interpolation)
 
 
             #If the bike fell down, set the value to 0
-            if (self.get_reward(state) == 0):
+            if (self.get_reward(state8) == 0):
               #print("entered top of if statement")
               self.U[state3_index] = 0
             else:
-              self.U[state3_index] = self.get_reward(state) + gamma*max_Qtemp
+              self.U[state3_index] = self.get_reward(state8) + gamma*max_Qtemp
 
       n_episode += 1
       print('Epsiode: ' + str(n_episode))
@@ -125,11 +116,11 @@ class ValueIteration(TableBased):
     self.U = saved_U.reshape(self.len_phi_grid, self.len_phi_dot_grid, \
         self.len_delta_grid)
 
-    reward, time, states, motorCommands = \
+    reward, time, states8, motorCommands = \
       self.simulate_episode(epsilon, gamma, alpha, tmax, True, state_flag)
 
     print("testing reward: " + str(reward) + ", testing time: " + str(time))
-    graph.graph(states, motorCommands)
+    graph.graph(states8, motorCommands)
 
 
 VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0)

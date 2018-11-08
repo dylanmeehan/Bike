@@ -53,14 +53,21 @@ class TableBased(object):
     self.set_state_grid_points(state_grid_flag)
     self.set_action_grid_points(action_grid_flag)
 
+  #given: phi_index, phi_dot_index, delta_index
+  #returns:continous, full - 8 variable, state for this index
+  def state8_from_indicies(self, phi_index, phi_dot_index, delta_index):
+    state3_index = (phi_index, phi_dot_index, delta_index)
+    state3 = self.state_grid_points[state3_index]
+    return state3_to_state8(state3)
+
   # return action a (continous valued) steer rate command
   def get_action_from_index(self, action_index):
     return self.action_grid[action_index]
 
   # return the 3-tuple of the indicies of the state grid point closest to state
   #return a state3 variable
-  def discretize(self, state):
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
+  def discretize(self, state8):
+    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
     #we don't know when Q has been updated, so make a new interpolator object
 
@@ -72,7 +79,7 @@ class TableBased(object):
 
   #getStartingState returns an 8 value continuous state.
   #this is not affected by the discritization grid used for the table methods
-  def getStartingState(self, state_flag = 0):
+  def getStartingState8(self, state_flag = 0):
     starting_states = {
       0: np.array([0, 0, 0, 0.01, 0, 0, 0, 3]),
       1: np.array([0, 0, 0, np.pi/32, 0, 0, 0, 3]),
@@ -91,11 +98,11 @@ class TableBased(object):
       for i_phi_dot in range(self.len_phi_dot_grid):
         for i_delta in range(self.len_delta_grid):
           for i_action in range(self.num_actions):
-            state = self.state_from_indicies(i_phi, i_phi_dot, i_delta)
+            state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
             action = self.action_grid[i_action]
 
-            new_state, reward, _ = self.step(state, action)
-            self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state
+            new_state8, reward, _ = self.step(state8, action)
+            self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state8
 
   #given: a 3-tuple state3_index of the indicies for phi, phi_dot, delta
   #       the index of the action to take
@@ -110,15 +117,15 @@ class TableBased(object):
   #given: state (a state in the continous space)
   #       u (an action in the continoue state)
   #return: (state, reward, isDone)
-  def step(self, state, u):
+  def step(self, state8, u):
     # take in a state and an action
-    zdot = rhs.rhs(state,u)
+    zdot = rhs.rhs(state8,u)
 
     #update state. Euler Integration
-    prevState = state
-    state = state + zdot*self.timestep
+    prevState8 = state8
+    state8 = state8 + zdot*self.timestep
 
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
+    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
     if (np.abs(phi) >= np.pi/4):
       #print("Bike has fallen; Test Failure")
@@ -128,33 +135,33 @@ class TableBased(object):
       reward = self.timestep
       isDone = False
 
-    return (state, reward, isDone)
+    return (state8, reward, isDone)
 
   # state_flag = 0 is a flag. Tells function to call getStartingState()
   # to give a proper state, pass in a state vector
   def simulate_episode(self, epsilon, gamma, alpha, tmax,
     isTesting, state_flag = 0):
 
-    state = self.getStartingState(state_flag)
+    state8 = self.getStartingState8(state_flag)
 
     done = False
     total_reward = 0
     total_time = 0
 
     # return index of closest point to phi, phi_dot, and delta
-    state_grid_point_index = self.discretize(state)
+    state_grid_point_index = self.discretize(state8)
 
     maxNumTimeSteps = int(tmax/self.timestep)+1
 
     if isTesting:
       #create arrays before loop
       success = True
-      numStates = state.size
-      states = np.zeros([maxNumTimeSteps, numStates])
+      numStates8 = state8.size
+      states8 = np.zeros([maxNumTimeSteps, numStates8])
       motorCommands = np.zeros([maxNumTimeSteps, 1])
 
       #initialize starting values of arrays
-      states[1,:] = state
+      states8[1,:] = state8
       motorCommands[1] = 0
 
     count = 0;
@@ -162,8 +169,8 @@ class TableBased(object):
       action_index = self.act_index(state_grid_point_index, epsilon)
       action = self.get_action_from_index(action_index)
 
-      new_state, reward, done = self.step(state, action)
-      new_state_grid_point_index = self.discretize(new_state)
+      new_state8, reward, done = self.step(state8, action)
+      new_state_grid_point_index = self.discretize(new_state8)
 
       if (not isTesting):
         self.update_Q(state_grid_point_index, reward, action_index, \
@@ -173,21 +180,21 @@ class TableBased(object):
       if (not done):
         total_time += self.timestep
 
-      state = new_state
+      state8 = new_state8
       state_grid_point_index = new_state_grid_point_index
 
       if isTesting:
-        states[count,:] = state
+        states8[count,:] = state8
         motorCommands[count] = action
 
       count += 1
 
     if isTesting:
     #trim off zero values. This avoids the graph drawing a line to the origin.
-      states = states[:count,:]
+      states8 = states8[:count,:]
       motorCommands = motorCommands[:count]
 
     if (not isTesting):
-      states = False; motorCommands = False;
+      states8 = False; motorCommands = False;
 
-    return [total_reward, total_time, states, motorCommands]
+    return [total_reward, total_time, states8, motorCommands]
