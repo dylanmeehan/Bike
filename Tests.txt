@@ -1,5 +1,30 @@
 Descriptions of bicycle simulations
 
+SHAPING Definitions
+0 : no shaping, bicycle gets +1 reward if has not fallen at a state
+1: shaping with lean and lean rate. (1-(abs(phi)) - np.sign(phi)*phi_dot/10)
+
+
+***** SIMULATIONS *****
+
 VI2: Value Iteration 2. 11/7/18. Shaping of 1 - abs(phi) - phi_dot*sign(phi)/10.
     Linear Interpolation to get values for states. 30 episodes of value iteration.
+    Grid Discritization of 0.
     Bicycle Balanced for all 10s!!
+    Sharpe Jumps in steer angle command. This is to be expected.
+
+VI3: Value Iteration 3. 11/7/18. No shaping (shaping 0)
+    Linear Interpolation to get values for states. 30 epsiodes of value iteration.
+    Grid Discritization of 0
+    Bike balances for ~1.5 seconds.
+
+VI4: Value Iteration 3. 11/7/18. Shaping = 1. No interpolation (to get the value
+    of a state, take the value of the nearest state). 30 training episodes.
+    Grid Discritization 0.
+    Bike balances for 0.68s
+
+VI5: Value Iteration 5. 11/7/18. Shaping = 0 (No shaping). Linear Interpolation.
+    100 episodes, Grid Discritization 0.
+    Bike Balances for ~1.5s
+
+***********************
