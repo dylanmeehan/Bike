@@ -32,19 +32,14 @@ class ValueIteration(TableBased):
     Qtemp = np.zeros(self.num_actions)
 
     state3 = self.state_grid_points[state3_index]
-    state = state3_to_state(state3)
+    #state = state3_to_state(state3)
 
     for action_index in range(self.num_actions):
 
-      action = self.get_action_from_index(action_index)
-      (new_state, _, _) = self.step(state, action)
-
-      #new_state = self.step_fast(state3_index, action_index)
-
+      new_state = self.step_fast(state3_index, action_index)
       new_state3 = state_to_state3(new_state)
-      Qtemp[action_index] = self.get_value(new_state3, do_interpolation)
 
-   # print(Qtemp)
+      Qtemp[action_index] = self.get_value(new_state3, do_interpolation)
 
     max_Qtemp = np.max(Qtemp)
     best_action_index = np.argmax(Qtemp)
