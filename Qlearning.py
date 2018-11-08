@@ -7,8 +7,8 @@ from tableBased import *
 
 class Qlearning(TableBased):
 
-  def __init__(self ):
-    super(Qlearning, self).__init__()
+  def __init__(self, state_grid_flag, action_grid_flag ):
+    super(Qlearning, self).__init__(state_grid_flag, action_grid_flag)
     self.Q = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,\
       self.len_delta_grid, self.num_actions))
 
@@ -109,8 +109,9 @@ class Qlearning(TableBased):
 
 
 
-Qlearning_model = Qlearning()
-Qlearning_model.train()
+Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0)
+#Qlearning_model.setup_step_table()
+#Qlearning_model.train()
 #print(Qlearning_model.Q)
 
 Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0, gamma =1)
