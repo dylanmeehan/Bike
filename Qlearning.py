@@ -101,11 +101,11 @@ class Qlearning(TableBased):
     epsilon = 0
     alpha = 0
 
-    reward, time, states, motorCommands = \
+    reward, time, states8, motorCommands = \
       self.simulate_episode(epsilon, gamma, alpha, tmax, True, state_flag)
 
     print("testing reward: " + str(reward) + ", testing time: " + str(time))
-    graph.graph(states, motorCommands)
+    graph.graph(states8, motorCommands)
 
 
 
