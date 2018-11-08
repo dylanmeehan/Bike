@@ -67,7 +67,7 @@ class ValueIteration(TableBased):
       new_state3_index = self.discretize(state3_to_state8(new_state3))
       return self.U[new_state3_index]
 
-  def train(self, gamma = 0.95, num_episodes = 3, state_flag = 0,
+  def train(self, gamma = 0.95, num_episodes = 30, state_flag = 0,
     do_interpolation = True):
 
     n_episode = 0
@@ -124,7 +124,7 @@ class ValueIteration(TableBased):
 
 
 VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0)
-VIteration_model.train()
+#VIteration_model.train()
 
-VIteration_model.test(Ufile = "valueIteration_U.csv", tmax = 10, state_flag = 0,
-      gamma = 1)
+VIteration_model.test(Ufile = "VI2_U.csv", tmax = 10, state_flag = 1,
+      gamma = 3)

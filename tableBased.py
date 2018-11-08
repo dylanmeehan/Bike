@@ -83,7 +83,8 @@ class TableBased(object):
     starting_states = {
       0: np.array([0, 0, 0, 0.01, 0, 0, 0, 3]),
       1: np.array([0, 0, 0, np.pi/32, 0, 0, 0, 3]),
-      2: np.array([0, 0, 0, np.random.uniform(-np.pi/16, np.pi/16) , 0, 0, 0, 3])
+      2: np.array([0, 0, 0, np.random.uniform(-np.pi/16, np.pi/16) , 0, 0, 0, 3]),
+      3: np.array([0, 0, 0, np.pi/16, 0, 0, 0, 3]),
     }
     return starting_states[state_flag]
 
