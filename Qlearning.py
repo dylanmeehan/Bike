@@ -34,9 +34,9 @@ class Qlearning(TableBased):
           alpha * (1.0-done) * (reward+gamma*max_q_next-\
             self.Q[s_indicies[0],s_indicies[1],s_indicies[2],a_index])
 
-  def train(self, epsilon = 1, epsilon_decay = 0.9998, epsilon_min = 0.05, \
-    gamma = 1, alpha = 0.5, alpha_decay = 0.9998, alpha_min = 0.1, \
-    num_epsiodes = 1000, tmax = 10, state_flag = 0):
+  def train(self, epsilon = 1, epsilon_decay = 0.9998, epsilon_min = 0.05,
+    gamma = 1, alpha = 0.5, alpha_decay = 0.9998, alpha_min = 0.1,
+    num_epsiodes = 10000, tmax = 10, state_flag = 0):
 
     reward_history = []
     reward_averaged = []
@@ -91,7 +91,7 @@ class Qlearning(TableBased):
     plt.show()
 
 
-  def test(self, Qfile = "Q.csv", tmax = 10, state_flag = 0, gamma = 1):
+  def test(self, Qfile = "Q2.csv", tmax = 10, state_flag = 0, gamma = 1):
 
     savedQ = np.genfromtxt(Qfile, delimiter=',')
     self.Q = savedQ.reshape((self.len_phi_grid, self.len_phi_dot_grid, \
@@ -110,8 +110,7 @@ class Qlearning(TableBased):
 
 
 Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0)
-#Qlearning_model.setup_step_table()
-Qlearning_model.train()
+#Qlearning_model.train()
 #print(Qlearning_model.Q)
 
 Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0, gamma =1)
