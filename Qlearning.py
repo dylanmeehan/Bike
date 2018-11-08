@@ -111,7 +111,7 @@ class Qlearning(TableBased):
 
 Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0)
 #Qlearning_model.setup_step_table()
-#Qlearning_model.train()
+Qlearning_model.train()
 #print(Qlearning_model.Q)
 
 Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0, gamma =1)

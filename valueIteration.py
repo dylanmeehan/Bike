@@ -74,7 +74,7 @@ class ValueIteration(TableBased):
       return self.U[new_state3_index]
 
   #given: phi_index, phi_dot_index, delta_index
-  #returns: ontinous, full - 8 variable, state for this index
+  #returns:c ontinous, full - 8 variable, state for this index
   def state_from_indicies(self, phi_index, phi_dot_index, delta_index):
     state3_index = (phi_index, phi_dot_index, delta_index)
     state3 = self.state_grid_points[state3_index]
@@ -100,8 +100,7 @@ class ValueIteration(TableBased):
           for delta_i in range (self.len_delta_grid):
 
             state3_index = (phi_i, phi_dot_i, delta_i)
-            state3 = self.state_from_indicies(phi_i, phi_dot_i, delta_i)
-            state = state3_to_state(state3)
+            state = self.state_from_indicies(phi_i, phi_dot_i, delta_i)
 
             (_, max_Qtemp) = \
              self.calc_best_action_and_utility(state3_index,do_interpolation)
@@ -109,7 +108,7 @@ class ValueIteration(TableBased):
 
             #If the bike fell down, set the value to 0
             if (self.get_reward(state) == 0):
-              print("entered top of if statement")
+              #print("entered top of if statement")
               self.U[state3_index] = 0
             else:
               self.U[state3_index] = self.get_reward(state) + gamma*max_Qtemp
