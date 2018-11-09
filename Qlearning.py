@@ -42,7 +42,7 @@ class Qlearning(TableBased):
   # saves Q table in Q.csv
   def train(self, epsilon = 1, epsilon_decay = 0.9998, epsilon_min = 0.05,
     gamma = 1, alpha = 0.5, alpha_decay = 0.9998, alpha_min = 0.1,
-    num_epsiodes = 10, tmax = 10, state_flag = 0):
+    num_epsiodes = 7000, tmax = 10, state_flag = 0):
 
     reward_history = []
     reward_averaged = []
