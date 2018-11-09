@@ -13,24 +13,9 @@ class ValueIteration(TableBased):
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
     self.setup_step_table()
 
-  #given: state8 - the state to get the reward of
-  #       shaping_flag - dictates what reward shaping to use
-  # returns: reward - a nunber greater than or equal to  0
-  # reward = 0 iff the bike has fallen (phi > pi/4)
-  def get_reward(self,state8, shaping_flag = 1):
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
-
-    # test ifbike has fallen
-    if (abs(phi) > np.pi/4):
-      return 0
-    else:
-      if shaping_flag == 0:
-        reward =  1 #no shapping
-      elif shaping_flag == 1:
-        reward = (1-(abs(phi)) - np.sign(phi)*phi_dot/10) #basic reward shaping
-
-      assert (reward > 0)
-      return reward
+    #TODO: precompute reward function. Set up table (similiar to step_table), so
+    #       that we don't compute the reward for a state every time. We only
+    #       look up the reward
 
   #given: state3_index: the index of a point in the descritized table
   #     do_intepolations: boolean to decide to interpolate or not
@@ -78,7 +63,7 @@ class ValueIteration(TableBased):
 
   #trains a valueIteration, table-based mode.
   #when training finishes, utilities are stored in a csv
-  def train(self, gamma = 0.95, num_episodes = 3, state_flag = 0,
+  def train(self, gamma = 0.95, num_episodes = 30, state_flag = 0,
     do_interpolation = True):
 
     n_episode = 0

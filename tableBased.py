@@ -73,8 +73,6 @@ class TableBased(object):
   def discretize(self, state8):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
-    #we don't know when Q has been updated, so make a new interpolator object
-
     closest_phi_point = np.abs(phi-self.phi_grid).argmin()
     closest_phi_dot_point = np.abs(phi_dot-self.phi_dot_grid).argmin()
     closest_delta_point = np.abs(delta-self.delta_grid).argmin()
@@ -137,12 +135,32 @@ class TableBased(object):
     if (np.abs(phi) >= np.pi/4):
       #print("Bike has fallen; Test Failure")
       isDone = True
-      reward = 0
     else:
-      reward = self.timestep
       isDone = False
 
+    reward = self.get_reward(state8, shaping_flag = 1)
+
     return (state8, reward, isDone)
+
+  #given: state8 - the state to get the reward of
+  #       shaping_flag - dictates what reward shaping to use
+  # returns: reward - a nunber greater than or equal to  0
+  # reward = 0 iff the bike has fallen (phi > pi/4)
+  def get_reward(self,state8, shaping_flag = 1):
+    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
+
+    # test ifbike has fallen
+    if (abs(phi) > np.pi/4):
+      return 0
+    else:
+      if shaping_flag == 0:
+        reward =  1 #no shapping
+      elif shaping_flag == 1:
+        reward = (1-(abs(phi))/2 - np.sign(phi)*phi_dot/20) #basic reward shaping
+
+      #garantees reward for not falling down is greater than that for falling
+      assert (reward > 0)
+      return reward
 
   # do 1 simulation of the bicycle
   # state_flag determines the starting state
