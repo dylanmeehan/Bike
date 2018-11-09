@@ -13,26 +13,35 @@ class ValueIteration(TableBased):
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
     self.setup_step_table()
 
-  def get_reward(self,state8, is_shaping = 1):
+  #given: state8 - the state to get the reward of
+  #       shaping_flag - dictates what reward shaping to use
+  # returns: reward - a nunber greater than or equal to  0
+  # reward = 0 iff the bike has fallen (phi > pi/4)
+  def get_reward(self,state8, shaping_flag = 1):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
     # test ifbike has fallen
     if (abs(phi) > np.pi/4):
       return 0
     else:
-      if is_shaping == 0:
-        return 1 #no shapping
-      elif is_shaping == 1:
-        return (1-(abs(phi)) - np.sign(phi)*phi_dot/10) #basic reward shaping
+      if shaping_flag == 0:
+        reward =  1 #no shapping
+      elif shaping_flag == 1:
+        reward = (1-(abs(phi)) - np.sign(phi)*phi_dot/10) #basic reward shaping
 
+      assert (reward > 0)
+      return reward
 
-  #givenL state
+  #given: state3_index: the index of a point in the descritized table
+  #     do_intepolations: boolean to decide to interpolate or not
+  #return: (best_action_index, best_action_utility) for that state.
+  #`best_action_index is the index of the action which has the highest utility
+  # best_action_utility is the utility of that action
   def calc_best_action_and_utility(self, state3_index, do_interpolation):
 
     Qtemp = np.zeros(self.num_actions)
 
     state3 = self.state_grid_points[state3_index]
-    #state = state3_to_state(state3)
 
     for action_index in range(self.num_actions):
 
@@ -41,10 +50,10 @@ class ValueIteration(TableBased):
 
       Qtemp[action_index] = self.get_value(new_state3, do_interpolation)
 
-    max_Qtemp = np.max(Qtemp)
+    best_action_utility = np.max(Qtemp)
     best_action_index = np.argmax(Qtemp)
 
-    return (best_action_index, max_Qtemp)
+    return (best_action_index, best_action_utility)
 
   # given: state3_index (a discritized state 3 tuple).
   # return: the index of the best action to take
@@ -54,11 +63,11 @@ class ValueIteration(TableBased):
     return best_action_index
 
   # return a value for the (continous) new_state3
-  #interpolater
+  # do_interpolation is a boolean to decide if to interpolate valuesS
   def get_value(self,new_state3, do_interpolation):
-    #interpolate
-    #switching the interpolator makes the code take much longer.
-    #I should only set up the interpolater once per episode
+
+    #the interpolator (itp) is initialized in train, one for each episode.
+    # this saves on the overhead of creating an interpolator
     if do_interpolation:
       return self.itp([new_state3[0],new_state3[1],new_state3[2]])
 
@@ -67,7 +76,9 @@ class ValueIteration(TableBased):
       new_state3_index = self.discretize(state3_to_state8(new_state3))
       return self.U[new_state3_index]
 
-  def train(self, gamma = 0.95, num_episodes = 30, state_flag = 0,
+  #trains a valueIteration, table-based mode.
+  #when training finishes, utilities are stored in a csv
+  def train(self, gamma = 0.95, num_episodes = 3, state_flag = 0,
     do_interpolation = True):
 
     n_episode = 0
@@ -79,6 +90,9 @@ class ValueIteration(TableBased):
           (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
           bounds_error = False, fill_value = 0)
           # false bounds error causes us to extrapolate values out of range
+          #fill_value = 0, sets the value outside of the interpolation range to 0
+          # thus, if the bicycle gets no reward for a state outside of the grid
+          # this ensures bad states have a reward of 0 (as desired)
 
       #exhaustively loop through all states
       for phi_i in range(self.len_phi_grid):
@@ -88,16 +102,16 @@ class ValueIteration(TableBased):
             state3_index = (phi_i, phi_dot_i, delta_i)
             state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
 
-            (_, max_Qtemp) = \
+            (_, best_utility) = \
              self.calc_best_action_and_utility(state3_index,do_interpolation)
 
-
             #If the bike fell down, set the value to 0
-            if (self.get_reward(state8) == 0):
+            reward = self.get_reward(state8)
+            if (reward == 0):
               #print("entered top of if statement")
               self.U[state3_index] = 0
             else:
-              self.U[state3_index] = self.get_reward(state8) + gamma*max_Qtemp
+              self.U[state3_index] = reward + gamma*best_utility
 
       n_episode += 1
       print('Epsiode: ' + str(n_episode))
@@ -124,7 +138,7 @@ class ValueIteration(TableBased):
 
 
 VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0)
-#VIteration_model.train()
+VIteration_model.train()
 
-VIteration_model.test(Ufile = "VI2_U.csv", tmax = 10, state_flag = 1,
+VIteration_model.test(Ufile = "valueIteration_U.csv", tmax = 10, state_flag = 1,
       gamma = 3)

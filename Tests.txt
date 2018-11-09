@@ -27,4 +27,6 @@ VI5: Value Iteration 5. 11/7/18. Shaping = 0 (No shaping). Linear Interpolation.
     100 episodes, Grid Discritization 0.
     Bike Balances for ~1.5s
 
+Q2: Q Learning 2. 11/
+
 ***********************

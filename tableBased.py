@@ -9,6 +9,8 @@ class TableBased(object):
 
   timestep = 1/50
 
+  # create points for actions based on action_grid_flag
+  # store actions in action_grid
   def set_action_grid_points(self, action_grid_flag):
 
     if action_grid_flag == 0:
@@ -21,6 +23,7 @@ class TableBased(object):
 
   #discritize each of the state variables. Construct self.state_grid_points
   # which is a meshgrid of these points
+  #given: state_grid_flag determines which grid points to use
   def set_state_grid_points(self, state_grid_flag):
 
     #generate grid in which to discritize states
@@ -60,11 +63,12 @@ class TableBased(object):
     state3 = self.state_grid_points[state3_index]
     return state3_to_state8(state3)
 
-  # return action a (continous valued) steer rate command
+  #given: index of action in action_grid
+  # return: action, (continous valued) steer rate command
   def get_action_from_index(self, action_index):
     return self.action_grid[action_index]
 
-  # return the 3-tuple of the indicies of the state grid point closest to state
+  # return the 3-tuple of the indicies of the state grid point closest to state8
   #return a state3 variable
   def discretize(self, state8):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
@@ -89,7 +93,8 @@ class TableBased(object):
     return starting_states[state_flag]
 
   #this function only works for states which are the state gridpoints.
-  #this is mostly useful for value Iteration
+  #this is useful for value Iteration
+  #step table maps state indicies and action indicies to the next state
   def setup_step_table(self):
     self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
       self.len_delta_grid, self.num_actions, 8))
@@ -107,7 +112,8 @@ class TableBased(object):
 
   #given: a 3-tuple state3_index of the indicies for phi, phi_dot, delta
   #       the index of the action to take
-  # return: state (continous, 8 varible)
+  # return: state (continous, 8 varible) corresponding to taking the action
+  # at action index in the state represented by state3_index
   def step_fast(self, state3_index, action_index):
     phi_i = state3_index[0]
     phi_dot_i = state3_index[1]
@@ -138,8 +144,9 @@ class TableBased(object):
 
     return (state8, reward, isDone)
 
-  # state_flag = 0 is a flag. Tells function to call getStartingState()
-  # to give a proper state, pass in a state vector
+  # do 1 simulation of the bicycle
+  # state_flag determines the starting state
+  # can be used to test or for training a Qlearning agent
   def simulate_episode(self, epsilon, gamma, alpha, tmax,
     isTesting, state_flag = 0):
 
@@ -168,6 +175,7 @@ class TableBased(object):
     count = 0;
     while( (count < maxNumTimeSteps) and (not done)):
       action_index = self.act_index(state_grid_point_index, epsilon)
+      #self.act_index returns which action to take. defined for each model.
       action = self.get_action_from_index(action_index)
 
       new_state8, reward, done = self.step(state8, action)

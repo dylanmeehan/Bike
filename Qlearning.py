@@ -12,7 +12,9 @@ class Qlearning(TableBased):
     self.Q = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,\
       self.len_delta_grid, self.num_actions))
 
-  #given state_grid_point_index. A 3-tuple. (a discritized state)
+  #given state3_index.
+  # epsilon: determines the probability of taking a random action
+  # return: the action to take (if epsilon=0, this is the "best" action)
   def act_index(self, state_grid_point_index, epsilon):
     #pick a random action sometimes
     if np.random.random() < epsilon:
@@ -25,18 +27,22 @@ class Qlearning(TableBased):
       #returns the index of the maximum value of the 1D array Q[state_index]
       #that index corresponds to a specific action
 
-  def update_Q(self, s_indicies, reward, a_index, s_next_indicies, done, alpha, gamma):
+  #Qlearning update rule
+  #updates Q table (in place, updateQ does not return anything)
+  def update_Q(self, state3_index, reward, a_index, state3_next_index, done,
+    alpha, gamma):
     max_q_next = np.max(
-      self.Q[s_next_indicies[0],s_next_indicies[1],s_next_indicies[2],:])
+      self.Q[state3_next_index[0],state3_next_index[1],state3_next_index[2],:])
 
     #don't update Q if the simulation has terminated
-    self.Q[s_indicies[0],s_indicies[1],s_indicies[2],a_index] +=\
+    self.Q[state3_index[0],state3_index[1],state3_index[2],a_index] +=\
           alpha * (1.0-done) * (reward+gamma*max_q_next-\
-            self.Q[s_indicies[0],s_indicies[1],s_indicies[2],a_index])
+            self.Q[state3_index[0],state3_index[1],state3_index[2],a_index])
 
+  # saves Q table in Q.csv
   def train(self, epsilon = 1, epsilon_decay = 0.9998, epsilon_min = 0.05,
     gamma = 1, alpha = 0.5, alpha_decay = 0.9998, alpha_min = 0.1,
-    num_epsiodes = 10000, tmax = 10, state_flag = 0):
+    num_epsiodes = 10, tmax = 10, state_flag = 0):
 
     reward_history = []
     reward_averaged = []
@@ -74,7 +80,6 @@ class Qlearning(TableBased):
 
     #end of for loop
 
-
     np.savetxt("Q.csv", \
       self.Q.reshape((self.num_states, self.num_actions)), delimiter=",")
 
@@ -110,7 +115,7 @@ class Qlearning(TableBased):
 
 
 Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0)
-#Qlearning_model.train()
+Qlearning_model.train()
 #print(Qlearning_model.Q)
 
 Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0, gamma =1)

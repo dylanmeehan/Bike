@@ -1,6 +1,7 @@
 import numpy as np
 
 def unpackState(state8):
+  assert len(state8) == 8
   t = state8[0];
   x= state8[1];
   y= state8[2];
@@ -12,8 +13,8 @@ def unpackState(state8):
 
   return(np.array([t, x, y, phi, psi, delta, phi_dot, v]))
 
-#turn a 3 state into a state
 def state3_to_state8(state3, v = 3):
+  assert len(state3) == 3
   phi = state3[0]
   phi_dot = state3[1]
   delta = state3[2]
@@ -22,9 +23,8 @@ def state3_to_state8(state3, v = 3):
 
   return [t, x, y, phi, psi, delta, phi_dot, v]
 
-
-#turn a state into a state3
 def state8_to_state3(state8):
+  assert len(state8) == 8
   [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
   #state3 is a tuple
