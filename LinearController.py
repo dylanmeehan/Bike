@@ -4,7 +4,10 @@ from unpackState import *
 
 class LinearController(object):
 
-  def __init__(self, k1 = 71., k2 = 21., k3 = -20.):
+  # "Arundathi" Gains: 71, 21, -20
+  # LQR gains: 24, 7, -8
+
+  def __init__(self, k1 = 24., k2 = 7., k3 = -8.):
     self.k1 = k1;
     self.k2 = k2;
     self.k3 = k3;
