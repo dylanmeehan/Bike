@@ -96,7 +96,8 @@ class Qlearning(TableBased):
     plt.show()
 
 
-  def test(self, Qfile = "Q2.csv", tmax = 10, state_flag = 0, gamma = 1):
+  def test(self, Qfile = "Q2.csv", tmax = 10, state_flag = 0, gamma = 1,
+    figObject = None):
 
     savedQ = np.genfromtxt(Qfile, delimiter=',')
     self.Q = savedQ.reshape((self.len_phi_grid, self.len_phi_dot_grid, \
@@ -110,12 +111,26 @@ class Qlearning(TableBased):
       self.simulate_episode(epsilon, gamma, alpha, tmax, True, state_flag)
 
     print("testing reward: " + str(reward) + ", testing time: " + str(time))
-    graph.graph(states8, motorCommands)
+
+    figureObjects = graph.graph(states8, motorCommands, figObject)
+    return figureObjects
 
 
 
 Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0)
-Qlearning_model.train()
+#Qlearning_model.train()
 #print(Qlearning_model.Q)
 
-Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0, gamma =1)
+figObject = Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0,
+  gamma =1, figObject = None)
+#I don't need to store the figObject returned by test. this returns the same
+# figObject as before. We only get a new FigObject when we initialize figObject
+# to None
+Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0,
+  gamma =1, figObject = figObject)
+Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0,
+  gamma =1, figObject = figObject)
+
+plt.show()
+plt.close("all")
+

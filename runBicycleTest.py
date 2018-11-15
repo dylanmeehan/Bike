@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 import rhs
 import LinearController
 import graph
@@ -48,7 +48,12 @@ def runBicycleTest(state = np.array([0, 0, 0, np.pi/8, 0, 0, 0, 3]), \
 
     count = count + 1
 
+  figObject = graph.graph(states, motorCommands, figObject = None)
+
   if isGraphing:
-    graph.graph(states, motorCommands)
+    plt.show()
+    plt.close("all")
 
   return([success, states])
+
+runBicycleTest()
