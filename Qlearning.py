@@ -83,7 +83,7 @@ class Qlearning(TableBased):
     np.savetxt("Q.csv", \
       self.Q.reshape((self.num_states, self.num_actions)), delimiter=",")
 
-    print("avg reward(time) at end:" + str(average_reward50))
+    print("avg time at end:" + str(average_time50))
     print("num episodes:" + str(episode))
 
     t = range(episode+1)
