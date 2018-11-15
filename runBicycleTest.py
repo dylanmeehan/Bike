@@ -4,10 +4,13 @@ import rhs
 import LinearController
 import graph
 from unpackState import *
+from tableBased import *
 
 # use Euler Integration to simulate a bicycle
-def runBicycleTest(state = np.array([0, 0, 0, np.pi/8, 0, 0, 0, 3]), \
-  controller = LinearController.LinearController(), time = 10, isGraphing  = True):
+def runBicycleTest(stateflag = 4, controller = LinearController.LinearController(),
+  time = 10, isGraphing  = True, figObject = None):
+
+  state = getStartingState8(stateflag)
 
   timestep = 1/50 #seconds
   numTimeSteps = int(time/timestep)+1
@@ -48,12 +51,12 @@ def runBicycleTest(state = np.array([0, 0, 0, np.pi/8, 0, 0, 0, 3]), \
 
     count = count + 1
 
-  figObject = graph.graph(states, motorCommands, figObject = None)
+  figObject = graph.graph(states, motorCommands, figObject)
 
   if isGraphing:
     plt.show()
     plt.close("all")
 
-  return([success, states])
+  return([success, states, figObject])
 
-runBicycleTest()
+#runBicycleTest()

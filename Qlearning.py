@@ -102,7 +102,6 @@ class Qlearning(TableBased):
     savedQ = np.genfromtxt(Qfile, delimiter=',')
     self.Q = savedQ.reshape((self.len_phi_grid, self.len_phi_dot_grid, \
       self.len_delta_grid, self.num_actions))
-    print("in test, read Q")
 
     epsilon = 0
     alpha = 0
@@ -110,27 +109,28 @@ class Qlearning(TableBased):
     reward, time, states8, motorCommands = \
       self.simulate_episode(epsilon, gamma, alpha, tmax, True, state_flag)
 
-    print("testing reward: " + str(reward) + ", testing time: " + str(time))
+    print("Q LEARNING: testing reward: " + str(reward) + ", testing time: " +
+      str(time))
 
     figureObjects = graph.graph(states8, motorCommands, figObject)
     return figureObjects
 
 
 
-Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0)
-#Qlearning_model.train()
-#print(Qlearning_model.Q)
+#Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0)
+# #Qlearning_model.train()
+# #print(Qlearning_model.Q)
 
-figObject = Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0,
-  gamma =1, figObject = None)
-#I don't need to store the figObject returned by test. this returns the same
-# figObject as before. We only get a new FigObject when we initialize figObject
-# to None
-Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0,
-  gamma =1, figObject = figObject)
-Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0,
-  gamma =1, figObject = figObject)
+#figObject = Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0,
+#   gamma =1, figObject = None)
+# #I don't need to store the figObject returned by test. this returns the same
+# # figObject as before. We only get a new FigObject when we initialize figObject
+# # to None
+# runBicycleTest(stateflag = 4,
+#   controller = LinearController.LinearController(), time = 10, isGraphing  = True):
+# Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag = 0,
+#   gamma =1, figObject = figObject)
 
-plt.show()
-plt.close("all")
+#plt.show()
+#plt.close("all")
 

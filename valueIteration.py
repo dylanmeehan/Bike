@@ -107,7 +107,7 @@ class ValueIteration(TableBased):
         delimiter = ",")
 
   def test(self, Ufile = "valueIteration_U.csv", tmax = 10, state_flag = 0,
-      gamma = 1):
+      gamma = 1, figObject = None):
 
     epsilon = 0; alpha = 0
 
@@ -118,12 +118,14 @@ class ValueIteration(TableBased):
     reward, time, states8, motorCommands = \
       self.simulate_episode(epsilon, gamma, alpha, tmax, True, state_flag)
 
-    print("testing reward: " + str(reward) + ", testing time: " + str(time))
-    graph.graph(states8, motorCommands)
+    print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
+      + str(time))
 
+    figObject = graph.graph(states8, motorCommands, figObject)
+    return figObject
 
-VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0)
-VIteration_model.train()
+# VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0)
+# VIteration_model.train()
 
-VIteration_model.test(Ufile = "valueIteration_U.csv", tmax = 10, state_flag = 1,
-      gamma = 3)
+# VIteration_model.test(Ufile = "valueIteration_U.csv", tmax = 10, state_flag = 1,
+#       gamma = 3)

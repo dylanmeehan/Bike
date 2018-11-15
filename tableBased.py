@@ -79,17 +79,6 @@ class TableBased(object):
 
     return (closest_phi_point, closest_phi_dot_point, closest_delta_point)
 
-  #getStartingState returns an 8 value continuous state.
-  #this is not affected by the discritization grid used for the table methods
-  def getStartingState8(self, state_flag = 0):
-    starting_states = {
-      0: np.array([0, 0, 0, 0.01, 0, 0, 0, 3]),
-      1: np.array([0, 0, 0, np.pi/32, 0, 0, 0, 3]),
-      2: np.array([0, 0, 0, np.random.uniform(-np.pi/16, np.pi/16) , 0, 0, 0, 3]),
-      3: np.array([0, 0, 0, np.pi/16, 0, 0, 0, 3]),
-    }
-    return starting_states[state_flag]
-
   #this function only works for states which are the state gridpoints.
   #this is useful for value Iteration
   #step table maps state indicies and action indicies to the next state
@@ -168,7 +157,7 @@ class TableBased(object):
   def simulate_episode(self, epsilon, gamma, alpha, tmax,
     isTesting, state_flag = 0):
 
-    state8 = self.getStartingState8(state_flag)
+    state8 = getStartingState8(state_flag)
 
     done = False
     total_reward = 0

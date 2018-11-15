@@ -23,6 +23,18 @@ def state3_to_state8(state3, v = 3):
 
   return [t, x, y, phi, psi, delta, phi_dot, v]
 
+#getStartingState returns an 8 value continuous state.
+#this is not affected by the discritization grid used for the table methods
+def getStartingState8(state_flag = 0):
+  starting_states = {
+    0: np.array([0, 0, 0, 0.01, 0, 0, 0, 3]),
+    1: np.array([0, 0, 0, np.pi/32, 0, 0, 0, 3]),
+    2: np.array([0, 0, 0, np.random.uniform(-np.pi/16, np.pi/16) , 0, 0, 0, 3]),
+    3: np.array([0, 0, 0, np.pi/16, 0, 0, 0, 3]),
+    4: np.array([0, 0, 0, np.pi/8, 0, 0, 0, 3]),
+  }
+  return starting_states[state_flag]
+
 def state8_to_state3(state8):
   assert len(state8) == 8
   [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
