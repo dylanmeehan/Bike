@@ -12,6 +12,9 @@ class Qlearning(TableBased):
     self.Q = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,\
       self.len_delta_grid, self.num_actions))
 
+    k = 11 #number of basis functions. TODO: remove hardcode
+    W = np.zeros((self.num_actions, k))
+
   #given state3_index.
   # epsilon: determines the probability of taking a random action
   # return: the action to take (if epsilon=0, this is the "best" action)
@@ -38,6 +41,33 @@ class Qlearning(TableBased):
     self.Q[state3_index[0],state3_index[1],state3_index[2],a_index] +=\
           alpha * (1.0-done) * (reward+gamma*max_q_next-\
             self.Q[state3_index[0],state3_index[1],state3_index[2],a_index])
+
+  def toBasisFunctions(self, state3):
+  [phi, phi_dot, delta] = state3
+
+  f = np.array([1, phi, phi_dot, phi**2, phi_dot**2, phi*phi_dot,
+      delta, delta**2, delta*phi, phi*delta**2, phi**2*delta])
+  return f
+
+  def update_W(self, state3_index, reward, a_index, state3_n)
+
+  # for Function Approximation of Q table
+  def Qvalue_fapprox(self, state3, action_index):
+    weights = W[action_index, :] #get weights for only one action
+    basis_fuctions = self.toBasisFunctions(state3)
+    Q = np.dot(weights, basis_functions)
+
+  def act_index_fapprox(self, state3, epsilon):
+    #duplicated code
+    #pick a random action sometimes
+    if np.random.random() < epsilon:
+        a = np.random.randint(0, self.num_actions)
+        # return a random index in the action space
+        return a
+
+    return np.argmax(self.Qvalue_fapprox(state3, self.action_grid))
+    #can I call the function on a list of action_Grid. OR, do I need
+    # to vectorize the function/ use anonymous functions to do this
 
   # saves Q table in Q.csv
   def train(self, epsilon = 1, epsilon_decay = 0.9998, epsilon_min = 0.05,
