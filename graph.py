@@ -52,5 +52,3 @@ def graph(states, motorCommands, figObject):
   # plt.show() waits until you close the figure
 
   return (figObject)
-
-
