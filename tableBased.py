@@ -15,6 +15,10 @@ class TableBased(object):
 
     if action_grid_flag == 0:
       self.action_grid = [-2, -1, 0, 1, 2]
+    elif action_grid_flag == 1:
+      self.action_grid = np.linspace(-2,2,11, endpoint=True)
+    elif action_grid_flag == 2:
+      self.action_grid = np.linspace(-2,2,101, endpoint=True)
 
     else:
       raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
@@ -35,6 +39,16 @@ class TableBased(object):
       self.delta_grid = [-1, -.7, -.4,  -.3, -.2, -.1, -.05, -.02, 0,\
         .02, .05, .1, .2, .3, .4,  .7, 1]
 
+    elif state_grid_flag == 1:
+      self.phi_grid = [-.8, -.6, -.4, -.28, -.22, -.16, -.1, -.06, -.02, 0, \
+        .02, .06, .1, .16, .22, .28, .4, .6, .8 ]
+      self.phi_dot_grid = [-1, -.7, -.4,  -.3, -.2, -.1, -.05, -.02, 0,\
+        .02, .05, .1, .2, .3, .4,  .7, 1]
+      self.delta_grid = [-1, -.7, -.4, -.2, -.1, -.05, -.02, 0,\
+        .02, .05, .1, .2, .4,  .7, 1]
+
+
+
     else:
       raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
 
@@ -52,9 +66,10 @@ class TableBased(object):
     self.state_grid_points = np.rec.fromarrays([phi_points, phi_dot_points,
       delta_points], names='phi_points,phi_dot_points,delta_points')
 
-  def __init__(self, state_grid_flag, action_grid_flag):
+  def __init__(self, state_grid_flag, action_grid_flag, reward_flag):
     self.set_state_grid_points(state_grid_flag)
     self.set_action_grid_points(action_grid_flag)
+    self.reward_flag = reward_flag
 
   #given: phi_index, phi_dot_index, delta_index
   #returns:continous, full - 8 variable, state for this index
@@ -82,7 +97,7 @@ class TableBased(object):
   #this function only works for states which are the state gridpoints.
   #this is useful for value Iteration
   #step table maps state indicies and action indicies to the next state
-  def setup_step_table(self):
+  def setup_step_table(self, reward_flag):
     self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
       self.len_delta_grid, self.num_actions, 8))
       #8 is number of variables in a continuous state
@@ -94,7 +109,7 @@ class TableBased(object):
             state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
             action = self.action_grid[i_action]
 
-            new_state8, reward, _ = self.step(state8, action)
+            new_state8, reward, _ = self.step(state8, action, reward_flag)
             self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state8
 
   #given: a 3-tuple state3_index of the indicies for phi, phi_dot, delta
@@ -111,7 +126,7 @@ class TableBased(object):
   #given: state (a state in the continous space)
   #       u (an action in the continoue state)
   #return: (state, reward, isDone)
-  def step(self, state8, u):
+  def step(self, state8, u, reward_flag):
     # take in a state and an action
     zdot = rhs.rhs(state8,u)
 
@@ -127,34 +142,38 @@ class TableBased(object):
     else:
       isDone = False
 
-    reward = self.get_reward(state8, shaping_flag = 1)
+    reward = self.get_reward(state8)
 
     return (state8, reward, isDone)
 
   #given: state8 - the state to get the reward of
-  #       shaping_flag - dictates what reward shaping to use
+  #       reward_flag - dictates what reward shaping to use
   # returns: reward - a nunber greater than or equal to  0
   # reward = 0 iff the bike has fallen (phi > pi/4)
-  def get_reward(self,state8, shaping_flag = 1):
+  def get_reward(self,state8, reward_flag = 2):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
     # test ifbike has fallen
     if (abs(phi) > np.pi/4):
       return 0
     else:
-      if shaping_flag == 0:
+      if reward_flag == 0:
         reward =  1 #no shapping
-      elif shaping_flag == 1:
+      elif reward_flag == 1:
         reward = (1-(abs(phi))/2 - np.sign(phi)*phi_dot/20) #basic reward shaping
 
+      elif reward_flag == 2:
+        reward = 1/(phi**2+0.01) #add a little bit, so that we don't divide by 0
       #garantees reward for not falling down is greater than that for falling
+
+
       assert (reward > 0)
       return reward
 
   # do 1 simulation of the bicycle
   # state_flag determines the starting state
   # can be used to test or for training a Qlearning agent
-  def simulate_episode(self, epsilon, gamma, alpha, tmax,
+  def simulate_episode(self, epsilon, gamma, alpha, tmax, reward_flag,
     isTesting, state_flag = 0):
 
     state8 = getStartingState8(state_flag)
@@ -185,7 +204,7 @@ class TableBased(object):
       #self.act_index returns which action to take. defined for each model.
       action = self.get_action_from_index(action_index)
 
-      new_state8, reward, done = self.step(state8, action)
+      new_state8, reward, done = self.step(state8, action, reward_flag)
       new_state_grid_point_index = self.discretize(new_state8)
 
       if (not isTesting):

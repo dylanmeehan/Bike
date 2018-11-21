@@ -7,8 +7,8 @@ from tableBased import *
 
 class Qlearning(TableBased):
 
-  def __init__(self, state_grid_flag, action_grid_flag ):
-    super(Qlearning, self).__init__(state_grid_flag, action_grid_flag)
+  def __init__(self, state_grid_flag, action_grid_flag, reward_flag ):
+    super(Qlearning, self).__init__(state_grid_flag, action_grid_flag, reward_flag)
     self.Q = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,\
       self.len_delta_grid, self.num_actions))
 
@@ -60,7 +60,8 @@ class Qlearning(TableBased):
         alpha *= alpha_decay
 
       total_reward, total_time, _, _ = \
-        self.simulate_episode(epsilon, gamma, alpha, tmax, False, state_flag)
+        self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag,
+          False, state_flag)
 
       reward_history.append(total_reward)
       average_reward50 = np.average(reward_history[-50:])

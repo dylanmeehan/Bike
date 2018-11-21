@@ -5,13 +5,29 @@ import graph
 from unpackState import *
 from tableBased import *
 from scipy.interpolate import RegularGridInterpolator
+from pathlib import Path
+
 
 class ValueIteration(TableBased):
 
-  def __init__(self, state_grid_flag, action_grid_flag):
-    super(ValueIteration, self).__init__(state_grid_flag, action_grid_flag)
-    self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
-    self.setup_step_table()
+  def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
+    Ufile = "valueIteration_U.csv"):
+
+    super(ValueIteration, self).__init__(state_grid_flag, action_grid_flag,
+      reward_flag)
+
+    self.setup_step_table(reward_flag)
+
+    self.Ufile = Ufile
+
+    if Path(self.Ufile).is_file():
+      saved_U = np.genfromtxt(Ufile, delimiter = ",")
+      self.U = saved_U.reshape(self.len_phi_grid, self.len_phi_dot_grid,
+          self.len_delta_grid)
+    else:
+      self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,
+        self.len_delta_grid))
+
 
     #TODO: precompute reward function. Set up table (similiar to step_table), so
     #       that we don't compute the reward for a state every time. We only
@@ -66,6 +82,8 @@ class ValueIteration(TableBased):
   def train(self, gamma = 0.95, num_episodes = 30, state_flag = 0,
     do_interpolation = True):
 
+    self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
+
     n_episode = 0
 
     while (n_episode < num_episodes):
@@ -102,18 +120,13 @@ class ValueIteration(TableBased):
       print('Epsiode: ' + str(n_episode))
 
     print("done trianing")
-    print(self.U)
-    np.savetxt("valueIteration_U.csv", self.U.reshape(self.num_states), \
-        delimiter = ",")
+    #print(self.U)
+    np.savetxt(self.Ufile, self.U.reshape(self.num_states), delimiter = ",")
 
-  def test(self, Ufile = "valueIteration_U.csv", tmax = 10, state_flag = 0,
+  def test(self, tmax = 10, state_flag = 0,
       gamma = 1, figObject = None):
 
     epsilon = 0; alpha = 0
-
-    saved_U = np.genfromtxt(Ufile, delimiter = ",")
-    self.U = saved_U.reshape(self.len_phi_grid, self.len_phi_dot_grid, \
-        self.len_delta_grid)
 
     reward, time, states8, motorCommands = \
       self.simulate_episode(epsilon, gamma, alpha, tmax, True, state_flag)
@@ -123,6 +136,69 @@ class ValueIteration(TableBased):
 
     figObject = graph.graph(states8, motorCommands, figObject)
     return figObject
+
+  def heatmap_value_function(self):
+    print("phi num = " + str(self.len_phi_grid) + ", phi dot num = "  +
+      str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
+    print("U size = " + str(self.U.shape))
+
+    # figure 1
+    fig1, ax1 = plt.subplots(1,1)
+
+    phi_vs_phidot = np.mean(self.U, axis = 2)
+    print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
+
+    im1 = ax1.imshow(phi_vs_phidot)
+    ax1.set_title("Utility (averaged over delta)")
+    ax1.set_ylabel("phi [rad]")
+    ax1.set_xlabel("phi_dot [rad/s]")
+    ax1.set_yticks(np.arange(self.len_phi_grid))
+    ax1.set_xticks(np.arange(self.len_phi_dot_grid))
+    ax1.set_yticklabels(self.phi_grid)
+    ax1.set_xticklabels(self.phi_dot_grid)
+
+    fig1.colorbar(im1)
+
+    #figure 2
+    fig2, ax2 = plt.subplots(1,1)
+    phi_vs_delta = np.mean(self.U, axis = 1)
+    print("phi vs phidot shape: " + str(phi_vs_delta))
+
+    im2 = ax2.imshow(phi_vs_delta)
+    ax2.set_title("Utility (averaged over phidot)")
+    ax2.set_ylabel("phi [rad]")
+    ax2.set_xlabel("delta [rad]")
+    ax2.set_yticks(np.arange(self.len_phi_grid))
+    ax2.set_xticks(np.arange(self.len_delta_grid))
+    ax2.set_yticklabels(self.phi_grid)
+    ax2.set_xticklabels(self.delta_grid)
+
+    fig2.colorbar(im2)
+
+    #figure 3
+    fig3, ax3 = plt.subplots(1,1)
+    phidot_vs_delta = np.mean(self.U, axis = 0)
+    print("phi vs phidot shape: " + str(phidot_vs_delta))
+
+    im3 = ax3.imshow(phidot_vs_delta)
+    ax3.set_title("Utility (averaged over phi)")
+    ax3.set_ylabel("phi_dot [rad/s]")
+    ax3.set_xlabel("delta [rad]")
+    ax3.set_yticks(np.arange(self.len_phi_dot_grid))
+    ax3.set_xticks(np.arange(self.len_delta_grid))
+    ax3.set_yticklabels(self.phi_dot_grid)
+    ax3.set_xticklabels(self.delta_grid)
+
+    fig3.colorbar(im3)
+
+    #
+    plt.show()
+    plt.close(fig1)
+    plt.close(fig2)
+    plt.close(fig3)
+
+
+
 
 # VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0)
 # VIteration_model.train()

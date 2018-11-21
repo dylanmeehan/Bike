@@ -27,6 +27,14 @@ VI5: Value Iteration 5. 11/7/18. Shaping = 0 (No shaping). Linear Interpolation.
     100 episodes, Grid Discritization 0.
     Bike Balances for ~1.5s
 
+VI6: Value ITeration 6. 11/7/18. Reward_flag = 1. Linear interpolation.
+    state_grid_flag = 1. action_grid_flag = 2
+
+VI7: Value ITeration 7. 11/7/18. Reward_flag = 2. State_grid_flag = 1,
+    action_grid_flag = 0.
+
 Q2: Q Learning 2. 11/
+
+
 
 ***********************
