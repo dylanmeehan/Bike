@@ -197,7 +197,74 @@ class ValueIteration(TableBased):
     plt.close(fig2)
     plt.close(fig3)
 
+  def heatmap_of_policy(self):
 
+    policy = np.zeros(self.U.shape)
+
+    for phi_i in range(self.len_phi_grid):
+        for phi_dot_i in range(self.len_phi_dot_grid):
+          for delta_i in range (self.len_delta_grid):
+
+            state3_index = (phi_i, phi_dot_i, delta_i)
+
+            action_index = self.act_index(state3_index, epsilon = 0)
+            #self.act_index returns which action to take. defined for each model.
+            action = self.get_action_from_index(action_index)
+
+            policy[phi_i, phi_dot_i, delta_i] = action
+
+    fig1, ax1 = plt.subplots(1,1)
+
+    phi_vs_phidot = np.mean(policy, axis = 2)
+    #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
+
+    im1 = ax1.imshow(phi_vs_phidot)
+    ax1.set_title("Policy (averaged over delta)")
+    ax1.set_ylabel("phi [rad]")
+    ax1.set_xlabel("phi_dot [rad/s]")
+    ax1.set_yticks(np.arange(self.len_phi_grid))
+    ax1.set_xticks(np.arange(self.len_phi_dot_grid))
+    ax1.set_yticklabels(self.phi_grid)
+    ax1.set_xticklabels(self.phi_dot_grid)
+
+    fig1.colorbar(im1)
+
+    #figure 2
+    fig2, ax2 = plt.subplots(1,1)
+    phi_vs_delta = np.mean(policy, axis = 1)
+    #print("phi vs phidot shape: " + str(phi_vs_delta))
+
+    im2 = ax2.imshow(phi_vs_delta)
+    ax2.set_title("Policy (averaged over phidot)")
+    ax2.set_ylabel("phi [rad]")
+    ax2.set_xlabel("delta [rad]")
+    ax2.set_yticks(np.arange(self.len_phi_grid))
+    ax2.set_xticks(np.arange(self.len_delta_grid))
+    ax2.set_yticklabels(self.phi_grid)
+    ax2.set_xticklabels(self.delta_grid)
+
+    fig2.colorbar(im2)
+
+    #figure 3
+    fig3, ax3 = plt.subplots(1,1)
+    phidot_vs_delta = np.mean(policy, axis = 0)
+    #print("phi vs phidot shape: " + str(phidot_vs_delta))
+
+    im3 = ax3.imshow(phidot_vs_delta)
+    ax3.set_title("Policy (averaged over phi)")
+    ax3.set_ylabel("phi_dot [rad/s]")
+    ax3.set_xlabel("delta [rad]")
+    ax3.set_yticks(np.arange(self.len_phi_dot_grid))
+    ax3.set_xticks(np.arange(self.len_delta_grid))
+    ax3.set_yticklabels(self.phi_dot_grid)
+    ax3.set_xticklabels(self.delta_grid)
+
+    fig3.colorbar(im3)
+
+    plt.show()
+    plt.close(fig1)
+    plt.close(fig2)
+    plt.close(fig3)
 
 
 # VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0)
