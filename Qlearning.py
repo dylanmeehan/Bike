@@ -7,10 +7,13 @@ from tableBased import *
 
 class Qlearning(TableBased):
 
-  def __init__(self, state_grid_flag, action_grid_flag, reward_flag ):
+  def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
+   Qfile = "Q2.csv"):
     super(Qlearning, self).__init__(state_grid_flag, action_grid_flag, reward_flag)
     self.Q = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,\
       self.len_delta_grid, self.num_actions))
+
+    self.Qfile = Qfile
 
   #given state3_index.
   # epsilon: determines the probability of taking a random action
@@ -97,10 +100,9 @@ class Qlearning(TableBased):
     plt.show()
 
 
-  def test(self, Qfile = "Q2.csv", tmax = 10, state_flag = 0, gamma = 1,
-    figObject = None):
+  def test(self, tmax = 10, state_flag = 0, gamma = 1, figObject = None):
 
-    savedQ = np.genfromtxt(Qfile, delimiter=',')
+    savedQ = np.genfromtxt(self.Qfile, delimiter=',')
     self.Q = savedQ.reshape((self.len_phi_grid, self.len_phi_dot_grid, \
       self.len_delta_grid, self.num_actions))
 

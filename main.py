@@ -7,9 +7,9 @@ state_flag = 3
 figObject = None
 
 Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0,
-  reward_flag = 2)
+  reward_flag = 2, Qfile = "Q.csv")
 Qlearning_model.train()
-figObject = Qlearning_model.test(Qfile = "Q.csv", tmax = 10, state_flag= state_flag,
+figObject = Qlearning_model.test( tmax = 10, state_flag= state_flag,
   gamma =1,figObject = figObject)
 
 

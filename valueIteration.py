@@ -138,15 +138,15 @@ class ValueIteration(TableBased):
     return figObject
 
   def heatmap_value_function(self):
-    print("phi num = " + str(self.len_phi_grid) + ", phi dot num = "  +
-      str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
-    print("U size = " + str(self.U.shape))
+    #print("phi num = " + str(self.len_phi_grid) + ", phi dot num = "  +
+    #  str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
+    #print("U size = " + str(self.U.shape))
 
     # figure 1
     fig1, ax1 = plt.subplots(1,1)
 
     phi_vs_phidot = np.mean(self.U, axis = 2)
-    print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
+    #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
 
     im1 = ax1.imshow(phi_vs_phidot)
     ax1.set_title("Utility (averaged over delta)")
@@ -162,7 +162,7 @@ class ValueIteration(TableBased):
     #figure 2
     fig2, ax2 = plt.subplots(1,1)
     phi_vs_delta = np.mean(self.U, axis = 1)
-    print("phi vs phidot shape: " + str(phi_vs_delta))
+    #print("phi vs phidot shape: " + str(phi_vs_delta))
 
     im2 = ax2.imshow(phi_vs_delta)
     ax2.set_title("Utility (averaged over phidot)")
@@ -178,7 +178,7 @@ class ValueIteration(TableBased):
     #figure 3
     fig3, ax3 = plt.subplots(1,1)
     phidot_vs_delta = np.mean(self.U, axis = 0)
-    print("phi vs phidot shape: " + str(phidot_vs_delta))
+    #print("phi vs phidot shape: " + str(phidot_vs_delta))
 
     im3 = ax3.imshow(phidot_vs_delta)
     ax3.set_title("Utility (averaged over phi)")
