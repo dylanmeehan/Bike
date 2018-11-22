@@ -213,16 +213,22 @@ class ValueIteration(TableBased):
 
             policy[phi_i, phi_dot_i, delta_i] = action
 
+    get_middle = lambda array: array[int((len(array)-1)/2)]
+
     fig1, ax1 = plt.subplots(1,1)
 
     if option == "average":
       phi_vs_phidot = np.mean(policy, axis = 2)
+    elif option == "zero":
+      phi_vs_phidot = np.apply_along_axis(get_middle, axis=2, arr= policy)
     #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
 
     im1 = ax1.imshow(phi_vs_phidot)
 
     if option == "average":
       ax1.set_title("Policy (averaged over delta)")
+    elif option == "zero":
+      ax1.set_title("Policy (with delta=0)")
     ax1.set_ylabel("phi [rad]")
     ax1.set_xlabel("phi_dot [rad/s]")
     ax1.set_yticks(np.arange(self.len_phi_grid))
@@ -237,11 +243,15 @@ class ValueIteration(TableBased):
 
     if option == "average":
       phi_vs_delta = np.mean(policy, axis = 1)
+    elif option == "zero":
+      phi_vs_delta = np.apply_along_axis(get_middle, axis=1, arr= policy)
     #print("phi vs phidot shape: " + str(phi_vs_delta))
 
     im2 = ax2.imshow(phi_vs_delta)
     if option == "avearge":
       ax2.set_title("Policy (averaged over phidot)")
+    elif option == "zero":
+      ax2.set_title("Policy (with phi_dot=0)")
     ax2.set_ylabel("phi [rad]")
     ax2.set_xlabel("delta [rad]")
     ax2.set_yticks(np.arange(self.len_phi_grid))
@@ -256,11 +266,15 @@ class ValueIteration(TableBased):
 
     if option == "average":
       phidot_vs_delta = np.mean(policy, axis = 0)
+    elif option == "zero":
+      phidot_vs_delta = np.apply_along_axis(get_middle, axis=0, arr= policy)
     #print("phi vs phidot shape: " + str(phidot_vs_delta))
 
     im3 = ax3.imshow(phidot_vs_delta)
     if option == "average":
       ax3.set_title("Policy (averaged over phi)")
+    elif option == "zero":
+      ax3.set_title("Policy (with phi=0)")
     ax3.set_ylabel("phi_dot [rad/s]")
     ax3.set_xlabel("delta [rad]")
     ax3.set_yticks(np.arange(self.len_phi_dot_grid))
