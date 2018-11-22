@@ -197,7 +197,7 @@ class ValueIteration(TableBased):
     plt.close(fig2)
     plt.close(fig3)
 
-  def heatmap_of_policy(self):
+  def heatmap_of_policy(self, option):
 
     policy = np.zeros(self.U.shape)
 
@@ -215,11 +215,14 @@ class ValueIteration(TableBased):
 
     fig1, ax1 = plt.subplots(1,1)
 
-    phi_vs_phidot = np.mean(policy, axis = 2)
+    if option == "average":
+      phi_vs_phidot = np.mean(policy, axis = 2)
     #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
 
     im1 = ax1.imshow(phi_vs_phidot)
-    ax1.set_title("Policy (averaged over delta)")
+
+    if option == "average":
+      ax1.set_title("Policy (averaged over delta)")
     ax1.set_ylabel("phi [rad]")
     ax1.set_xlabel("phi_dot [rad/s]")
     ax1.set_yticks(np.arange(self.len_phi_grid))
@@ -231,11 +234,14 @@ class ValueIteration(TableBased):
 
     #figure 2
     fig2, ax2 = plt.subplots(1,1)
-    phi_vs_delta = np.mean(policy, axis = 1)
+
+    if option == "average":
+      phi_vs_delta = np.mean(policy, axis = 1)
     #print("phi vs phidot shape: " + str(phi_vs_delta))
 
     im2 = ax2.imshow(phi_vs_delta)
-    ax2.set_title("Policy (averaged over phidot)")
+    if option == "avearge":
+      ax2.set_title("Policy (averaged over phidot)")
     ax2.set_ylabel("phi [rad]")
     ax2.set_xlabel("delta [rad]")
     ax2.set_yticks(np.arange(self.len_phi_grid))
@@ -247,11 +253,14 @@ class ValueIteration(TableBased):
 
     #figure 3
     fig3, ax3 = plt.subplots(1,1)
-    phidot_vs_delta = np.mean(policy, axis = 0)
+
+    if option == "average":
+      phidot_vs_delta = np.mean(policy, axis = 0)
     #print("phi vs phidot shape: " + str(phidot_vs_delta))
 
     im3 = ax3.imshow(phidot_vs_delta)
-    ax3.set_title("Policy (averaged over phi)")
+    if option == "average":
+      ax3.set_title("Policy (averaged over phi)")
     ax3.set_ylabel("phi_dot [rad/s]")
     ax3.set_xlabel("delta [rad]")
     ax3.set_yticks(np.arange(self.len_phi_dot_grid))
