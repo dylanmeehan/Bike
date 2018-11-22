@@ -13,8 +13,8 @@ figObject = None
 #   gamma =1,figObject = figObject)
 
 
-VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 0,
-  reward_flag = 2, Ufile = "VI7_U.csv")
+VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 2,
+  reward_flag = 1, Ufile = "VI8.csv")
 # VIteration_model.train()
 # figObject = VIteration_model.test(tmax = 10,
 #     state_flag = state_flag, gamma = 3, figObject = figObject)

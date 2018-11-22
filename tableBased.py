@@ -19,6 +19,8 @@ class TableBased(object):
       self.action_grid = np.linspace(-2,2,11, endpoint=True)
     elif action_grid_flag == 2:
       self.action_grid = np.linspace(-2,2,101, endpoint=True)
+    elif action_grid_flag == 2: #lol, improved my ability to count
+      self.action_grid = np.linspace(-2,2,81, endpoint=True)
 
     else:
       raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
