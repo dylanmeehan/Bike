@@ -6,19 +6,20 @@ from runBicycleTest import *
 state_flag = 3
 figObject = None
 
-Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0,
-  reward_flag = 2, Qfile = "Q.csv")
-Qlearning_model.train()
-figObject = Qlearning_model.test( tmax = 10, state_flag= state_flag,
-  gamma =1,figObject = figObject)
+# Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0,
+#   reward_flag = 2, Qfile = "Q.csv")
+# Qlearning_model.train()
+# figObject = Qlearning_model.test( tmax = 10, state_flag= state_flag,
+#   gamma =1,figObject = figObject)
 
 
 VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 0,
   reward_flag = 2, Ufile = "VI7_U.csv")
-VIteration_model.train()
-figObject = VIteration_model.test(tmax = 10,
-    state_flag = state_flag, gamma = 3, figObject = figObject)
-VIteration_model.heatmap_value_function()
+# VIteration_model.train()
+# figObject = VIteration_model.test(tmax = 10,
+#     state_flag = state_flag, gamma = 3, figObject = figObject)
+#VIteration_model.heatmap_value_function()
+VIteration_model.heatmap_of_policy()
 
 #I don't need to store the figObject returned by test. this returns the same
 # figObject as before. We only get a new FigObject when we initialize figObject
