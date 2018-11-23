@@ -23,7 +23,7 @@ class TableBased(object):
       self.action_grid = np.linspace(-2,2,81, endpoint=True)
 
     else:
-      raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
+      raise Exception("Invalid action_grid_flag: {}".format(action_grid_flag))
 
     self.num_actions = len(self.action_grid)
 
@@ -49,10 +49,8 @@ class TableBased(object):
       self.delta_grid = [-1, -.7, -.4, -.2, -.1, -.05, -.02, 0,\
         .02, .05, .1, .2, .4,  .7, 1]
 
-
-
-    else:
-      raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
+      else:
+        raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
 
     # calculate lengths once and store their values
     self.len_phi_grid = len(self.phi_grid)
@@ -167,6 +165,9 @@ class TableBased(object):
       elif reward_flag == 2:
         reward = 1/(phi**2+0.01) #add a little bit, so that we don't divide by 0
       #garantees reward for not falling down is greater than that for falling
+
+      else:
+        raise Exception("Invalid reward_flag: {}".format(reward_flag))
 
 
       assert (reward > 0)
