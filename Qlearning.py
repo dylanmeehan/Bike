@@ -64,7 +64,7 @@ class Qlearning(TableBased):
 
       total_reward, total_time, _, _ = \
         self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag,
-          False, state_flag)
+          False, use_continuous_actions = False, state_flag = state_flag)
 
       reward_history.append(total_reward)
       average_reward50 = np.average(reward_history[-50:])
@@ -84,7 +84,7 @@ class Qlearning(TableBased):
 
     #end of for loop
 
-    np.savetxt("Q.csv", \
+    np.savetxt(self.Qfile, \
       self.Q.reshape((self.num_states, self.num_actions)), delimiter=",")
 
     print("avg time at end:" + str(average_time50))
@@ -110,7 +110,8 @@ class Qlearning(TableBased):
     alpha = 0
 
     reward, time, states8, motorCommands = \
-      self.simulate_episode(epsilon, gamma, alpha, tmax, True, state_flag)
+      self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag, True,
+        use_continuous_actions = False, state_flag = state_flag)
 
     print("Q LEARNING: testing reward: " + str(reward) + ", testing time: " +
       str(time))
