@@ -14,10 +14,10 @@ figObject = None
 
 
 VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0,
- reward_flag = 1, Ufile = "VItest.csv")
-VIteration_model.train()
-figObject = VIteration_model.test(tmax = 10,
-     state_flag = state_flag, gamma = 3, figObject = figObject)
+ reward_flag = 1, Ufile = "VI8.csv")
+#VIteration_model.train()
+figObject = VIteration_model.test(tmax = 10, state_flag = state_flag,
+  use_continuous_actions = True, gamma = 3, figObject = figObject)
 #VIteration_model.heatmap_value_function()
 #VIteration_model.heatmap_of_policy(option = "zero")
 
