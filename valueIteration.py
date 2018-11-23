@@ -68,7 +68,7 @@ class ValueIteration(TableBased):
     return utility
 
   #always do interpolation
-  def calc_best_action_and_utility_continuous(self, state3):
+  def calc_best_action_and_utility_continuous(self, state3, previous_u):
 
     #state3 = self.state_grid_points[state3_index]
     state8 = state3_to_state8(state3)
@@ -78,19 +78,28 @@ class ValueIteration(TableBased):
     negated_utility_fun = lambda u: -1*self.continuous_utility_function(state8, u)
 
     # find the action which maximizes the utility function
-    OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'BFGS')
-    print(OptimizeResult)
-    u = OptimizeResult.x[0]
-    print(u)
+
+    # OptimizeResult = opt.minimize(negated_utility_fun, x0=0,
+    #  tol = 1e-3, bounds = ((-3,3),))
+    OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'TNC',
+     tol = 1e-3, options = {'xtol': 1e-3}, bounds = ((-3,3),))
+    #print(OptimizeResult)
+
+    if OptimizeResult.success:
+      u = OptimizeResult.x[0]
+    else:
+      print("DESUCCESS")
+      print(OptimizeResult)
+      u = previous_u
 
     best_action_utility = self.continuous_utility_function(state8, u)
     print(u)
 
     return (u, best_action_utility)
 
-  def get_action_continuous(self, state8, epsilon = 0):
+  def get_action_continuous(self, state8, previous_u, epsilon = 0):
     state3 = state8_to_state3(state8)
-    (u, _) = self.calc_best_action_and_utility_continuous(state3)
+    (u, _) = self.calc_best_action_and_utility_continuous(state3, previous_u)
     return u
 
   # given: state3_index (a discritized state 3 tuple).

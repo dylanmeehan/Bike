@@ -190,6 +190,8 @@ class TableBased(object):
     # return index of closest point to phi, phi_dot, and delta
     state_grid_point_index = self.discretize(state8)
 
+    previous_action = 0
+
     maxNumTimeSteps = int(tmax/self.timestep)+1
 
     if not use_continuous_actions:
@@ -211,7 +213,8 @@ class TableBased(object):
     while( (count < maxNumTimeSteps) and (not is_done)):
 
       if use_continuous_actions:
-        action = self.get_action_continuous(state8, epsilon)
+        action = self.get_action_continuous(state8, previous_action, epsilon)
+        previous_action = action
       else:
         action_index = self.act_index(state_grid_point_index, epsilon)
         #self.act_index returns which action to take. defined for each model.
