@@ -152,27 +152,32 @@ class TableBased(object):
   #       reward_flag - dictates what reward shaping to use
   # returns: reward - a nunber greater than or equal to  0
   # reward = 0 iff the bike has fallen (phi > pi/4)
-  def get_reward(self,state8, reward_flag = 2):
+  def get_reward(self,state8, reward_flag = 3):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
+
+    REWARD_FOR_FALLING = 0
+
+    if reward_flag == 3:
+      REWARD_FOR_FALLING = -100
 
     # test ifbike has fallen
     if (abs(phi) > np.pi/4):
-      return 0
+      return REWARD_FOR_FALLING
     else:
       if reward_flag == 0:
         reward =  1 #no shapping
       elif reward_flag == 1:
         reward = (1-(abs(phi))/2 - np.sign(phi)*phi_dot/20) #basic reward shaping
-
       elif reward_flag == 2:
-        reward = 1/(phi**2+0.01) #add a little bit, so that we don't divide by 0
+        reward = 1/(phi**2+0.0001) #add a little bit, so that we don't divide by 0
       #garantees reward for not falling down is greater than that for falling
-
+      elif reward_flag == 3:
+        reward = -phi**2
       else:
         raise Exception("Invalid reward_flag: {}".format(reward_flag))
 
 
-      assert (reward > 0)
+      assert (reward > REWARD_FOR_FALLING)
       return reward
 
   # do 1 simulation of the bicycle
@@ -189,8 +194,6 @@ class TableBased(object):
 
     # return index of closest point to phi, phi_dot, and delta
     state_grid_point_index = self.discretize(state8)
-
-    previous_action = 0
 
     maxNumTimeSteps = int(tmax/self.timestep)+1
 
@@ -213,8 +216,7 @@ class TableBased(object):
     while( (count < maxNumTimeSteps) and (not is_done)):
 
       if use_continuous_actions:
-        action = self.get_action_continuous(state8, previous_action, epsilon)
-        previous_action = action
+        action = self.get_action_continuous(state8, epsilon)
       else:
         action_index = self.act_index(state_grid_point_index, epsilon)
         #self.act_index returns which action to take. defined for each model.

@@ -2,6 +2,7 @@ import numpy as np
 import rhs
 import matplotlib.pyplot as plt
 import graph
+import parameters as params
 from unpackState import *
 from tableBased import *
 from scipy.interpolate import RegularGridInterpolator
@@ -68,7 +69,7 @@ class ValueIteration(TableBased):
     return utility
 
   #always do interpolation
-  def calc_best_action_and_utility_continuous(self, state3, previous_u):
+  def calc_best_action_and_utility_continuous(self, state3):
 
     #state3 = self.state_grid_points[state3_index]
     state8 = state3_to_state8(state3)
@@ -79,27 +80,33 @@ class ValueIteration(TableBased):
 
     # find the action which maximizes the utility function
 
-    # OptimizeResult = opt.minimize(negated_utility_fun, x0=0,
-    #  tol = 1e-3, bounds = ((-3,3),))
-    OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'TNC',
-     tol = 1e-3, options = {'xtol': 1e-3}, bounds = ((-3,3),))
-    #print(OptimizeResult)
+    OptimizeResult = opt.minimize(negated_utility_fun, x0=0,
+      method = 'Powell', tol = 1e-4, options = {'xtol': 1e-4})
+    #'Powell' method gave no failures
+    #OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'TNC',
+    # tol = 1e-3, options = {'xtol': 1e-3}, bounds = ((-3,3),))
+    print(OptimizeResult)
 
-    if OptimizeResult.success:
-      u = OptimizeResult.x[0]
-    else:
-      print("DESUCCESS")
+    if not OptimizeResult.success:
+      print("************* OPTIMIZER FAILED ***************")
       print(OptimizeResult)
-      u = previous_u
+    #print(OptimizeResult.x)
+    u = OptimizeResult.x
+
+    #clip u
+    if u > params.MAX_STEER_RATE:
+      u = params.MAX_STEER_RATE
+    elif u < -params.MAX_STEER_RATE:
+      u = -params.MAX_STEER_RATE
 
     best_action_utility = self.continuous_utility_function(state8, u)
-    print(u)
+    #print(u)
 
     return (u, best_action_utility)
 
-  def get_action_continuous(self, state8, previous_u, epsilon = 0):
+  def get_action_continuous(self, state8, epsilon = 0):
     state3 = state8_to_state3(state8)
-    (u, _) = self.calc_best_action_and_utility_continuous(state3, previous_u)
+    (u, _) = self.calc_best_action_and_utility_continuous(state3)
     return u
 
   # given: state3_index (a discritized state 3 tuple).
