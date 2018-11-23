@@ -78,9 +78,13 @@ class ValueIteration(TableBased):
     negated_utility_fun = lambda u: -1*self.continuous_utility_function(state8, u)
 
     # find the action which maximizes the utility function
-    u = opt.minimize(negated_utility_fun, x0=0, method = 'BFGS')
+    OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'BFGS')
+    print(OptimizeResult)
+    u = OptimizeResult.x[0]
+    print(u)
 
-    best_action_utility = self.continuous_utility_function(self, state8)
+    best_action_utility = self.continuous_utility_function(state8, u)
+    print(u)
 
     return (u, best_action_utility)
 
@@ -168,8 +172,11 @@ class ValueIteration(TableBased):
   def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
       gamma = 1, figObject = None):
 
-    if use_continuous_actions and not do_interpolation:
-      raise Exception("do_interpolation must be true if continuous_actions is true")
+    # if using continuous actions, need to interpolate value function
+    if use_continuous_actions:
+      self.itp = RegularGridInterpolator(
+          (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
+          bounds_error = False, fill_value = 0)
 
     epsilon = 0; alpha = 0
 
