@@ -6,6 +6,7 @@ from unpackState import *
 from tableBased import *
 from scipy.interpolate import RegularGridInterpolator
 from pathlib import Path
+import scipy.optimize as opt
 
 
 class ValueIteration(TableBased):
@@ -56,6 +57,38 @@ class ValueIteration(TableBased):
 
     return (best_action_index, best_action_utility)
 
+  #
+  def continuous_utility_function(self, state8, u):
+
+    (new_state8, reward, isDone) = self.step(state8, u, self.reward_flag)
+
+    new_state3 = state8_to_state3(new_state8)
+    utility = self.get_value(new_state3, do_interpolation = True)
+
+    return utility
+
+  #always do interpolation
+  def calc_best_action_and_utility_continuous(self, state3):
+
+    #state3 = self.state_grid_points[state3_index]
+    state8 = state3_to_state8(state3)
+
+    #we need to minimiza something. minimizning negations of the utility function
+    # is equivalent to maximizing the utilty function
+    negated_utility_fun = lambda u: -1*self.continuous_utility_function(state8, u)
+
+    # find the action which maximizes the utility function
+    u = opt.minimize(negated_utility_fun, x0=0, method = 'BFGS')
+
+    best_action_utility = self.continuous_utility_function(self, state8)
+
+    return (u, best_action_utility)
+
+  def get_action_continuous(self, state8, epsilon = 0):
+    state3 = state8_to_state3(state8)
+    (u, _) = self.calc_best_action_and_utility_continuous(state3)
+    return u
+
   # given: state3_index (a discritized state 3 tuple).
   # return: the index of the best action to take
   def act_index(self, state3_index, epsilon):
@@ -63,9 +96,9 @@ class ValueIteration(TableBased):
     (best_action_index, _) = self.calc_best_action_and_utility(state3_index, False)
     return best_action_index
 
-  # return a value for the (continous) new_state3
+  # return a value for the (continuous) new_state3
   # do_interpolation is a boolean to decide if to interpolate valuesS
-  def get_value(self,new_state3, do_interpolation):
+  def get_value(self,new_state3, do_interpolation= True):
 
     #the interpolator (itp) is initialized in train, one for each episode.
     # this saves on the overhead of creating an interpolator
@@ -79,10 +112,14 @@ class ValueIteration(TableBased):
 
   #trains a valueIteration, table-based mode.
   #when training finishes, utilities are stored in a csv
+  # if continuous actions is true, do_interpolation must be true
   def train(self, gamma = 0.95, num_episodes = 30, state_flag = 0,
-    do_interpolation = True):
+    do_interpolation = True, use_continuous_actions = False):
 
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
+
+    if use_continuous_actions and not do_interpolation:
+      raise Exception("do_interpolation must be true if continuous_actions is true")
 
     n_episode = 0
 
@@ -105,8 +142,13 @@ class ValueIteration(TableBased):
             state3_index = (phi_i, phi_dot_i, delta_i)
             state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
 
-            (_, best_utility) = \
-             self.calc_best_action_and_utility(state3_index,do_interpolation)
+            if use_continuous_actions:
+              state3 = self.state_grid_points[state3_index]
+              (_, best_utility) = \
+                self.calc_best_action_and_utility_continuous(state3)
+            else:
+              (_, best_utility) = \
+                self.calc_best_action_and_utility(state3_index,do_interpolation)
 
             #If the bike fell down, set the value to 0
             reward = self.get_reward(state8)
@@ -123,13 +165,17 @@ class ValueIteration(TableBased):
     #print(self.U)
     np.savetxt(self.Ufile, self.U.reshape(self.num_states), delimiter = ",")
 
-  def test(self, tmax = 10, state_flag = 0,
+  def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
       gamma = 1, figObject = None):
+
+    if use_continuous_actions and not do_interpolation:
+      raise Exception("do_interpolation must be true if continuous_actions is true")
 
     epsilon = 0; alpha = 0
 
     reward, time, states8, motorCommands = \
-      self.simulate_episode(epsilon, gamma, alpha, tmax, True, state_flag)
+      self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag, True,
+        use_continuous_actions, state_flag)
 
     print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
       + str(time))

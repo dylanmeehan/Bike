@@ -19,8 +19,10 @@ class TableBased(object):
       self.action_grid = np.linspace(-2,2,11, endpoint=True)
     elif action_grid_flag == 2:
       self.action_grid = np.linspace(-2,2,101, endpoint=True)
-    elif action_grid_flag == 2: #lol, improved my ability to count
+    elif action_grid_flag == 3: #lol, improved my ability to count
       self.action_grid = np.linspace(-2,2,81, endpoint=True)
+    elif action_grid_flag == 4:
+      raise Exception("Continous Action Space Flagged")
 
     else:
       raise Exception("Invalid action_grid_flag: {}".format(action_grid_flag))
@@ -49,8 +51,8 @@ class TableBased(object):
       self.delta_grid = [-1, -.7, -.4, -.2, -.1, -.05, -.02, 0,\
         .02, .05, .1, .2, .4,  .7, 1]
 
-      else:
-        raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
+    else:
+      raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
 
     # calculate lengths once and store their values
     self.len_phi_grid = len(self.phi_grid)
@@ -177,11 +179,11 @@ class TableBased(object):
   # state_flag determines the starting state
   # can be used to test or for training a Qlearning agent
   def simulate_episode(self, epsilon, gamma, alpha, tmax, reward_flag,
-    isTesting, state_flag = 0):
+    isTesting, use_continuous_actions, state_flag = 0):
 
     state8 = getStartingState8(state_flag)
 
-    done = False
+    is_done = False
     total_reward = 0
     total_time = 0
 
@@ -189,6 +191,10 @@ class TableBased(object):
     state_grid_point_index = self.discretize(state8)
 
     maxNumTimeSteps = int(tmax/self.timestep)+1
+
+    if not use_continuous_actions:
+      # return index of closest point to phi, phi_dot, and delta
+      state_grid_point_index = self.discretize(state8)
 
     if isTesting:
       #create arrays before loop
@@ -202,24 +208,32 @@ class TableBased(object):
       motorCommands[1] = 0
 
     count = 0;
-    while( (count < maxNumTimeSteps) and (not done)):
-      action_index = self.act_index(state_grid_point_index, epsilon)
-      #self.act_index returns which action to take. defined for each model.
-      action = self.get_action_from_index(action_index)
+    while( (count < maxNumTimeSteps) and (not is_done)):
 
-      new_state8, reward, done = self.step(state8, action, reward_flag)
-      new_state_grid_point_index = self.discretize(new_state8)
+      if use_continuous_actions:
+        action = self.get_action_continuous(state8, epsilon)
+      else:
+        action_index = self.act_index(state_grid_point_index, epsilon)
+        #self.act_index returns which action to take. defined for each model.
+        action = self.get_action_from_index(action_index)
+
+
+      new_state8, reward, is_done = self.step(state8, action, reward_flag)
+
+      if not use_continuous_actions:
+        new_state_grid_point_index = self.discretize(new_state8)
 
       if (not isTesting):
         self.update_Q(state_grid_point_index, reward, action_index, \
-          new_state_grid_point_index, done, alpha, gamma)
+          new_state_grid_point_index, is_done, alpha, gamma)
 
       total_reward += reward
-      if (not done):
+      if (not is_done):
         total_time += self.timestep
 
       state8 = new_state8
-      state_grid_point_index = new_state_grid_point_index
+      if not use_continuous_actions:
+        state_grid_point_index = new_state_grid_point_index
 
       if isTesting:
         states8[count,:] = state8

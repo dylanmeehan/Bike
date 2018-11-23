@@ -42,6 +42,11 @@ def state8_to_state3(state8):
   #state3 is a tuple
   return (phi, phi_dot, delta)
 
+#given: state3_index, index of state3 in state_grid_points
+#return: state3: a (continuous) state3
+def state3_index_to_state3():
+  state3 = self.state_grid_points[state3_index]
+  return state3
 
 #def unpackStates(states):
 #  [ts, xs, ys, phis, psis, deltas, phi_dots, vs] = \
