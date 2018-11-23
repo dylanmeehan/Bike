@@ -85,7 +85,6 @@ class ValueIteration(TableBased):
     #'Powell' method gave no failures
     #OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'TNC',
     # tol = 1e-3, options = {'xtol': 1e-3}, bounds = ((-3,3),))
-    print(OptimizeResult)
 
     if not OptimizeResult.success:
       print("************* OPTIMIZER FAILED ***************")
@@ -181,7 +180,7 @@ class ValueIteration(TableBased):
       n_episode += 1
       print('Epsiode: ' + str(n_episode))
 
-    print("done trianing")
+    print("done trianing, writing csv: " + str(self.Ufile))
     #print(self.U)
     np.savetxt(self.Ufile, self.U.reshape(self.num_states), delimiter = ",")
 

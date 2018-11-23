@@ -8,14 +8,15 @@ figObject = None
 
 #Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0,
 #  reward_flag = 2, Qfile = "Q.csv")
-#Qlearning_model.train()
+# #Qlearning_model.train()
 #figObject = Qlearning_model.test( tmax = 10, state_flag= state_flag,
 #   gamma =1, figObject = figObject)
 
 
 VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 2,
- reward_flag = 3, Ufile = "VI8.csv")
-#VIteration_model.train()
+ reward_flag = 3, Ufile = "VI_test.csv")
+VIteration_model.train(num_episodes = 2, state_flag = 0,
+    do_interpolation = True, use_continuous_actions = True)
 figObject = VIteration_model.test(tmax = 10, state_flag = state_flag,
   use_continuous_actions = True, gamma = 3, figObject = figObject)
 #VIteration_model.heatmap_value_function()

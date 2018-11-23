@@ -84,6 +84,7 @@ class Qlearning(TableBased):
 
     #end of for loop
 
+    print("writing csv + " + str(self.Qfile))
     np.savetxt(self.Qfile, \
       self.Q.reshape((self.num_states, self.num_actions)), delimiter=",")
 
