@@ -84,6 +84,9 @@ class TableBased(object):
     state3 = self.state_grid_points[state3_index]
     return state3_to_state8(state3)
 
+  def state3_index_to_state3(self, state3_index):
+    return self.state_grid_points[state3_index]
+
   #given: index of action in action_grid
   # return: action, (continous valued) steer rate command
   def get_action_from_index(self, action_index):
@@ -162,7 +165,7 @@ class TableBased(object):
     REWARD_FOR_FALLING = 0
 
     if reward_flag == 3:
-      REWARD_FOR_FALLING = -100
+      REWARD_FOR_FALLING = -10
 
     # test ifbike has fallen
     if (abs(phi) > np.pi/4):
