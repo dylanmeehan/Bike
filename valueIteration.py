@@ -124,7 +124,12 @@ class ValueIteration(TableBased):
     #the interpolator (itp) is initialized in train, one for each episode.
     # this saves on the overhead of creating an interpolator
     if do_interpolation:
-      return self.itp([new_state3[0],new_state3[1],new_state3[2]])
+      #commented out calculating reward for state we got to by interpolating
+      #add reward_at_new_state3 to try to differentiate states
+      #new_state8 = state3_to_state8(new_state3)
+      #reward_at_new_state3 =  self.get_reward(new_state8, self.reward_flag)
+      utility_from_new_state3 = self.itp([new_state3[0],new_state3[1],new_state3[2]])
+      return utility_from_new_state3 #+ reward_at_new_state3
 
     else:
     #dont interpolate
@@ -212,9 +217,11 @@ class ValueIteration(TableBased):
     #  str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
     #print("U size = " + str(self.U.shape))
 
-    fig1, ax1s = plt.subplots(1,n)
-    fig2, ax2s = plt.subplots(1,n)
-    fig3, ax3s = plt.subplots(1,n)
+    n = 1
+
+    fig1, ax1 = plt.subplots(1,n)
+    fig2, ax2 = plt.subplots(1,n)
+    fig3, ax3 = plt.subplots(1,n)
 
     U = self.U
     title = "Value Iteration"
@@ -269,7 +276,9 @@ class ValueIteration(TableBased):
     plt.close(fig2)
     plt.close(fig3)
 
-  def heatmap_of_policy(self, option, include_linear_controller = False):
+  # options = "average", "zero"
+  def heatmap_of_policy(self, option, include_linear_controller = False,
+    use_continuous_actions = False):
 
     VI_policy = np.zeros(self.U.shape)
     linear_controller_policy = np.zeros(self.U.shape)
@@ -282,19 +291,33 @@ class ValueIteration(TableBased):
 
             state3_index = (phi_i, phi_dot_i, delta_i)
 
-            action_index = self.act_index(state3_index, epsilon = 0)
-            #self.act_index returns which action to take. defined for each model.
-            VI_action = self.get_action_from_index(action_index)
+            if use_continuous_actions:
+              state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
+              VI_action = self.get_action_continuous(state8, epsilon = 0)
+            else:
+              action_index = self.act_index(state3_index, epsilon = 0)
+              #self.act_index returns which action to take. defined for each model.
+              VI_action = self.get_action_from_index(action_index)
+
             VI_policy[phi_i, phi_dot_i, delta_i] = VI_action
 
-            state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
-            LQR_action = LQR_controller.act(state8)
-            #to get shadding to tbe equal, limit max steer rate of linear controller
-            if LQR_action > params.MAX_STEER_RATE:
-              LQR_action = params.MAX_STEER_RATE
-            if LQR_action < -params.MAX_STEER_RATE:
-              LQR_action = -params.MAX_STEER_RATE
-            linear_controller_policy[phi_i, phi_dot_i, delta_i] = LQR_action
+            if include_linear_controller:
+              state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
+              LQR_action = LQR_controller.act(state8)
+              #to get shadding to tbe equal, limit max steer rate of linear controller
+
+              if not use_continuous_actions:
+                # limit LQR controller to be in the same range as the linear
+                # controller. This way the colors are the same on the heatmap
+                if LQR_action > self.action_grid[-1]:
+                  LQR_action = self.action_grid[-1]
+                if LQR_action < self.action_grid[0]:
+                  LQR_action = self.action_grid[0]
+              linear_controller_policy[phi_i, phi_dot_i, delta_i] = LQR_action
+
+    if not use_continuous_actions:
+      print("Linear Controller output clipped to {} rad/s for \
+                  policy heatmap".format(self.action_grid[-1]))
 
     if include_linear_controller:
       policies = (VI_policy,linear_controller_policy)
@@ -303,7 +326,6 @@ class ValueIteration(TableBased):
     n = len(policies)
     titles = ("Value Iteration", "Linear Controller")
 
-    #print(policy)
     get_middle = lambda array: array[int((len(array)-1)/2)]
 
     fig1, ax1s = plt.subplots(1,n)
@@ -337,9 +359,7 @@ class ValueIteration(TableBased):
       ax1.set_yticklabels(self.phi_grid)
       ax1.set_xticklabels(self.phi_dot_grid)
 
-      cbar1 = fig1.colorbar(im1)
-      #cbar.ax.set_yticklabels(self.action_grid)
-      cbar1.set_label("steer rate [rad/s]")
+
 
       #figure 2
 
@@ -362,8 +382,7 @@ class ValueIteration(TableBased):
       ax2.set_yticklabels(self.phi_grid)
       ax2.set_xticklabels(self.delta_grid)
 
-      cbar2 = fig2.colorbar(im2)
-      cbar2.set_label("steer rate [rad/s]")
+
 
 
       #figure 3
@@ -386,8 +405,14 @@ class ValueIteration(TableBased):
       ax3.set_yticklabels(self.phi_dot_grid)
       ax3.set_xticklabels(self.delta_grid)
 
-      cbar3= fig3.colorbar(im3)
-      cbar3.set_label("steer rate [rad/s]")
+    cbar1 = fig1.colorbar(im1)
+    cbar1.set_label("steer rate [rad/s]")
+
+    cbar2 = fig2.colorbar(im2)
+    cbar2.set_label("steer rate [rad/s]")
+
+    cbar3= fig3.colorbar(im3)
+    cbar3.set_label("steer rate [rad/s]")
 
     plt.show()
     plt.close(fig1)
