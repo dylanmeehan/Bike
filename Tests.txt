@@ -42,7 +42,7 @@ VI9: Value Iteration. continuous actions only. state_grid_flag = 1,
             in actions.
 
 VI10: Value Iteration. Continuous actions only. state_grid_flag = 0,
-    reward_flag = 3. trained for 30 episodes
+    reward_flag = 3. trained for 10 episodes
 
 Q2: Q Learning 2. 11/
 
