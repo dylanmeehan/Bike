@@ -285,35 +285,40 @@ class ValueIteration(TableBased):
 
     LQR_controller = LinearController.LinearController()
 
+    if use_continuous_actions:
+      self.itp = RegularGridInterpolator(\
+        (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
+        bounds_error = False, fill_value = 0)
+
     for phi_i in range(self.len_phi_grid):
-        for phi_dot_i in range(self.len_phi_dot_grid):
-          for delta_i in range (self.len_delta_grid):
+      for phi_dot_i in range(self.len_phi_dot_grid):
+        for delta_i in range (self.len_delta_grid):
 
-            state3_index = (phi_i, phi_dot_i, delta_i)
+          state3_index = (phi_i, phi_dot_i, delta_i)
 
-            if use_continuous_actions:
-              state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
-              VI_action = self.get_action_continuous(state8, epsilon = 0)
-            else:
-              action_index = self.act_index(state3_index, epsilon = 0)
-              #self.act_index returns which action to take. defined for each model.
-              VI_action = self.get_action_from_index(action_index)
+          if use_continuous_actions:
+            state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
+            VI_action = self.get_action_continuous(state8, epsilon = 0)
+          else:
+            action_index = self.act_index(state3_index, epsilon = 0)
+            #self.act_index returns which action to take. defined for each model.
+            VI_action = self.get_action_from_index(action_index)
 
-            VI_policy[phi_i, phi_dot_i, delta_i] = VI_action
+          VI_policy[phi_i, phi_dot_i, delta_i] = VI_action
 
-            if include_linear_controller:
-              state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
-              LQR_action = LQR_controller.act(state8)
-              #to get shadding to tbe equal, limit max steer rate of linear controller
+          if include_linear_controller:
+            state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
+            LQR_action = LQR_controller.act(state8)
+            #to get shadding to tbe equal, limit max steer rate of linear controller
 
-              if not use_continuous_actions:
-                # limit LQR controller to be in the same range as the linear
-                # controller. This way the colors are the same on the heatmap
-                if LQR_action > self.action_grid[-1]:
-                  LQR_action = self.action_grid[-1]
-                if LQR_action < self.action_grid[0]:
-                  LQR_action = self.action_grid[0]
-              linear_controller_policy[phi_i, phi_dot_i, delta_i] = LQR_action
+            if not use_continuous_actions:
+              # limit LQR controller to be in the same range as the linear
+              # controller. This way the colors are the same on the heatmap
+              if LQR_action > self.action_grid[-1]:
+                LQR_action = self.action_grid[-1]
+              if LQR_action < self.action_grid[0]:
+                LQR_action = self.action_grid[0]
+            linear_controller_policy[phi_i, phi_dot_i, delta_i] = LQR_action
 
     if not use_continuous_actions:
       print("Linear Controller output clipped to {} rad/s for \
@@ -418,10 +423,3 @@ class ValueIteration(TableBased):
     plt.close(fig1)
     plt.close(fig2)
     plt.close(fig3)
-
-
-# VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0)
-# VIteration_model.train()
-
-# VIteration_model.test(Ufile = "valueIteration_U.csv", tmax = 10, state_flag = 1,
-#       gamma = 3)
