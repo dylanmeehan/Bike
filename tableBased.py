@@ -22,12 +22,16 @@ class TableBased(object):
     elif action_grid_flag == 3: #lol, improved my ability to count
       self.action_grid = np.linspace(-2,2,81, endpoint=True)
     elif action_grid_flag == 4:
-      raise Exception("Continous Action Space Flagged")
+      # Flag for continuous action space
+      self.action_grid = None
 
     else:
       raise Exception("Invalid action_grid_flag: {}".format(action_grid_flag))
 
-    self.num_actions = len(self.action_grid)
+    if action_grid_flag == 4:
+      self.num_actions = np.inf
+    else:
+      self.num_actions = len(self.action_grid)
 
   #discritize each of the state variables. Construct self.state_grid_points
   # which is a meshgrid of these points

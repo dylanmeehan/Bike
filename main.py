@@ -14,19 +14,19 @@ figObject = None
 
 
 VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 2,
- reward_flag = 3, Ufile = "VI_test.csv")
-VIteration_model.train(num_episodes = 2, state_flag = 0,
-    do_interpolation = True, use_continuous_actions = True)
-figObject = VIteration_model.test(tmax = 10, state_flag = state_flag,
-  use_continuous_actions = True, gamma = 3, figObject = figObject)
+ reward_flag = 3, Ufile = "VI8.csv", use_only_continuous_actions = False)
+# VIteration_model.train(num_episodes = 30,
+#     do_interpolation = True, use_continuous_actions = True)
+# figObject = VIteration_model.test(tmax = 10, state_flag = state_flag,
+#   use_continuous_actions = True, gamma = 3, figObject = figObject)
 #VIteration_model.heatmap_value_function()
-#VIteration_model.heatmap_of_policy(option = "zero")
+VIteration_model.heatmap_of_policy(option = "zero")
 
 #I don't need to store the figObject returned by test. this returns the same
 # figObject as before. We only get a new FigObject when we initialize figObject
 # to None
-figObject = runBicycleTest(state_flag, controller = LinearController.LinearController(),
-  time = 10, isGraphing  = True, figObject = figObject)
+#figObject = runBicycleTest(state_flag, controller = LinearController.LinearController(),
+#  time = 10, isGraphing  = True, figObject = figObject)
 
 
 plt.show()
