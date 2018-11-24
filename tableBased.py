@@ -162,7 +162,7 @@ class TableBased(object):
     REWARD_FOR_FALLING = 0
 
     if reward_flag == 3:
-      REWARD_FOR_FALLING = -100
+      REWARD_FOR_FALLING = -10
 
     # test ifbike has fallen
     if (abs(phi) > np.pi/4):
