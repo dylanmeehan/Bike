@@ -13,12 +13,13 @@ import scipy.optimize as opt
 class ValueIteration(TableBased):
 
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
-    Ufile = "valueIteration_U.csv"):
+    Ufile = "valueIteration_U.csv", use_only_continuous_actions = False):
 
     super(ValueIteration, self).__init__(state_grid_flag, action_grid_flag,
       reward_flag)
 
-    self.setup_step_table(reward_flag)
+    if not use_only_continuous_actions:
+      self.setup_step_table(reward_flag)
 
     self.Ufile = Ufile
 
@@ -132,7 +133,7 @@ class ValueIteration(TableBased):
   #trains a valueIteration, table-based mode.
   #when training finishes, utilities are stored in a csv
   # if continuous actions is true, do_interpolation must be true
-  def train(self, gamma = 0.95, num_episodes = 30, state_flag = 0,
+  def train(self, gamma = 0.95, num_episodes = 30,
     do_interpolation = True, use_continuous_actions = False):
 
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
