@@ -269,7 +269,7 @@ class ValueIteration(TableBased):
     plt.close(fig2)
     plt.close(fig3)
 
-  def heatmap_of_policy(self, option):
+  def heatmap_of_policy(self, option, include_linear_controller = False):
 
     VI_policy = np.zeros(self.U.shape)
     linear_controller_policy = np.zeros(self.U.shape)
@@ -289,9 +289,17 @@ class ValueIteration(TableBased):
 
             state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
             LQR_action = LQR_controller.act(state8)
+            #to get shadding to tbe equal, limit max steer rate of linear controller
+            if LQR_action > params.MAX_STEER_RATE:
+              LQR_action = params.MAX_STEER_RATE
+            if LQR_action < -params.MAX_STEER_RATE:
+              LQR_action = -params.MAX_STEER_RATE
             linear_controller_policy[phi_i, phi_dot_i, delta_i] = LQR_action
 
-    policies = (VI_policy,linear_controller_policy)
+    if include_linear_controller:
+      policies = (VI_policy,linear_controller_policy)
+    else:
+      policies = (VI_policy,)
     n = len(policies)
     titles = ("Value Iteration", "Linear Controller")
 

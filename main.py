@@ -20,7 +20,7 @@ VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 2,
 # figObject = VIteration_model.test(tmax = 10, state_flag = state_flag,
 #   use_continuous_actions = True, gamma = 3, figObject = figObject)
 #VIteration_model.heatmap_value_function()
-VIteration_model.heatmap_of_policy(option = "zero")
+VIteration_model.heatmap_of_policy(option = "zero", include_linear_controller = True)
 
 #I don't need to store the figObject returned by test. this returns the same
 # figObject as before. We only get a new FigObject when we initialize figObject
