@@ -8,6 +8,7 @@ from tableBased import *
 from scipy.interpolate import RegularGridInterpolator
 from pathlib import Path
 import scipy.optimize as opt
+import LinearController
 
 
 class ValueIteration(TableBased):
@@ -211,14 +212,18 @@ class ValueIteration(TableBased):
     #  str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
     #print("U size = " + str(self.U.shape))
 
-    # figure 1
-    fig1, ax1 = plt.subplots(1,1)
+    fig1, ax1s = plt.subplots(1,n)
+    fig2, ax2s = plt.subplots(1,n)
+    fig3, ax3s = plt.subplots(1,n)
 
-    phi_vs_phidot = np.mean(self.U, axis = 2)
+    U = self.U
+    title = "Value Iteration"
+
+    phi_vs_phidot = np.mean(U, axis = 2)
     #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
 
     im1 = ax1.imshow(phi_vs_phidot)
-    ax1.set_title("Utility (averaged over delta)")
+    ax1.set_title("{}: Utility (averaged over delta)".format(title))
     ax1.set_ylabel("phi [rad]")
     ax1.set_xlabel("phi_dot [rad/s]")
     ax1.set_yticks(np.arange(self.len_phi_grid))
@@ -229,12 +234,11 @@ class ValueIteration(TableBased):
     fig1.colorbar(im1)
 
     #figure 2
-    fig2, ax2 = plt.subplots(1,1)
-    phi_vs_delta = np.mean(self.U, axis = 1)
+    phi_vs_delta = np.mean(U, axis = 1)
     #print("phi vs phidot shape: " + str(phi_vs_delta))
 
     im2 = ax2.imshow(phi_vs_delta)
-    ax2.set_title("Utility (averaged over phidot)")
+    ax2.set_title("{}: Utility (averaged over phidot)".format(title))
     ax2.set_ylabel("phi [rad]")
     ax2.set_xlabel("delta [rad]")
     ax2.set_yticks(np.arange(self.len_phi_grid))
@@ -245,12 +249,11 @@ class ValueIteration(TableBased):
     fig2.colorbar(im2)
 
     #figure 3
-    fig3, ax3 = plt.subplots(1,1)
-    phidot_vs_delta = np.mean(self.U, axis = 0)
+    phidot_vs_delta = np.mean(U, axis = 0)
     #print("phi vs phidot shape: " + str(phidot_vs_delta))
 
     im3 = ax3.imshow(phidot_vs_delta)
-    ax3.set_title("Utility (averaged over phi)")
+    ax3.set_title("{}: Utility (averaged over phi)".format(title))
     ax3.set_ylabel("phi_dot [rad/s]")
     ax3.set_xlabel("delta [rad]")
     ax3.set_yticks(np.arange(self.len_phi_dot_grid))
@@ -268,7 +271,10 @@ class ValueIteration(TableBased):
 
   def heatmap_of_policy(self, option):
 
-    policy = np.zeros(self.U.shape)
+    VI_policy = np.zeros(self.U.shape)
+    linear_controller_policy = np.zeros(self.U.shape)
+
+    LQR_controller = LinearController.LinearController()
 
     for phi_i in range(self.len_phi_grid):
         for phi_dot_i in range(self.len_phi_dot_grid):
@@ -278,86 +284,102 @@ class ValueIteration(TableBased):
 
             action_index = self.act_index(state3_index, epsilon = 0)
             #self.act_index returns which action to take. defined for each model.
-            action = self.get_action_from_index(action_index)
+            VI_action = self.get_action_from_index(action_index)
+            VI_policy[phi_i, phi_dot_i, delta_i] = VI_action
 
-            policy[phi_i, phi_dot_i, delta_i] = action
+            state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
+            LQR_action = LQR_controller.act(state8)
+            linear_controller_policy[phi_i, phi_dot_i, delta_i] = LQR_action
+
+    policies = (VI_policy,linear_controller_policy)
+    n = len(policies)
+    titles = ("Value Iteration", "Linear Controller")
 
     #print(policy)
     get_middle = lambda array: array[int((len(array)-1)/2)]
 
-    fig1, ax1 = plt.subplots(1,1)
+    fig1, ax1s = plt.subplots(1,n)
+    fig2, ax2s = plt.subplots(1,n)
+    fig3, ax3s = plt.subplots(1,n)
 
-    if option == "average":
-      phi_vs_phidot = np.mean(policy, axis = 2)
-    elif option == "zero":
-      phi_vs_phidot = np.apply_along_axis(get_middle, axis=2, arr= policy)
-    #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
+    for i in range(n):
+      policy = policies[i]
+      title = titles[i]
 
-    im1 = ax1.imshow(phi_vs_phidot, cmap=plt.get_cmap("coolwarm"))
+      ax1 = ax1s[i]
+      ax2 = ax2s[i]
+      ax3 = ax3s[i]
 
-    if option == "average":
-      ax1.set_title("Policy (averaged over steer angles)")
-    elif option == "zero":
-      ax1.set_title("Policy (with steer angle =0)")
-    ax1.set_ylabel("lean [rad]")
-    ax1.set_xlabel("lean rate [rad/s]")
-    ax1.set_yticks(np.arange(self.len_phi_grid))
-    ax1.set_xticks(np.arange(self.len_phi_dot_grid))
-    ax1.set_yticklabels(self.phi_grid)
-    ax1.set_xticklabels(self.phi_dot_grid)
+      if option == "average":
+        phi_vs_phidot = np.mean(policy, axis = 2)
+      elif option == "zero":
+        phi_vs_phidot = np.apply_along_axis(get_middle, axis=2, arr= policy)
+      #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
 
-    cbar1 = fig1.colorbar(im1)
-    #cbar.ax.set_yticklabels(self.action_grid)
-    cbar1.set_label("steer rate [rad/s]")
+      im1 = ax1.imshow(phi_vs_phidot, cmap=plt.get_cmap("coolwarm"))
 
-    #figure 2
-    fig2, ax2 = plt.subplots(1,1)
+      if option == "average":
+        ax1.set_title("{} Policy (averaged over steer angles)".format(title))
+      elif option == "zero":
+        ax1.set_title("{} Policy (with steer angle =0)".format(title))
+      ax1.set_ylabel("lean [rad]")
+      ax1.set_xlabel("lean rate [rad/s]")
+      ax1.set_yticks(np.arange(self.len_phi_grid))
+      ax1.set_xticks(np.arange(self.len_phi_dot_grid))
+      ax1.set_yticklabels(self.phi_grid)
+      ax1.set_xticklabels(self.phi_dot_grid)
 
-    if option == "average":
-      phi_vs_delta = np.mean(policy, axis = 1)
-    elif option == "zero":
-      phi_vs_delta = np.apply_along_axis(get_middle, axis=1, arr= policy)
-    #print("phi vs phidot shape: " + str(phi_vs_delta))
+      cbar1 = fig1.colorbar(im1)
+      #cbar.ax.set_yticklabels(self.action_grid)
+      cbar1.set_label("steer rate [rad/s]")
 
-    im2 = ax2.imshow(phi_vs_delta, cmap=plt.get_cmap("coolwarm"))
-    if option == "avearge":
-      ax2.set_title("Policy (averaged over lean rate)")
-    elif option == "zero":
-      ax2.set_title("Policy (with lean rate =0)")
-    ax2.set_ylabel("lean [rad]")
-    ax2.set_xlabel("steer [rad]")
-    ax2.set_yticks(np.arange(self.len_phi_grid))
-    ax2.set_xticks(np.arange(self.len_delta_grid))
-    ax2.set_yticklabels(self.phi_grid)
-    ax2.set_xticklabels(self.delta_grid)
-
-    cbar2 = fig2.colorbar(im2)
-    cbar2.set_label("steer rate [rad/s]")
+      #figure 2
 
 
-    #figure 3
-    fig3, ax3 = plt.subplots(1,1)
+      if option == "average":
+        phi_vs_delta = np.mean(policy, axis = 1)
+      elif option == "zero":
+        phi_vs_delta = np.apply_along_axis(get_middle, axis=1, arr= policy)
+      #print("phi vs phidot shape: " + str(phi_vs_delta))
 
-    if option == "average":
-      phidot_vs_delta = np.mean(policy, axis = 0)
-    elif option == "zero":
-      phidot_vs_delta = np.apply_along_axis(get_middle, axis=0, arr= policy)
-    #print("phi vs phidot shape: " + str(phidot_vs_delta))
+      im2 = ax2.imshow(phi_vs_delta, cmap=plt.get_cmap("coolwarm"))
+      if option == "avearge":
+        ax2.set_title("{} Policy (averaged over lean rate)".format(title))
+      elif option == "zero":
+        ax2.set_title("{} Policy (with lean rate =0)".format(title))
+      ax2.set_ylabel("lean [rad]")
+      ax2.set_xlabel("steer [rad]")
+      ax2.set_yticks(np.arange(self.len_phi_grid))
+      ax2.set_xticks(np.arange(self.len_delta_grid))
+      ax2.set_yticklabels(self.phi_grid)
+      ax2.set_xticklabels(self.delta_grid)
 
-    im3 = ax3.imshow(phidot_vs_delta, cmap=plt.get_cmap("coolwarm"))
-    if option == "average":
-      ax3.set_title("Policy (averaged over lean)")
-    elif option == "zero":
-      ax3.set_title("Policy (with lean=0)")
-    ax3.set_ylabel("lean rate [rad/s]")
-    ax3.set_xlabel("steer [rad]")
-    ax3.set_yticks(np.arange(self.len_phi_dot_grid))
-    ax3.set_xticks(np.arange(self.len_delta_grid))
-    ax3.set_yticklabels(self.phi_dot_grid)
-    ax3.set_xticklabels(self.delta_grid)
+      cbar2 = fig2.colorbar(im2)
+      cbar2.set_label("steer rate [rad/s]")
 
-    cbar3= fig3.colorbar(im3)
-    cbar2.set_label("steer rate [rad/s]")
+
+      #figure 3
+
+      if option == "average":
+        phidot_vs_delta = np.mean(policy, axis = 0)
+      elif option == "zero":
+        phidot_vs_delta = np.apply_along_axis(get_middle, axis=0, arr= policy)
+      #print("phi vs phidot shape: " + str(phidot_vs_delta))
+
+      im3 = ax3.imshow(phidot_vs_delta, cmap=plt.get_cmap("coolwarm"))
+      if option == "average":
+        ax3.set_title("{} Policy (averaged over lean)".format(title))
+      elif option == "zero":
+        ax3.set_title("{} Policy (with lean=0)".format(title))
+      ax3.set_ylabel("lean rate [rad/s]")
+      ax3.set_xlabel("steer [rad]")
+      ax3.set_yticks(np.arange(self.len_phi_dot_grid))
+      ax3.set_xticks(np.arange(self.len_delta_grid))
+      ax3.set_yticklabels(self.phi_dot_grid)
+      ax3.set_xticklabels(self.delta_grid)
+
+      cbar3= fig3.colorbar(im3)
+      cbar3.set_label("steer rate [rad/s]")
 
     plt.show()
     plt.close(fig1)
