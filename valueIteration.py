@@ -123,7 +123,11 @@ class ValueIteration(TableBased):
     #the interpolator (itp) is initialized in train, one for each episode.
     # this saves on the overhead of creating an interpolator
     if do_interpolation:
-      return self.itp([new_state3[0],new_state3[1],new_state3[2]])
+      #add reward_at_new_state3 to try to differentiate states
+      new_state8 = state3_to_state8(new_state3)
+      reward_at_new_state3 =  self.get_reward(new_state8, self.reward_flag)
+      utility_from_new_state3 = self.itp([new_state3[0],new_state3[1],new_state3[2]])
+      return reward_at_new_state3 + utility_from_new_state3
 
     else:
     #dont interpolate

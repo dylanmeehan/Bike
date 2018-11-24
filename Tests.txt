@@ -37,7 +37,12 @@ VI8: Value Iteration. action_flag = 2 (100 actions). State_grid_flag = 0
     Reward_flag = 1?
 
 VI9: Value Iteration. continuous actions only. state_grid_flag = 1,
-    reward_flag = 3. trained for 10 episodes.
+    reward_flag = 3. trained for 30 episodes. Bad performance.
+        - not much differentiation in utility values, not much differentiation
+            in actions.
+
+VI10: Value Iteration. Continuous actions only. state_grid_flag = 0,
+    reward_flag = 3. trained for 30 episodes
 
 Q2: Q Learning 2. 11/
 
