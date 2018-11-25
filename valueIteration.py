@@ -176,7 +176,9 @@ class ValueIteration(TableBased):
               (_, best_utility) = \
                 self.calc_best_action_and_utility(state3_index,do_interpolation)
 
-            #If the bike fell down, set the value to 0
+            #note: utilities of nonfallen states are always positive (and the
+            # reward for falling is = 0. then all utilities of valid states will
+            # always be greater than the reward for falling)
             reward = self.get_reward(state8)
             if (reward == 0):
               #print("entered top of if statement")
