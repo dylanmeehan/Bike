@@ -42,7 +42,21 @@ VI9: Value Iteration. continuous actions only. state_grid_flag = 1,
             in actions.
 
 VI10: Value Iteration. Continuous actions only. state_grid_flag = 0,
-    reward_flag = 3. trained for 10 episodes
+    reward_flag = 3. trained for 10 episodes.
+    Bad results. Bike balanced for 0.3 seconds.
+
+Heatmap policy interpolation continuous,
+    Continuous actions for policy using iterpolation. based on VI8 which used
+        discrete actions to calculate utility values.
+        Rough comparision to linear controller.
+
+VI11: similiar to VI10, but with dicsrete actions during training. state_grid_flag = 0
+    reward_flag = 3. action_Grid_flag = 3. trained for 10 episodes.
+    continuous actions during testing.
+    Bad utility heatmap. Bad policy heatmap.
+
+VI12: similiar to VI11. but fixed problem with reward_for_Falling (set it back)
+    to 0 so that rewards are propogatted properly.
 
 Q2: Q Learning 2. 11/
 

@@ -162,30 +162,32 @@ class TableBased(object):
   def get_reward(self,state8, reward_flag = 3):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
-    REWARD_FOR_FALLING = 0
-
-    if reward_flag == 3:
-      REWARD_FOR_FALLING = -10
+    #REWARD_FOR_FALLING = 0
+    #Do not change (if the bike falls, the utility
+    # of that state is set to 0, ie ,no need to look at utilities going forward
+    # so, the reward_for_falling should always be 0 and all other rewards should
+    # be greater than 0, so when the bicycle does not fall, it gets a utility
+    # greater than that if it falls).
 
     # test ifbike has fallen
     if (abs(phi) > np.pi/4):
-      return REWARD_FOR_FALLING
+      reward = 0
     else:
       if reward_flag == 0:
         reward =  1 #no shapping
       elif reward_flag == 1:
         reward = (1-(abs(phi))/2 - np.sign(phi)*phi_dot/20) #basic reward shaping
       elif reward_flag == 2:
-        reward = 1/(phi**2+0.0001) #add a little bit, so that we don't divide by 0
+        reward = 1/(phi**2+0.01) #add a little bit, so that we don't divide by 0
       #garantees reward for not falling down is greater than that for falling
       elif reward_flag == 3:
-        reward = -phi**2
+        reward = 5 - phi**2
       else:
         raise Exception("Invalid reward_flag: {}".format(reward_flag))
 
+      assert (reward > 0)
 
-      assert (reward > REWARD_FOR_FALLING)
-      return reward
+    return reward
 
   # do 1 simulation of the bicycle
   # state_flag determines the starting state
