@@ -42,6 +42,7 @@ VI9: Value Iteration. continuous actions only. state_grid_flag = 1,
             in actions.
 
 VI10: Value Iteration. Continuous actions only. state_grid_flag = 0,
+        BUG IN REWARD
     reward_flag = 3. trained for 10 episodes.
     Bad results. Bike balanced for 0.3 seconds.
 
@@ -50,7 +51,9 @@ Heatmap policy interpolation continuous,
         discrete actions to calculate utility values.
         Rough comparision to linear controller.
 
-VI11: similiar to VI10, but with dicsrete actions during training. state_grid_flag = 0
+VI11: similiar to VI10, but with dicsrete actions during training.
+        BUG IN REWARD
+    state_grid_flag = 0
     reward_flag = 3. action_Grid_flag = 3. trained for 10 episodes.
     continuous actions during testing.
     Bad utility heatmap. Bad policy heatmap.
@@ -58,6 +61,41 @@ VI11: similiar to VI10, but with dicsrete actions during training. state_grid_fl
 VI12: similiar to VI11. but fixed problem with reward_for_Falling (set it back)
     to 0 so that rewards are propogatted properly.
 
+VI13. similiar to VI12. state_grid_flag = 0. action_grid_flag = 3.
+    reward_flag = 3. trained using discrete actions.
+    Trained for 30 episodes.
+    Tested with continuous and discrete actions.
+
+VI14. similiar to VI13. state_grid_flag = 0. action_grid_flag = 3.
+    reward_flag = 3. trained using continuous actions.
+    Trained for 30 episodes.
+    Tested with continuous and discrete actions.
+    11/24/18
+
+VI15. similiar to VI14. state_grid_flag = 0. action_grid_flag = 3.
+    reward_flag = 4 (abs phi). trained using continuous actions.
+    Trained for 30 episodes.
+    Tested with continuous and discrete actions.
+    11/24/18
+
+V16: Value Iteration. action_flag = 2 (100 actions). State_grid_flag = 0
+    Reward_flag = 1. trained with discrete actions.
+    30 training episodes. similiar to vi8
+
+VI17: Value Iteration. action_flag = 2 (100 actions). State_grid_flag = 0.
+    Reward_flag = 1. trained with discrete actions. Should be similiar to VI14 or VI8/ Gamma Training = 0.95
+
+VI18: VAlue Iteration. action_flag = 2 (100 actions). State_grid_flag = 0.
+    Reward_flag = 1. trained with discrete actions. Should be similiar to VI14 or VI8/ Gamma Training = 1
+
+VI19: VAlue Iteration. action_flag = 2 (100 actions). State_grid_flag = 0.
+    Reward_flag = 3. trained with discrete actions. Should be similiar to VI18 but with reward flag actually equal to 3. Gamma Training = 1
+
+VI20: Value Iteration. action_flag = 2 (100 actions). State_grid_flag = 0.
+    Reward_flag = 3. trained with discrete actions. Should be similiar to VI17 with reward flag actually equal to 3. Gamma Training = 0.95
+
+
+# I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
 Q2: Q Learning 2. 11/
 
 
