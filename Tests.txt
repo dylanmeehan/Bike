@@ -94,6 +94,23 @@ VI19: VAlue Iteration. action_flag = 2 (100 actions). State_grid_flag = 0.
 VI20: Value Iteration. action_flag = 2 (100 actions). State_grid_flag = 0.
     Reward_flag = 3. trained with discrete actions. Should be similiar to VI17 with reward flag actually equal to 3. Gamma Training = 0.95
 
+--------------------- CIRCLE DEBUGGING: -----------------------
+Test1:
+    VI8, reward_flag =3, action_grid_flag = 0, state_grid_flag = 0
+    2 with state_flag1 = 3. 2 with state_flag2. one each with continuous and discrete actions.
+    Ie, test starting with both a positive and negative intial lean angle (of the same value)
+
+VI21:
+    state_grid_flag = 1. action_grid_flag = 1 (11 actions). reward_flag = 3.
+    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 30 episodes
+
+VI22:
+    state_grid_flag = 1. action_grid_flag = 1 (11 actions). reward_flag = 3.
+    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 30 episodes
+    same as VI21, but reversed the order for each index (but kept the order
+    we looped through state variables the same)
+
+----------------------------------------------------------------
 
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
 Q2: Q Learning 2. 11/

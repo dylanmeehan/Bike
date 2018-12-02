@@ -10,6 +10,8 @@ from tableBased import *
 def runBicycleTest(stateflag = 4, controller = LinearController.LinearController(),
   time = 10, isGraphing  = True, figObject = None):
 
+  print("running test")
+
   state = getStartingState8(stateflag)
 
   timestep = 1/50 #seconds
@@ -52,10 +54,6 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
     count = count + 1
 
   figObject = graph.graph(states, motorCommands, figObject)
-
-  if isGraphing:
-    plt.show()
-    plt.close("all")
 
   return([success, states, figObject])
 

@@ -3,7 +3,8 @@ from Qlearning import *
 from valueIteration import *
 from runBicycleTest import *
 
-state_flag = 5
+state_flag1 = 3
+state_flag2 = 5
 figObject = None
 
 #Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0,
@@ -13,13 +14,17 @@ figObject = None
 #   gamma =1, figObject = figObject)
 
 
-VIteration_model = ValueIteration(state_grid_flag = 0, action_grid_flag = 0,
- reward_flag = 3, Ufile = "VI8.csv", use_only_continuous_actions = False)
-#VIteration_model.train( gamma = 0.95, num_episodes = 30,
-#      do_interpolation = True, use_continuous_actions = False)
-figObject = VIteration_model.test(tmax = 10, state_flag = state_flag,
+VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 1,
+ reward_flag = 3, Ufile = "VI22.csv", use_only_continuous_actions = False)
+VIteration_model.train( gamma = 0.95, num_episodes = 30,
+     do_interpolation = True, use_continuous_actions = False)
+figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
    use_continuous_actions = True, gamma = 1, figObject = figObject)
-figObject = VIteration_model.test(tmax = 10, state_flag = state_flag,
+figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
+   use_continuous_actions = False, gamma = 1, figObject = figObject)
+figObject = VIteration_model.test(tmax = 10, state_flag = state_flag2,
+   use_continuous_actions = True, gamma = 1, figObject = figObject)
+figObject = VIteration_model.test(tmax = 10, state_flag = state_flag2,
    use_continuous_actions = False, gamma = 1, figObject = figObject)
 #VIteration_model.heatmap_value_function()
 #VIteration_model.heatmap_of_policy(option = "zero", include_linear_controller = True,
@@ -29,8 +34,12 @@ figObject = VIteration_model.test(tmax = 10, state_flag = state_flag,
 #I don't need to store the figObject returned by test. this returns the same
 # figObject as before. We only get a new FigObject when we initialize figObject
 # to None
-figObject = runBicycleTest(state_flag, controller = LinearController.LinearController(),
- time = 10, isGraphing  = True, figObject = figObject)
+[success, states, figObject] = runBicycleTest(state_flag1,
+  controller = LinearController.LinearController(),
+  time = 10, isGraphing  = True, figObject = figObject)
+[success, states, figObject] = runBicycleTest(state_flag2,
+  controller = LinearController.LinearController(),
+  time = 10, isGraphing  = True, figObject = figObject)
 
 
 plt.show()
