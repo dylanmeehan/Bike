@@ -182,6 +182,8 @@ class TableBased(object):
       #garantees reward for not falling down is greater than that for falling
       elif reward_flag == 3:
         reward = 5 - phi**2
+      elif reward_flag == 4:
+        reward = 3 - np.abs(phi)
       else:
         raise Exception("Invalid reward_flag: {}".format(reward_flag))
 
