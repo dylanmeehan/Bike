@@ -15,9 +15,9 @@ figObject = None
 
 
 VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 1,
- reward_flag = 3, Ufile = "VI22.csv", use_only_continuous_actions = False)
-VIteration_model.train( gamma = 0.95, num_episodes = 30,
-     do_interpolation = True, use_continuous_actions = False)
+ reward_flag = 3, Ufile = "VI26.csv", use_only_continuous_actions = False)
+VIteration_model.train( gamma = 0.95, num_episodes = 100,
+     do_interpolation = True, use_continuous_actions = True)
 figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
    use_continuous_actions = True, gamma = 1, figObject = figObject)
 figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,

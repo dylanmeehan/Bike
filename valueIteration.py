@@ -161,15 +161,14 @@ class ValueIteration(TableBased):
           # this ensures bad states have a reward of 0 (as desired)
 
       #exhaustively loop through all states
-      for phi_i in range(self.len_phi_grid):
-        phi_i = self.len_phi_grid - 1 - phi_i
+      for delta_i in range (self.len_delta_grid):
+        delta_i = self.len_delta_grid - 1 - delta_i
         #reverse order we loop through things
         for phi_dot_i in range(self.len_phi_dot_grid):
           phi_dot_i = self.len_phi_dot_grid - 1 - phi_dot_i
           #reverse order we loop through things
-          for delta_i in range (self.len_delta_grid):
-            delta_i = self.len_delta_grid - 1 - delta_i
-            #reverse order we loop through things
+          for phi_i in range(self.len_phi_grid):
+            phi_i = self.len_phi_grid - 1 - phi_i  #reverse order we loop through things
 
             state3_index = (phi_i, phi_dot_i, delta_i)
             state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)

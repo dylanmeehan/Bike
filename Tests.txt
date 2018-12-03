@@ -97,19 +97,41 @@ VI20: Value Iteration. action_flag = 2 (100 actions). State_grid_flag = 0.
 --------------------- CIRCLE DEBUGGING: -----------------------
 Test1:
     VI8, reward_flag =3, action_grid_flag = 0, state_grid_flag = 0
-    2 with state_flag1 = 3. 2 with state_flag2. one each with continuous and discrete actions.
+    2 with state_flag1 = 3. gamma_training = 0.95, 2 with state_flag2. one each with continuous and discrete actions. trained with discrete actions.
     Ie, test starting with both a positive and negative intial lean angle (of the same value)
 
 VI21:
     state_grid_flag = 1. action_grid_flag = 1 (11 actions). reward_flag = 3.
+    gamma_training = 0. trained with discrete actions.
     tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 30 episodes
 
 VI22:
     state_grid_flag = 1. action_grid_flag = 1 (11 actions). reward_flag = 3.
-    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 30 episodes
+    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 30 episodes. trained with discrete actions.
     same as VI21, but reversed the order for each index (but kept the order
     we looped through state variables the same)
 
+VI23:
+    state_grid_flag = 1. gamma_training = 0.95, action_grid_flag = 1 (11 actions). reward_flag = 3. trainged with discrete actions.
+    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 30 episodes
+    same as VI21, but reversed the order for each index and reversed the order I loop through states
+
+VI24:
+    state_grid_flag = 1. gamma_training = 0.95, action_grid_flag = 1 (11 actions). reward_flag = 3. trained with discrete actions.
+    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 100 episodes
+    same as VI23 but trained for 100 iterations.
+
+
+VI25:
+    state_grid_flag = 1. action_grid_flag = 1 (11 actions). reward_flag = 3.
+    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 250 episodes. trained with discrete actions.
+    gamma_train = 0.95
+    same as VI24 but trained for 250 iterations.
+
+VI26:
+    state_grid_flag = 1. gamma_training = 0.95, action_grid_flag = 1 (11 actions). reward_flag = 3. trained with continuous actions.
+    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 100 episodes
+    same as VI24 but trained with continuous actions.
 ----------------------------------------------------------------
 
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
