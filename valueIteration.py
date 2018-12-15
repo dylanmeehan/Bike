@@ -219,7 +219,21 @@ class ValueIteration(TableBased):
     print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
       + str(time))
 
-    figObject = graph.graph(states8, motorCommands, figObject)
+    ##### CALCULATE WHEN THE CONTROLLER IS INSIDE THE LAST GRID POINT #######
+    #this code kinda duplicates the code inside graph. I should figure out
+    #how to better structure this
+    [ts, xs, ys, phis, psis, deltas, phi_dots, vs] =  \
+      np.apply_along_axis(unpackState, 1, states8).T
+    is_inside_last_gridpoint = np.zeros(len(phis))
+
+    for t in range(len(ts)):
+      #check if we are inside the last box
+      if (abs(phis[t])<self.smallest_phi and abs(phi_dots[t])<self.smallest_phi_dot
+        and abs(deltas[t])<self.smallest_delta):
+        is_inside_last_gridpoint[t] = 1
+      #else is already set to zero
+
+    figObject = graph.graph(states8, motorCommands, figObject, is_inside_last_gridpoint)
     return figObject
 
   def heatmap_value_function(self):

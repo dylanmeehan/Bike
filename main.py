@@ -20,8 +20,8 @@ VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 1,
 #      do_interpolation = True, use_continuous_actions = False)
 figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
    use_continuous_actions = True, gamma = 1, figObject = figObject)
-figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
-   use_continuous_actions = False, gamma = 1, figObject = figObject)
+#figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
+#   use_continuous_actions = False, gamma = 1, figObject = figObject)
 # figObject = VIteration_model.test(tmax = 10, state_flag = state_flag2,
 #    use_continuous_actions = True, gamma = 1, figObject = figObject)
 # figObject = VIteration_model.test(tmax = 10, state_flag = state_flag2,
@@ -34,9 +34,9 @@ figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
 #I don't need to store the figObject returned by test. this returns the same
 # figObject as before. We only get a new FigObject when we initialize figObject
 # to None
-[success, states, figObject] = runBicycleTest(state_flag1,
-  controller = LinearController.LinearController(),
-  time = 10, isGraphing  = True, figObject = figObject)
+#[success, states, figObject] = runBicycleTest(state_flag1,
+#  controller = LinearController.LinearController(),
+#  time = 10, isGraphing  = True, figObject = figObject)
 # [success, states, figObject] = runBicycleTest(state_flag2,
 #   controller = LinearController.LinearController(),
 #   time = 10, isGraphing  = True, figObject = figObject)
