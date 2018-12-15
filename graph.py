@@ -12,9 +12,6 @@ def graph(states, motorCommands, figObject, is_inside_last_gridpoint = []):
   [ts, xs, ys, phis, psis, deltas, phi_dots, vs] =  \
     np.apply_along_axis(unpackState, 1, states).T
 
-  if is_inside_last_gridpoint == []:
-    is_inside_last_gridpoint = np.zeros(len(ts))
-
   (fig1, [[ax1,ax2],[ax3,ax4]]),(fig2, [ax5,ax6]) = figObject
 
   #fig1, [[ax1,ax2],[ax3,ax4]] = plt.subplots(2,2)
@@ -38,10 +35,11 @@ def graph(states, motorCommands, figObject, is_inside_last_gridpoint = []):
   ax4.set_xlabel("time [s]")
   ax4.set_ylabel("steer rate [rad/s]")
 
-  for ax in [ax1, ax2, ax3, ax4]:
-    ax0 = ax.twinx()
-    ax0.plot(ts, is_inside_last_gridpoint)
-    ax0.set_ylabel("Is controller inside last gridpoint")
+  if is_inside_last_gridpoint != []:
+    for ax in [ax1, ax2, ax3, ax4]:
+      ax0 = ax.twinx()
+      ax0.plot(ts, is_inside_last_gridpoint, color = 'y')
+      ax0.set_ylabel("Is controller inside last gridpoint")
 
   #fig2, [ax5,ax6] = plt.subplots(2,1)
   ax5.plot(xs, ys)
