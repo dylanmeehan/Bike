@@ -202,7 +202,7 @@ class ValueIteration(TableBased):
     np.savetxt(self.Ufile, self.U.reshape(self.num_states), delimiter = ",")
 
   def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
-      gamma = 1, figObject = None):
+      gamma = 1, figObject = None, plot_is_inside_last_gridpoint = True):
 
     # if using continuous actions, need to interpolate value function
     if use_continuous_actions:
@@ -233,6 +233,8 @@ class ValueIteration(TableBased):
         is_inside_last_gridpoint[t] = 1
       #else is already set to zero
 
+    if not plot_is_inside_last_gridpoint:
+      is_inside_last_gridpoint = []
     figObject = graph.graph(states8, motorCommands, figObject, is_inside_last_gridpoint)
     return figObject
 

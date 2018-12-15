@@ -19,7 +19,8 @@ VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 1,
 # VIteration_model.train( gamma = 0.95, num_episodes = 100,
 #      do_interpolation = True, use_continuous_actions = False)
 figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
-   use_continuous_actions = True, gamma = 1, figObject = figObject)
+   use_continuous_actions = True, gamma = 1, figObject = figObject,
+   plot_is_inside_last_gridpoint = False)
 #figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
 #   use_continuous_actions = False, gamma = 1, figObject = figObject)
 # figObject = VIteration_model.test(tmax = 10, state_flag = state_flag2,
