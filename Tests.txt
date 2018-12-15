@@ -132,6 +132,16 @@ VI26:
     state_grid_flag = 1. gamma_training = 0.95, action_grid_flag = 1 (11 actions). reward_flag = 3. trained with continuous actions.
     tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 100 episodes
     same as VI24 but trained with continuous actions.
+
+VI27:
+    state_grid_flag = 1. gamma_training = 0.95, action_grid_flag = 1 (11 actions). reward_flag = 3. trainged with discrete actions.
+    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 30 episodes
+    same as VI23, but loops through state indicies in random order.
+
+VI28:
+    state_grid_flag = 1. gamma_training = 0.95, action_grid_flag = 1 (11 actions). reward_flag = 3. trainged with discrete actions.
+    tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 100 episodes
+    same as VI27, but with 100 episodes.
 ----------------------------------------------------------------
 
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate

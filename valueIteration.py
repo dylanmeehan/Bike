@@ -160,15 +160,18 @@ class ValueIteration(TableBased):
           # thus, if the bicycle gets no reward for a state outside of the grid
           # this ensures bad states have a reward of 0 (as desired)
 
-      #exhaustively loop through all states
-      for delta_i in range (self.len_delta_grid):
-        delta_i = self.len_delta_grid - 1 - delta_i
-        #reverse order we loop through things
-        for phi_dot_i in range(self.len_phi_dot_grid):
-          phi_dot_i = self.len_phi_dot_grid - 1 - phi_dot_i
-          #reverse order we loop through things
-          for phi_i in range(self.len_phi_grid):
-            phi_i = self.len_phi_grid - 1 - phi_i  #reverse order we loop through things
+      # shuffle indicies (so that we update states in a random order reach loop)
+      #this *attempts* prevents "circle" bug
+      phi_indices = list(range(self.len_phi_grid))
+      np.random.shuffle(phi_indices)
+      phi_dot_indices = list(range(self.len_phi_dot_grid))
+      np.random.shuffle(phi_dot_indices)
+      delta_indices = list(range (self.len_delta_grid))
+      np.random.shuffle(delta_indices)
+
+      for phi_i in phi_indices:
+        for phi_dot_i in phi_dot_indices:
+          for delta_i in delta_indices:
 
             state3_index = (phi_i, phi_dot_i, delta_i)
             state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
