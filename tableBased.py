@@ -64,6 +64,10 @@ class TableBased(object):
     self.len_delta_grid = len(self.delta_grid)
     self.num_states = self.len_phi_grid*self.len_phi_dot_grid*self.len_delta_grid
 
+    # assume phi grid has an odd number of elements and the middle element is 0
+    self.smallest_phi = abs(self.phi_grid[int((self.len_phi_grid-3)/2)])
+    self.smallest_phi_dot = abs(self.phi_dot_grid[int((self.len_phi_dot_grid-3)/2)])
+    self.smallest_delta = abs(self.delta_grid[int((self.len_delta_grid-3)/2)])
 
     # generate a 3D grid of the points in our table
     # a mesh where each point is a 3 tuple. one dimension for each state variable

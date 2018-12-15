@@ -3,7 +3,7 @@ import numpy as np
 from unpackState import *
 
 #graph variables about a bicycle simulation
-def graph(states, motorCommands, figObject):
+def graph(states, motorCommands, figObject, is_inside_last_gridpoint = []):
 
   #if there is not already some graphs, make new graphs
   if figObject == None:
@@ -11,6 +11,9 @@ def graph(states, motorCommands, figObject):
 
   [ts, xs, ys, phis, psis, deltas, phi_dots, vs] =  \
     np.apply_along_axis(unpackState, 1, states).T
+
+  if is_inside_last_gridpoint == []:
+    is_inside_last_gridpoint = np.zeros(len(ts))
 
   (fig1, [[ax1,ax2],[ax3,ax4]]),(fig2, [ax5,ax6]) = figObject
 
@@ -35,6 +38,11 @@ def graph(states, motorCommands, figObject):
   ax4.set_xlabel("time [s]")
   ax4.set_ylabel("steer rate [rad/s]")
 
+  for ax in [ax1, ax2, ax3, ax4]:
+    ax0 = ax.twinx()
+    ax0.plot(ts, is_inside_last_gridpoint)
+    ax0.set_ylabel("Is controller inside last gridpoint")
+
   #fig2, [ax5,ax6] = plt.subplots(2,1)
   ax5.plot(xs, ys)
   ax5.set_title("trajectory")
@@ -48,6 +56,8 @@ def graph(states, motorCommands, figObject):
   ax6.set_xlabel("time [s]")
   ax6.set_ylabel("yaw rate [rad/s]")
 
+  fig1.tight_layout()
+  fig2.tight_layout()
   #plt.show()
   # plt.show() waits until you close the figure
 
