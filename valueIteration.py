@@ -5,6 +5,7 @@ import graph
 import parameters as params
 from unpackState import *
 from tableBased import *
+from heatmapHelpers import *
 from scipy.interpolate import RegularGridInterpolator
 from pathlib import Path
 import scipy.optimize as opt
@@ -67,6 +68,7 @@ class ValueIteration(TableBased):
 
     new_state3 = state8_to_state3(new_state8)
     utility = self.get_value(new_state3, do_interpolation = True)
+    #does NOT calculate the reward at new_state3 (ie, does not calculate R(s'))
 
     return utility
 
@@ -94,7 +96,7 @@ class ValueIteration(TableBased):
     #print(OptimizeResult.x)
     u = OptimizeResult.x
 
-    #clip u
+    #clip u, delta dot, steer rate
     if u > params.MAX_STEER_RATE:
       u = params.MAX_STEER_RATE
     elif u < -params.MAX_STEER_RATE:
@@ -202,7 +204,7 @@ class ValueIteration(TableBased):
     np.savetxt(self.Ufile, self.U.reshape(self.num_states), delimiter = ",")
 
   def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
-      gamma = 1, figObject = None, plot_is_inside_last_gridpoint = True):
+      gamma = 1, figObject = None, plot_is_inside_last_gridpoint = False):
 
     # if using continuous actions, need to interpolate value function
     if use_continuous_actions:
@@ -238,214 +240,215 @@ class ValueIteration(TableBased):
     figObject = graph.graph(states8, motorCommands, figObject, is_inside_last_gridpoint)
     return figObject
 
-  def heatmap_value_function(self):
-    #print("phi num = " + str(self.len_phi_grid) + ", phi dot num = "  +
-    #  str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
-    #print("U size = " + str(self.U.shape))
 
-    n = 1
+def heatmap_value_function(self):
+  #print("phi num = " + str(self.len_phi_grid) + ", phi dot num = "  +
+  #  str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
+  #print("U size = " + str(self.U.shape))
 
-    fig1, ax1 = plt.subplots(1,n)
-    fig2, ax2 = plt.subplots(1,n)
-    fig3, ax3 = plt.subplots(1,n)
+  n = 1
 
-    U = self.U
-    title = "Value Iteration"
+  fig1, ax1 = plt.subplots(1,n)
+  fig2, ax2 = plt.subplots(1,n)
+  fig3, ax3 = plt.subplots(1,n)
 
-    phi_vs_phidot = np.mean(U, axis = 2)
+  U = self.U
+  title = "Value Iteration"
+
+  phi_vs_phidot = np.mean(U, axis = 2)
+  #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
+
+  im1 = ax1.imshow(phi_vs_phidot)
+  ax1.set_title("{}: Utility (averaged over delta)".format(title))
+  ax1.set_ylabel("phi [rad]")
+  ax1.set_xlabel("phi_dot [rad/s]")
+  ax1.set_yticks(np.arange(self.len_phi_grid))
+  ax1.set_xticks(np.arange(self.len_phi_dot_grid))
+  ax1.set_yticklabels(self.phi_grid)
+  ax1.set_xticklabels(self.phi_dot_grid)
+
+  fig1.colorbar(im1)
+
+  #figure 2
+  phi_vs_delta = np.mean(U, axis = 1)
+  #print("phi vs phidot shape: " + str(phi_vs_delta))
+
+  im2 = ax2.imshow(phi_vs_delta)
+  ax2.set_title("{}: Utility (averaged over phidot)".format(title))
+  ax2.set_ylabel("phi [rad]")
+  ax2.set_xlabel("delta [rad]")
+  ax2.set_yticks(np.arange(self.len_phi_grid))
+  ax2.set_xticks(np.arange(self.len_delta_grid))
+  ax2.set_yticklabels(self.phi_grid)
+  ax2.set_xticklabels(self.delta_grid)
+
+  fig2.colorbar(im2)
+
+  #figure 3
+  phidot_vs_delta = np.mean(U, axis = 0)
+  #print("phi vs phidot shape: " + str(phidot_vs_delta))
+
+  im3 = ax3.imshow(phidot_vs_delta)
+  ax3.set_title("{}: Utility (averaged over phi)".format(title))
+  ax3.set_ylabel("phi_dot [rad/s]")
+  ax3.set_xlabel("delta [rad]")
+  ax3.set_yticks(np.arange(self.len_phi_dot_grid))
+  ax3.set_xticks(np.arange(self.len_delta_grid))
+  ax3.set_yticklabels(self.phi_dot_grid)
+  ax3.set_xticklabels(self.delta_grid)
+
+  fig3.colorbar(im3)
+
+  #
+  plt.show()
+  plt.close(fig1)
+  plt.close(fig2)
+  plt.close(fig3)
+
+# options = "average", "zero"
+def heatmap_of_policy(self, option, include_linear_controller = False,
+  use_continuous_actions = False):
+
+  VI_policy = np.zeros(self.U.shape)
+  linear_controller_policy = np.zeros(self.U.shape)
+
+  LQR_controller = LinearController.LinearController()
+
+  if use_continuous_actions:
+    self.itp = RegularGridInterpolator(\
+      (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
+      bounds_error = False, fill_value = 0)
+
+  for phi_i in range(self.len_phi_grid):
+    for phi_dot_i in range(self.len_phi_dot_grid):
+      for delta_i in range (self.len_delta_grid):
+
+        state3_index = (phi_i, phi_dot_i, delta_i)
+
+        if use_continuous_actions:
+          state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
+          VI_action = self.get_action_continuous(state8, epsilon = 0)
+        else:
+          action_index = self.act_index(state3_index, epsilon = 0)
+          #self.act_index returns which action to take. defined for each model.
+          VI_action = self.get_action_from_index(action_index)
+
+        VI_policy[phi_i, phi_dot_i, delta_i] = VI_action
+
+        if include_linear_controller:
+          state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
+          LQR_action = LQR_controller.act(state8)
+          #to get shadding to tbe equal, limit max steer rate of linear controller
+
+          if not use_continuous_actions:
+            # limit LQR controller to be in the same range as the linear
+            # controller. This way the colors are the same on the heatmap
+            if LQR_action > self.action_grid[-1]:
+              LQR_action = self.action_grid[-1]
+            if LQR_action < self.action_grid[0]:
+              LQR_action = self.action_grid[0]
+          linear_controller_policy[phi_i, phi_dot_i, delta_i] = LQR_action
+
+  if not use_continuous_actions:
+    print("Linear Controller output clipped to {} rad/s for \
+                policy heatmap".format(self.action_grid[-1]))
+
+  if include_linear_controller:
+    policies = (VI_policy,linear_controller_policy)
+  else:
+    policies = (VI_policy,)
+  n = len(policies)
+  titles = ("Value Iteration", "Linear Controller")
+
+  get_middle = lambda array: array[int((len(array)-1)/2)]
+
+  fig1, ax1s = plt.subplots(1,n)
+  fig2, ax2s = plt.subplots(1,n)
+  fig3, ax3s = plt.subplots(1,n)
+
+  for i in range(n):
+    policy = policies[i]
+    title = titles[i]
+
+    ax1 = ax1s[i]
+    ax2 = ax2s[i]
+    ax3 = ax3s[i]
+
+    if option == "average":
+      phi_vs_phidot = np.mean(policy, axis = 2)
+    elif option == "zero":
+      phi_vs_phidot = np.apply_along_axis(get_middle, axis=2, arr= policy)
     #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
 
-    im1 = ax1.imshow(phi_vs_phidot)
-    ax1.set_title("{}: Utility (averaged over delta)".format(title))
-    ax1.set_ylabel("phi [rad]")
-    ax1.set_xlabel("phi_dot [rad/s]")
+    im1 = ax1.imshow(phi_vs_phidot, cmap=plt.get_cmap("coolwarm"))
+
+    if option == "average":
+      ax1.set_title("{} Policy (averaged over steer angles)".format(title))
+    elif option == "zero":
+      ax1.set_title("{} Policy (with steer angle =0)".format(title))
+    ax1.set_ylabel("lean [rad]")
+    ax1.set_xlabel("lean rate [rad/s]")
     ax1.set_yticks(np.arange(self.len_phi_grid))
     ax1.set_xticks(np.arange(self.len_phi_dot_grid))
     ax1.set_yticklabels(self.phi_grid)
     ax1.set_xticklabels(self.phi_dot_grid)
 
-    fig1.colorbar(im1)
+
 
     #figure 2
-    phi_vs_delta = np.mean(U, axis = 1)
+
+
+    if option == "average":
+      phi_vs_delta = np.mean(policy, axis = 1)
+    elif option == "zero":
+      phi_vs_delta = np.apply_along_axis(get_middle, axis=1, arr= policy)
     #print("phi vs phidot shape: " + str(phi_vs_delta))
 
-    im2 = ax2.imshow(phi_vs_delta)
-    ax2.set_title("{}: Utility (averaged over phidot)".format(title))
-    ax2.set_ylabel("phi [rad]")
-    ax2.set_xlabel("delta [rad]")
+    im2 = ax2.imshow(phi_vs_delta, cmap=plt.get_cmap("coolwarm"))
+    if option == "avearge":
+      ax2.set_title("{} Policy (averaged over lean rate)".format(title))
+    elif option == "zero":
+      ax2.set_title("{} Policy (with lean rate =0)".format(title))
+    ax2.set_ylabel("lean [rad]")
+    ax2.set_xlabel("steer [rad]")
     ax2.set_yticks(np.arange(self.len_phi_grid))
     ax2.set_xticks(np.arange(self.len_delta_grid))
     ax2.set_yticklabels(self.phi_grid)
     ax2.set_xticklabels(self.delta_grid)
 
-    fig2.colorbar(im2)
+
+
 
     #figure 3
-    phidot_vs_delta = np.mean(U, axis = 0)
+
+    if option == "average":
+      phidot_vs_delta = np.mean(policy, axis = 0)
+    elif option == "zero":
+      phidot_vs_delta = np.apply_along_axis(get_middle, axis=0, arr= policy)
     #print("phi vs phidot shape: " + str(phidot_vs_delta))
 
-    im3 = ax3.imshow(phidot_vs_delta)
-    ax3.set_title("{}: Utility (averaged over phi)".format(title))
-    ax3.set_ylabel("phi_dot [rad/s]")
-    ax3.set_xlabel("delta [rad]")
+    im3 = ax3.imshow(phidot_vs_delta, cmap=plt.get_cmap("coolwarm"))
+    if option == "average":
+      ax3.set_title("{} Policy (averaged over lean)".format(title))
+    elif option == "zero":
+      ax3.set_title("{} Policy (with lean=0)".format(title))
+    ax3.set_ylabel("lean rate [rad/s]")
+    ax3.set_xlabel("steer [rad]")
     ax3.set_yticks(np.arange(self.len_phi_dot_grid))
     ax3.set_xticks(np.arange(self.len_delta_grid))
     ax3.set_yticklabels(self.phi_dot_grid)
     ax3.set_xticklabels(self.delta_grid)
 
-    fig3.colorbar(im3)
+  cbar1 = fig1.colorbar(im1)
+  cbar1.set_label("steer rate [rad/s]")
 
-    #
-    plt.show()
-    plt.close(fig1)
-    plt.close(fig2)
-    plt.close(fig3)
+  cbar2 = fig2.colorbar(im2)
+  cbar2.set_label("steer rate [rad/s]")
 
-  # options = "average", "zero"
-  def heatmap_of_policy(self, option, include_linear_controller = False,
-    use_continuous_actions = False):
+  cbar3= fig3.colorbar(im3)
+  cbar3.set_label("steer rate [rad/s]")
 
-    VI_policy = np.zeros(self.U.shape)
-    linear_controller_policy = np.zeros(self.U.shape)
-
-    LQR_controller = LinearController.LinearController()
-
-    if use_continuous_actions:
-      self.itp = RegularGridInterpolator(\
-        (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
-        bounds_error = False, fill_value = 0)
-
-    for phi_i in range(self.len_phi_grid):
-      for phi_dot_i in range(self.len_phi_dot_grid):
-        for delta_i in range (self.len_delta_grid):
-
-          state3_index = (phi_i, phi_dot_i, delta_i)
-
-          if use_continuous_actions:
-            state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
-            VI_action = self.get_action_continuous(state8, epsilon = 0)
-          else:
-            action_index = self.act_index(state3_index, epsilon = 0)
-            #self.act_index returns which action to take. defined for each model.
-            VI_action = self.get_action_from_index(action_index)
-
-          VI_policy[phi_i, phi_dot_i, delta_i] = VI_action
-
-          if include_linear_controller:
-            state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
-            LQR_action = LQR_controller.act(state8)
-            #to get shadding to tbe equal, limit max steer rate of linear controller
-
-            if not use_continuous_actions:
-              # limit LQR controller to be in the same range as the linear
-              # controller. This way the colors are the same on the heatmap
-              if LQR_action > self.action_grid[-1]:
-                LQR_action = self.action_grid[-1]
-              if LQR_action < self.action_grid[0]:
-                LQR_action = self.action_grid[0]
-            linear_controller_policy[phi_i, phi_dot_i, delta_i] = LQR_action
-
-    if not use_continuous_actions:
-      print("Linear Controller output clipped to {} rad/s for \
-                  policy heatmap".format(self.action_grid[-1]))
-
-    if include_linear_controller:
-      policies = (VI_policy,linear_controller_policy)
-    else:
-      policies = (VI_policy,)
-    n = len(policies)
-    titles = ("Value Iteration", "Linear Controller")
-
-    get_middle = lambda array: array[int((len(array)-1)/2)]
-
-    fig1, ax1s = plt.subplots(1,n)
-    fig2, ax2s = plt.subplots(1,n)
-    fig3, ax3s = plt.subplots(1,n)
-
-    for i in range(n):
-      policy = policies[i]
-      title = titles[i]
-
-      ax1 = ax1s[i]
-      ax2 = ax2s[i]
-      ax3 = ax3s[i]
-
-      if option == "average":
-        phi_vs_phidot = np.mean(policy, axis = 2)
-      elif option == "zero":
-        phi_vs_phidot = np.apply_along_axis(get_middle, axis=2, arr= policy)
-      #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
-
-      im1 = ax1.imshow(phi_vs_phidot, cmap=plt.get_cmap("coolwarm"))
-
-      if option == "average":
-        ax1.set_title("{} Policy (averaged over steer angles)".format(title))
-      elif option == "zero":
-        ax1.set_title("{} Policy (with steer angle =0)".format(title))
-      ax1.set_ylabel("lean [rad]")
-      ax1.set_xlabel("lean rate [rad/s]")
-      ax1.set_yticks(np.arange(self.len_phi_grid))
-      ax1.set_xticks(np.arange(self.len_phi_dot_grid))
-      ax1.set_yticklabels(self.phi_grid)
-      ax1.set_xticklabels(self.phi_dot_grid)
-
-
-
-      #figure 2
-
-
-      if option == "average":
-        phi_vs_delta = np.mean(policy, axis = 1)
-      elif option == "zero":
-        phi_vs_delta = np.apply_along_axis(get_middle, axis=1, arr= policy)
-      #print("phi vs phidot shape: " + str(phi_vs_delta))
-
-      im2 = ax2.imshow(phi_vs_delta, cmap=plt.get_cmap("coolwarm"))
-      if option == "avearge":
-        ax2.set_title("{} Policy (averaged over lean rate)".format(title))
-      elif option == "zero":
-        ax2.set_title("{} Policy (with lean rate =0)".format(title))
-      ax2.set_ylabel("lean [rad]")
-      ax2.set_xlabel("steer [rad]")
-      ax2.set_yticks(np.arange(self.len_phi_grid))
-      ax2.set_xticks(np.arange(self.len_delta_grid))
-      ax2.set_yticklabels(self.phi_grid)
-      ax2.set_xticklabels(self.delta_grid)
-
-
-
-
-      #figure 3
-
-      if option == "average":
-        phidot_vs_delta = np.mean(policy, axis = 0)
-      elif option == "zero":
-        phidot_vs_delta = np.apply_along_axis(get_middle, axis=0, arr= policy)
-      #print("phi vs phidot shape: " + str(phidot_vs_delta))
-
-      im3 = ax3.imshow(phidot_vs_delta, cmap=plt.get_cmap("coolwarm"))
-      if option == "average":
-        ax3.set_title("{} Policy (averaged over lean)".format(title))
-      elif option == "zero":
-        ax3.set_title("{} Policy (with lean=0)".format(title))
-      ax3.set_ylabel("lean rate [rad/s]")
-      ax3.set_xlabel("steer [rad]")
-      ax3.set_yticks(np.arange(self.len_phi_dot_grid))
-      ax3.set_xticks(np.arange(self.len_delta_grid))
-      ax3.set_yticklabels(self.phi_dot_grid)
-      ax3.set_xticklabels(self.delta_grid)
-
-    cbar1 = fig1.colorbar(im1)
-    cbar1.set_label("steer rate [rad/s]")
-
-    cbar2 = fig2.colorbar(im2)
-    cbar2.set_label("steer rate [rad/s]")
-
-    cbar3= fig3.colorbar(im3)
-    cbar3.set_label("steer rate [rad/s]")
-
-    plt.show()
-    plt.close(fig1)
-    plt.close(fig2)
-    plt.close(fig3)
+  plt.show()
+  plt.close(fig1)
+  plt.close(fig2)
+  plt.close(fig3)

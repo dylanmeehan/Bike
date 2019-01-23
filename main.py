@@ -14,22 +14,22 @@ figObject = None
 #   gamma =1, figObject = figObject)
 
 
-VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 1,
- reward_flag = 3, Ufile = "VI24.csv", use_only_continuous_actions = False)
+VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 2,
+ reward_flag = 3, Ufile = "VI25.csv", use_only_continuous_actions = False)
 # VIteration_model.train( gamma = 0.95, num_episodes = 100,
 #      do_interpolation = True, use_continuous_actions = False)
 figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
-   use_continuous_actions = True, gamma = 1, figObject = figObject,
-   plot_is_inside_last_gridpoint = False)
+   use_continuous_actions = False, gamma = 1, figObject = figObject,
+   plot_is_inside_last_gridpoint = True)
 #figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
-#   use_continuous_actions = False, gamma = 1, figObject = figObject)
-# figObject = VIteration_model.test(tmax = 10, state_flag = state_flag2,
+#   use_continuous_actions = True, gamma = 1, figObject = figObject)
+#figObject = VIteration_model.test(tmax = 10, state_flag = state_flag2,
 #    use_continuous_actions = True, gamma = 1, figObject = figObject)
 # figObject = VIteration_model.test(tmax = 10, state_flag = state_flag2,
 #    use_continuous_actions = False, gamma = 1, figObject = figObject)
-#VIteration_model.heatmap_value_function()
-#VIteration_model.heatmap_of_policy(option = "zero", include_linear_controller = True,
-#  use_continuous_actions = True )
+VIteration_model.heatmap_value_function()
+VIteration_model.heatmap_of_policy(option = "zero", include_linear_controller = True,
+  use_continuous_actions = True )
 
 
 #I don't need to store the figObject returned by test. this returns the same
@@ -42,6 +42,6 @@ figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
 #   controller = LinearController.LinearController(),
 #   time = 10, isGraphing  = True, figObject = figObject)
 
-
 plt.show()
 plt.close("all")
+
