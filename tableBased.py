@@ -176,6 +176,8 @@ class TableBased(object):
     # test ifbike has fallen
     if (abs(phi) > np.pi/4):
       reward = 0
+      #If reward is changed from 0, also change fill_value in the interpolator,
+      #I should set them both to be dependent on 1 parameter
     else:
       if reward_flag == 0:
         reward =  1 #no shapping
