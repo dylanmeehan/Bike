@@ -262,6 +262,10 @@ class TableBased(object):
         total_time += self.timestep
 
       state8 = new_state8
+
+      #print state3 values
+      #print([state8[3],state8[5], state8[6]])
+
       if not use_continuous_actions:
         state_grid_point_index = new_state_grid_point_index
 
