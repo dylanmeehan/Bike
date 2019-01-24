@@ -15,7 +15,7 @@ figObject = None
 
 
 VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 2,
- reward_flag = 3, Ufile = "VI25.csv", use_only_continuous_actions = False)
+ reward_flag = 3, Ufile = "models/VI28.csv", use_only_continuous_actions = False)
 # VIteration_model.train( gamma = 0.95, num_episodes = 100,
 #      do_interpolation = True, use_continuous_actions = False)
 figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
