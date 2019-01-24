@@ -38,22 +38,28 @@ class TableBased(object):
   #given: state_grid_flag determines which grid points to use
   def set_state_grid_points(self, state_grid_flag):
 
+    def make_full_grid(half_grid):
+      return [-1*i for i in half_grid[::-1]] + [0] + half_grid
+
     #generate grid in which to discritize states
+
     if state_grid_flag == 0:
-      self.phi_grid = [-.8, -.6, -.4, -.28, -.22, -.16, -.1, -.06, -.02, 0, \
-        .02, .06, .1, .16, .22, .28, .4, .6, .8 ]
-      self.phi_dot_grid = [-1, -.7, -.4,  -.3, -.2, -.1, -.05, -.02, 0,\
-        .02, .05, .1, .2, .3, .4,  .7, 1]
-      self.delta_grid = [-1, -.7, -.4,  -.3, -.2, -.1, -.05, -.02, 0,\
-        .02, .05, .1, .2, .3, .4,  .7, 1]
+      phi_half_grid = [.02, .06, .1, .16, .22, .28, .4, .6, .8 ]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .05, .1, .2, .3, .4,  .7, 1]
+      self.phi_dot_grid = make_full_grid(phi_dot_halfgrid)
+      delta_half_grid =   [.02, .05, .1, .2, .3, .4,  .7, 1]
+      self.delta_grid = make_full_grid(delta_half_grid)
 
     elif state_grid_flag == 1:
-      self.phi_grid = [-.8, -.6, -.4, -.28, -.22, -.16, -.1, -.06, -.02, 0, \
-        .02, .06, .1, .16, .22, .28, .4, .6, .8 ]
-      self.phi_dot_grid = [-1, -.7, -.4,  -.3, -.2, -.1, -.05, -.02, 0,\
-        .02, .05, .1, .2, .3, .4,  .7, 1]
-      self.delta_grid = [-1, -.7, -.4, -.2, -.1, -.05, -.02, 0,\
-        .02, .05, .1, .2, .4,  .7, 1]
+      #self.phi_grid = [-.8, -.6, -.4, -.28, -.22, -.16, -.1, -.06, -.02, 0, \
+      #  .02, .06, .1, .16, .22, .28, .4, .6, .8 ]
+      phi_half_grid = [.02, .06, .1, .16, .22, .28, .4, .6, .8 ]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .05, .1, .2, .3, .4,  .7, 1 ]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =  [.02, .05, .1, .2, .4,  .7, 1]
+      self.delta_grid = make_full_grid(delta_half_grid)
 
     else:
       raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
@@ -64,10 +70,10 @@ class TableBased(object):
     self.len_delta_grid = len(self.delta_grid)
     self.num_states = self.len_phi_grid*self.len_phi_dot_grid*self.len_delta_grid
 
-    # assume phi grid has an odd number of elements and the middle element is 0
-    self.smallest_phi = abs(self.phi_grid[int((self.len_phi_grid-3)/2)])
-    self.smallest_phi_dot = abs(self.phi_dot_grid[int((self.len_phi_dot_grid-3)/2)])
-    self.smallest_delta = abs(self.delta_grid[int((self.len_delta_grid-3)/2)])
+    #used for checking if we are within one grid point of the goal state
+    self.smallest_phi = phi_half_grid[0]
+    self.smallest_phi_dot = phi_dot_half_grid[0]
+    self.smallest_delta = delta_half_grid[0]
 
     # generate a 3D grid of the points in our table
     # a mesh where each point is a 3 tuple. one dimension for each state variable
