@@ -3,7 +3,7 @@ import numpy as np
 from unpackState import *
 
 #graph variables about a bicycle simulation
-def graph(states, motorCommands, figObject, is_inside_last_gridpoint = []):
+def graph(states, motorCommands, figObject, points_inside_last_gridpoint = []):
 
   #if there is not already some graphs, make new graphs
   if figObject == None:
@@ -35,10 +35,10 @@ def graph(states, motorCommands, figObject, is_inside_last_gridpoint = []):
   ax4.set_xlabel("time [s]")
   ax4.set_ylabel("steer rate [rad/s]")
 
-  if is_inside_last_gridpoint != []:
+  if points_inside_last_gridpoint != []:
     for ax in [ax1, ax2, ax3, ax4]:
       ax0 = ax.twinx()
-      ax0.plot(ts, is_inside_last_gridpoint, color = 'y')
+      ax0.plot(ts, points_inside_last_gridpoint, color = 'y')
       ax0.set_ylabel("Is controller inside last gridpoint")
 
   #fig2, [ax5,ax6] = plt.subplots(2,1)

@@ -40,7 +40,7 @@ class ValueIteration(TableBased):
   #given: state3_index: the index of a point in the descritized table
   #     do_intepolations: boolean to decide to interpolate or not
   #return: (best_action_index, best_action_utility) for that state.
-  #`best_action_index is the index of the action which has the highest utility
+  # best_action_index is the index of the action which has the highest utility
   # best_action_utility is the utility of that action
   def calc_best_action_and_utility(self, state3_index, do_interpolation):
 
@@ -70,6 +70,24 @@ class ValueIteration(TableBased):
     #does NOT calculate the reward at new_state3 (ie, does not calculate R(s'))
 
     return utility
+
+  def calculate_points_inside_last_gridpoint(self, states8):
+    ##### CALCULATE WHEN THE CONTROLLER IS INSIDE THE LAST GRID POINT #######
+    #this code kinda duplicates the code inside graph. I should figure out
+    #how to better structure this
+
+    [ts, xs, ys, phis, psis, deltas, phi_dots, vs] =  \
+      np.apply_along_axis(unpackState, 1, states8).T
+    points_inside_last_gridpoint = np.zeros(len(phis))
+
+    for t in range(len(ts)):
+      #check if we are inside the last box
+      if (abs(phis[t])<self.smallest_phi and abs(phi_dots[t])<self.smallest_phi_dot
+        and abs(deltas[t])<self.smallest_delta):
+        points_inside_last_gridpoint[t] = 1
+      #else is already set to zero
+
+    return points_inside_last_gridpoint
 
   #always do interpolation
   def calc_best_action_and_utility_continuous(self, state3):
@@ -220,23 +238,14 @@ class ValueIteration(TableBased):
     print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
       + str(time))
 
-    ##### CALCULATE WHEN THE CONTROLLER IS INSIDE THE LAST GRID POINT #######
-    #this code kinda duplicates the code inside graph. I should figure out
-    #how to better structure this
-    [ts, xs, ys, phis, psis, deltas, phi_dots, vs] =  \
-      np.apply_along_axis(unpackState, 1, states8).T
-    is_inside_last_gridpoint = np.zeros(len(phis))
 
-    for t in range(len(ts)):
-      #check if we are inside the last box
-      if (abs(phis[t])<self.smallest_phi and abs(phi_dots[t])<self.smallest_phi_dot
-        and abs(deltas[t])<self.smallest_delta):
-        is_inside_last_gridpoint[t] = 1
-      #else is already set to zero
+    points_inside_last_gridpoint = []
+    if plot_is_inside_last_gridpoint:
+      points_inside_last_gridpoint = \
+        self.calculate_points_inside_last_gridpoint(states8)
 
-    if not plot_is_inside_last_gridpoint:
-      is_inside_last_gridpoint = []
-    figObject = graph.graph(states8, motorCommands, figObject, is_inside_last_gridpoint)
+    figObject = graph.graph(states8, motorCommands, figObject,
+      points_inside_last_gridpoint)
     return figObject
 
 
