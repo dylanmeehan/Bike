@@ -27,9 +27,9 @@ figObject = VIteration_model.test(tmax = 10, state_flag = state_flag1,
 #    use_continuous_actions = True, gamma = 1, figObject = figObject)
 # figObject = VIteration_model.test(tmax = 10, state_flag = state_flag2,
 #    use_continuous_actions = False, gamma = 1, figObject = figObject)
-VIteration_model.heatmap_value_function()
-VIteration_model.heatmap_of_policy(option = "zero", include_linear_controller = True,
-  use_continuous_actions = True )
+#VIteration_model.heatmap_value_function()
+#VIteration_model.heatmap_of_policy(option = "zero", include_linear_controller = True,
+#  use_continuous_actions = True )
 
 
 #I don't need to store the figObject returned by test. this returns the same
