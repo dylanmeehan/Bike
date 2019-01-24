@@ -1,9 +1,16 @@
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
 from unpackState import *
 
+#set default font size
+mpl.rcParams['font.size']=14
+
 #graph variables about a bicycle simulation
-def graph(states, motorCommands, figObject, points_inside_last_gridpoint = []):
+def graph(states, motorCommands, figObject,  points_inside_last_gridpoint = [],
+  name = ""):
+
+  print(name)
 
   #if there is not already some graphs, make new graphs
   if figObject == None:
@@ -15,7 +22,8 @@ def graph(states, motorCommands, figObject, points_inside_last_gridpoint = []):
   (fig1, [[ax1,ax2],[ax3,ax4]]),(fig2, [ax5,ax6]) = figObject
 
   #fig1, [[ax1,ax2],[ax3,ax4]] = plt.subplots(2,2)
-  ax1.plot(ts, phis)
+  ax1.plot(ts, phis, label=name)
+  ax1.legend(loc="center right")
   ax1.set_title("lean vs time")
   ax1.set_xlabel("time [s]")
   ax1.set_ylabel("lean angle [rad]")
@@ -42,7 +50,8 @@ def graph(states, motorCommands, figObject, points_inside_last_gridpoint = []):
       ax0.set_ylabel("Is controller inside last gridpoint")
 
   #fig2, [ax5,ax6] = plt.subplots(2,1)
-  ax5.plot(xs, ys)
+  ax5.plot(xs, ys, label=name)
+  ax5.legend(loc="upper left")
   ax5.set_title("trajectory")
   ax5.set_xlabel("x position [m]")
   ax5.set_ylabel("y position [m]")

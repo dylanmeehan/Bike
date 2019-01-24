@@ -240,12 +240,12 @@ class TableBased(object):
 
       if use_continuous_actions:
         action = self.get_action_continuous(state8, epsilon)
-        print("continuous action:" + str(action))
+        #print("continuous action:" + str(action))
       else:
         action_index = self.act_index(state_grid_point_index, epsilon)
         #self.act_index returns which action to take. defined for each model.
         action = self.get_action_from_index(action_index)
-        print("discrete action:" + str(action))
+        #print("discrete action:" + str(action))
 
 
       new_state8, reward, is_done = self.step(state8, action, reward_flag)
