@@ -8,7 +8,7 @@ from tableBased import *
 class Qlearning(TableBased):
 
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
-   Qfile = "Q2.csv"):
+   Qfile = "models/Q2.csv"):
     super(Qlearning, self).__init__(state_grid_flag, action_grid_flag, reward_flag)
     self.Q = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,\
       self.len_delta_grid, self.num_actions))
