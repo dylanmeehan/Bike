@@ -53,7 +53,7 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
 
     count = count + 1
 
-  figObject = graph.graph(states, motorCommands, figObject)
+  figObject = graph.graph(states, motorCommands, figObject, name = "LQR")
 
   return([success, states, figObject])
 

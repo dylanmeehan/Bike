@@ -1,6 +1,7 @@
 import numpy as np
 import rhs
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import graph
 import parameters as params
 from unpackState import *
@@ -10,6 +11,8 @@ from pathlib import Path
 import scipy.optimize as opt
 import LinearController
 
+#set default font size
+mpl.rcParams['font.size']=14
 
 class ValueIteration(TableBased):
 
@@ -244,8 +247,9 @@ class ValueIteration(TableBased):
       points_inside_last_gridpoint = \
         self.calculate_points_inside_last_gridpoint(states8)
 
+    # graph
     figObject = graph.graph(states8, motorCommands, figObject,
-      points_inside_last_gridpoint)
+      points_inside_last_gridpoint, name = self.Ufile)
     return figObject
 
 
