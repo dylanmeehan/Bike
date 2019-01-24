@@ -3,6 +3,7 @@ Descriptions of bicycle simulations
 SHAPING Definitions
 0 : no shaping, bicycle gets +1 reward if has not fallen at a state
 1: shaping with lean and lean rate. (1-(abs(phi)) - np.sign(phi)*phi_dot/10)
+Shaping was later subsummed into reward_flag
 
 
 ***** SIMULATIONS *****
