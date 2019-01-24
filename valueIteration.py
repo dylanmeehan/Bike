@@ -34,6 +34,7 @@ class ValueIteration(TableBased):
     else:
       self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid,
         self.len_delta_grid))
+      print("Creating new VI file " + Ufile)
 
 
     #TODO: precompute reward function. Set up table (similiar to step_table), so

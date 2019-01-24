@@ -126,7 +126,7 @@ VI24:
 VI25:
     state_grid_flag = 1. action_grid_flag = 1 (11 actions). reward_flag = 3.
     tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 250 episodes. trained with discrete actions.
-    gamma_train = 0.95
+    gamma_train = 0.95 (is this right)
     same as VI24 but trained for 250 iterations.
 
 VI26:

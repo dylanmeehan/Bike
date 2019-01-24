@@ -10,7 +10,7 @@ mpl.rcParams['font.size']=14
 def graph(states, motorCommands, figObject,  points_inside_last_gridpoint = [],
   name = ""):
 
-  print(name)
+  print("graphing: " + str(name))
 
   #if there is not already some graphs, make new graphs
   if figObject == None:
