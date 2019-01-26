@@ -32,7 +32,7 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
   while( count < numTimeSteps):
 
     #calculate control action
-    u = controller.act(state)
+    u = 0 #controller.act(state)
 
     # integrate the odes
     state = integrator.integrate(state, u, timestep, tstep_multiplier)
@@ -50,6 +50,9 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
 
 
     count = count + 1
+
+  states = states[:count,:]
+  motorCommands = motorCommands[:count]
 
   figObject = graph.graph(states, motorCommands, figObject, [], name)
 
