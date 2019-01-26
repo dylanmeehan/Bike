@@ -94,10 +94,7 @@ class ValueIteration(TableBased):
     return points_inside_last_gridpoint
 
   #always do interpolation
-  def calc_best_action_and_utility_continuous(self, state3):
-
-    #state3 = self.state_grid_points[state3_index]
-    state8 = state3_to_state8(state3)
+  def calc_best_action_and_utility_continuous(self, state8):
 
     #we need to minimiza something. minimizning negations of the utility function
     # is equivalent to maximizing the utilty function
@@ -129,8 +126,7 @@ class ValueIteration(TableBased):
     return (u, best_action_utility)
 
   def get_action_continuous(self, state8, epsilon = 0):
-    state3 = state8_to_state3(state8)
-    (u, _) = self.calc_best_action_and_utility_continuous(state3)
+    (u, _) = self.calc_best_action_and_utility_continuous(state8)
     return u
 
   # given: state3_index (a discritized state 3 tuple).
@@ -201,8 +197,9 @@ class ValueIteration(TableBased):
 
             if use_continuous_actions:
               state3 = self.state_grid_points[state3_index]
+              state8 = state3_to_state8(state3)
               (_, best_utility) = \
-                self.calc_best_action_and_utility_continuous(state3)
+                self.calc_best_action_and_utility_continuous(state8)
             else:
               (_, best_utility) = \
                 self.calc_best_action_and_utility(state3_index,do_interpolation)

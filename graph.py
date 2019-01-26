@@ -10,7 +10,7 @@ mpl.rcParams['font.size']=14
 def graph(states, motorCommands, figObject,  points_inside_last_gridpoint = [],
   name = ""):
 
-  print("graphing: " + str(name))
+  print("graphing: " + name)
 
   #if there is not already some graphs, make new graphs
   if figObject == None:
@@ -67,5 +67,6 @@ def graph(states, motorCommands, figObject,  points_inside_last_gridpoint = [],
   fig2.tight_layout()
   #plt.show()
   # plt.show() waits until you close the figure
+
 
   return (figObject)
