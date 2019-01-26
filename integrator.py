@@ -1,4 +1,5 @@
 import rhs
+import scipy
 
 #solve the EoMs numerically
 def integrate(state8, u, controller_timestep, tstep_multiplier = 1):
