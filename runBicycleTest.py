@@ -5,10 +5,11 @@ import LinearController
 import graph
 from unpackState import *
 from tableBased import *
+import integrator
 
 # use Euler Integration to simulate a bicycle
 def runBicycleTest(stateflag = 4, controller = LinearController.LinearController(),
-  time = 10, isGraphing  = True, figObject = None):
+  time = 10, isGraphing  = True, figObject = None, tstep_multiplier = 1,  name = "LQR"):
 
   print("running test")
 
@@ -33,11 +34,8 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
     #calculate control action
     u = controller.act(state)
 
-    zdot = rhs.rhs(state,u)
-
-    #update state. Euler Integration
-    prevState = state
-    state = state + zdot*timestep
+    # integrate the odes
+    state = integrator.integrate(state, u, timestep, tstep_multiplier)
 
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
 
@@ -53,7 +51,7 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
 
     count = count + 1
 
-  figObject = graph.graph(states, motorCommands, figObject, name = "LQR")
+  figObject = graph.graph(states, motorCommands, figObject, [], name)
 
   return([success, states, figObject])
 

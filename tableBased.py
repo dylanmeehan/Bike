@@ -1,5 +1,6 @@
 import numpy as np
 import rhs
+import integrator
 import matplotlib.pyplot as plt
 import graph
 from unpackState import *
@@ -144,17 +145,16 @@ class TableBased(object):
 
   #given: state (a state in the continous space)
   #       u (an action in the continoue state)
+  # tstep_multiplier is the number of integration_timesteps for every one
+  # controller timestep. Should be an integer >= 1
   #return: (state, reward, isDone)
-  def step(self, state8, u, reward_flag):
-    # take in a state and an action
-    zdot = rhs.rhs(state8,u)
+  def step(self, state8, u, reward_flag, tstep_multiplier = 1):
 
-    #update state. Euler Integration
-    prevState8 = state8
-    state8 = state8 + zdot*self.timestep
+    state8 = integrator.integrate(state8, u, self.timestep, tstep_multiplier = 1)
 
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
+    # check if bike has fallen, only need to do once a timestep
     if (np.abs(phi) >= np.pi/4):
       #print("Bike has fallen; Test Failure")
       isDone = True
