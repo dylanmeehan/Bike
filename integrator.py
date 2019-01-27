@@ -23,5 +23,4 @@ def integrate(state8, u, controller_timestep, tstep_multiplier = 1):
     #print(str(state8))
     count += 1
 
-  print("count= " + str(count))
   return state8
