@@ -52,6 +52,11 @@ time = 3
   controller = LinearController.LinearController(),
   time = time, isGraphing  = True, figObject = figObject,
   tstep_multiplier = 10, name = "10Euler_uncontrol")
+[success, states, figObject] = runBicycleTest(state_flag1,
+  controller = LinearController.LinearController(),
+  time = time, isGraphing  = True, figObject = figObject,
+  tstep_multiplier = 10, name = "Single rk45",
+  test_rh45_uncontrolled = True)
 
 #VIteration_model.heatmap_value_function()
 #VIteration_model.heatmap_of_policy(option = "zero", include_linear_controller = True,

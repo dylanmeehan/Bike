@@ -6,12 +6,14 @@ import graph
 from unpackState import *
 from tableBased import *
 import integrator
+import scipy.integrate as inter
 
 # use Euler Integration to simulate a bicycle
 def runBicycleTest(stateflag = 4, controller = LinearController.LinearController(),
-  time = 10, isGraphing  = True, figObject = None, tstep_multiplier = 1,  name = "LQR"):
+  time = 10, isGraphing  = True, figObject = None, tstep_multiplier = 1,  name = "LQR",
+  test_rh45_uncontrolled = False):
 
-  print("running test")
+  print("running test with LQR controller")
 
   state = getStartingState8(stateflag)
 
@@ -28,28 +30,48 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
   states[1,:] = state
   motorCommands[1] = 0
 
-  count = 0;
-  while( count < numTimeSteps):
+  if test_rh45_uncontrolled:
+    rhs_fun = lambda t,state: rhs.rhs(state,0)
 
-    #calculate control action
-    u = 0 #controller.act(state)
+    #give list of times at which to get solution
+    tspan = list(np.linspace(0, time, num=time/timestep+1))
 
-    # integrate the odes
-    state = integrator.integrate(state, u, timestep, tstep_multiplier)
+    #solve ode (uncontrolled)
+    solution = inter.solve_ivp(rhs_fun, [0, time], state, method='RK45', t_eval = tspan)
+    states = solution.y
+    states = states.T
+    #print(states)
 
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
-
-    #check if bike has fallen
-    if (np.abs(phi) >= np.pi/4):
-      print("Bike has fallen; Test Failure\n")
-      success = False
-      break
-
-    states[count,:] = state
-    motorCommands[count] = u
+    #find count to truncate values after the bike has fallen
+    phis = states[:,3]
+    count1 = np.argmax(phis>np.pi/4)
+    count2 = np.argmax(phis<-np.pi/4)
+    count = max(count1, count2)
 
 
-    count = count + 1
+  else:
+    count = 0;
+    while( count < numTimeSteps):
+
+      #calculate control action
+      u = 0 #controller.act(state)
+
+      # integrate the odes
+      state = integrator.integrate(state, u, timestep, tstep_multiplier)
+
+      [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
+
+      #check if bike has fallen
+      if (np.abs(phi) >= np.pi/4):
+        print("Bike has fallen; Test Failure\n")
+        success = False
+        break
+
+      states[count,:] = state
+      motorCommands[count] = u
+
+
+      count = count + 1
 
   states = states[:count,:]
   motorCommands = motorCommands[:count]
