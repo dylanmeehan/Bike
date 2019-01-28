@@ -57,6 +57,11 @@ time = 3
   time = time, isGraphing  = True, figObject = figObject,
   tstep_multiplier = 10, name = "Single rk45",
   test_rh45_uncontrolled = True)
+[success, states, figObject] = runBicycleTest(state_flag1,
+  controller = LinearController.LinearController(),
+  time = time, isGraphing  = True, figObject = figObject,
+  tstep_multiplier = 10, name = "rk45_multiple",
+  test_rh45_uncontrolled = False, integrator_method = "RK45")
 
 #VIteration_model.heatmap_value_function()
 #VIteration_model.heatmap_of_policy(option = "zero", include_linear_controller = True,
