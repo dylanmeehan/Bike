@@ -43,6 +43,15 @@ def graph(states, motorCommands, figObject,  points_inside_last_gridpoint = [],
   ax4.set_xlabel("time [s]")
   ax4.set_ylabel("steer rate [rad/s]")
 
+  # # print out phi at a set time to compare integrators
+  # #account for off-by-one error
+  # if name == "Single rk45":
+  #   n = 23
+  # else:
+  #   n = 22
+  # print(str(name)+ ": phi at time " + str(ts[n]) + " is " + str(phis[n]))
+
+
   if points_inside_last_gridpoint != []:
     for ax in [ax1, ax2, ax3, ax4]:
       ax0 = ax.twinx()

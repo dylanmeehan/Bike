@@ -6,7 +6,7 @@ from runBicycleTest import *
 state_flag1 = 3
 state_flag2 = 5
 figObject = None
-time = 3
+time = 5
 
 #Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0,
 #  reward_flag = 2, Qfile = "Q.csv")
@@ -25,8 +25,8 @@ time = 3
 
 # VIteration_model1 = ValueIteration(state_grid_flag = 1, action_grid_flag = 1,
 #  reward_flag = 3, Ufile = "models/VI26.csv", use_only_continuous_actions = True)
-# # VIteration_model.train( gamma = 0.95, num_episodes = 100,
-# #      do_interpolation = True, use_continuous_actions = False)
+# # # VIteration_model.train( gamma = 0.95, num_episodes = 100,
+# # #      do_interpolation = True, use_continuous_actions = False)
 # figObject = VIteration_model1.test(tmax = time, state_flag = state_flag2,
 #    use_continuous_actions = True, gamma = 1, figObject = figObject)
 
@@ -47,16 +47,16 @@ time = 3
 [success, states, figObject] = runBicycleTest(state_flag1,
   controller = LinearController.LinearController(),
   time = time, isGraphing  = True, figObject = figObject,
-  tstep_multiplier = 1, name = "1Euler_uncontrol")
+  tstep_multiplier = 1, name = "1Euler_control")
 [success, states, figObject] = runBicycleTest(state_flag1,
   controller = LinearController.LinearController(),
   time = time, isGraphing  = True, figObject = figObject,
-  tstep_multiplier = 10, name = "10Euler_uncontrol")
-[success, states, figObject] = runBicycleTest(state_flag1,
-  controller = LinearController.LinearController(),
-  time = time, isGraphing  = True, figObject = figObject,
-  tstep_multiplier = 10, name = "Single rk45",
-  test_rh45_uncontrolled = True)
+  tstep_multiplier = 10, name = "10Euler_control")
+# [success, states, figObject] = runBicycleTest(state_flag1,
+#   controller = LinearController.LinearController(),
+#   time = time, isGraphing  = True, figObject = figObject,
+#   tstep_multiplier = 10, name = "Single rk45",
+#   test_rh45_uncontrolled = True)
 [success, states, figObject] = runBicycleTest(state_flag1,
   controller = LinearController.LinearController(),
   time = time, isGraphing  = True, figObject = figObject,

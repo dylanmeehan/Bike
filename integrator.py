@@ -33,21 +33,17 @@ def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
     #calculate time to integrate
     [t_start, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
     t_end = t_start + controller_timestep
-    print("integrating stuff at t=" + str(t_start))
+    #print("integrating stuff at t=" + str(t_start))
 
     rhs_fun = lambda t,state: rhs.rhs(state,u)
 
     tspan = list(np.linspace(t_start, t_end, 10))
+
     #solve ode (uncontrolled)
     solution = inter.solve_ivp(rhs_fun, [t_start, t_end], state8, method='RK45')
     states8 = solution.y
     states8 = states8.T
-    print(states8)
     state8 = states8[-1,:]
-    #print(state8)
-    print(np.shape(state8))
-    #state8 = state8.T
-    #print(states)
 
   else:
     raise ValueError("invalid method: "+str(method))
