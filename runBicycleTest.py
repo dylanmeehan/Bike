@@ -30,6 +30,7 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
   states[1,:] = state
   motorCommands[1] = 0
 
+  #used for comparision of rk45 integrator to Euler Integrator, not genearlly used.
   if test_rh45_uncontrolled:
     rhs_fun = lambda t,state: rhs.rhs(state,0)
 

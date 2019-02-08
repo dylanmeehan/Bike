@@ -10,6 +10,7 @@ from scipy.interpolate import RegularGridInterpolator
 from pathlib import Path
 import scipy.optimize as opt
 import LinearController
+import time
 
 #set default font size
 mpl.rcParams['font.size']=14
@@ -18,6 +19,8 @@ class ValueIteration(TableBased):
 
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
     Ufile = "models/valueIteration_U.csv", use_only_continuous_actions = False):
+
+    print("Initializing VI model")
 
     super(ValueIteration, self).__init__(state_grid_flag, action_grid_flag,
       reward_flag)
@@ -168,7 +171,9 @@ class ValueIteration(TableBased):
 
     n_episode = 0
 
+
     while (n_episode < num_episodes):
+      tstart = time.time()
 
       if do_interpolation:
         self.itp = RegularGridInterpolator(\
@@ -215,7 +220,8 @@ class ValueIteration(TableBased):
               self.U[state3_index] = reward + gamma*best_utility
 
       n_episode += 1
-      print('Epsiode: ' + str(n_episode))
+      tend = time.time()
+      print('Epsiode: ' + str(n_episode) + " in " + str(tend-tstart) + " sec")
 
     print("done trianing, writing csv: " + str(self.Ufile))
     #print(self.U)

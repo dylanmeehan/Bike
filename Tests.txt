@@ -150,6 +150,11 @@ VI28:
     same as VI28, but with 500 episodes.
 ----------------------------------------------------------------
 
+-VI30: timing tests.
+    Actions grid flag = 0: 5 actions.
+    State grid flag = 2: 9x7x7 actions.
+
+
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
 Q2: Q Learning 2. 11/
 
