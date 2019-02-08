@@ -150,9 +150,11 @@ VI28:
     same as VI28, but with 500 episodes.
 ----------------------------------------------------------------
 
--VI30: timing tests.
+-VI31: timing tests.
     Actions grid flag = 0: 5 actions.
     State grid flag = 2: 9x7x7 actions.
+    does interpolation for training, but does not use continuous actions
+    10 episodes: 16.14 sec, 22.8 sec, 20.6s, 19.75s
 
 
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
