@@ -176,6 +176,7 @@ class ValueIteration(TableBased):
       tstart = time.time()
 
       if do_interpolation:
+        #t3 = time.time()
         self.itp = RegularGridInterpolator(\
           (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
           bounds_error = False, fill_value = 0)
@@ -183,6 +184,8 @@ class ValueIteration(TableBased):
           #fill_value = 0, sets the value outside of the interpolation range to 0
           # thus, if the bicycle gets no reward for a state outside of the grid
           # this ensures bad states have a reward of 0 (as desired)
+        #t4 = time.time()
+        #print("made interpolator in : " + str(t4-t3) + "sec")
 
       # shuffle indicies (so that we update states in a random order reach loop)
       #this *attempts* prevents "circle" bug
@@ -193,6 +196,7 @@ class ValueIteration(TableBased):
       delta_indices = list(range (self.len_delta_grid))
       np.random.shuffle(delta_indices)
 
+      tloop = time.time()
       for phi_i in phi_indices:
         for phi_dot_i in phi_dot_indices:
           for delta_i in delta_indices:
@@ -200,6 +204,7 @@ class ValueIteration(TableBased):
             state3_index = (phi_i, phi_dot_i, delta_i)
             state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
 
+            t_1 = time.time()
             if use_continuous_actions:
               state3 = self.state_grid_points[state3_index]
               state8 = state3_to_state8(state3)
@@ -208,7 +213,10 @@ class ValueIteration(TableBased):
             else:
               (_, best_utility) = \
                 self.calc_best_action_and_utility(state3_index,do_interpolation)
+            t_2 = time.time()
+            #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
 
+            t_3 = time.time()
             #note: utilities of nonfallen states are always positive (and the
             # reward for falling is = 0. then all utilities of valid states will
             # always be greater than the reward for falling)
@@ -218,9 +226,12 @@ class ValueIteration(TableBased):
               self.U[state3_index] = 0
             else:
               self.U[state3_index] = reward + gamma*best_utility
+            t_4 = time.time()
+            #print("calculated reward in : " + str(t_4-t_3) + " sec")
 
       n_episode += 1
       tend = time.time()
+      #print("For loop in " + str(tend-tloop) + " sec")
       print('Epsiode: ' + str(n_episode) + " in " + str(tend-tstart) + " sec")
 
     print("done trianing, writing csv: " + str(self.Ufile))
