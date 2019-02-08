@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import graph
 from unpackState import *
 from scipy.interpolate import interpn
+import time
 
 class TableBased(object):
 
@@ -60,6 +61,15 @@ class TableBased(object):
       phi_dot_half_grid = [.02, .05, .1, .2, .3, .4,  .7, 1 ]
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid =  [.02, .05, .1, .2, .4,  .7, 1]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+    #small state space for testing timing (9x7x7)
+    elif state_grid_flag == 2:
+      phi_half_grid = [.02, .06, .1, .16 ]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .05, .1 ]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =  [.02, .05, .1, ]
       self.delta_grid = make_full_grid(delta_half_grid)
 
     else:
@@ -118,6 +128,8 @@ class TableBased(object):
   #this is useful for value Iteration
   #step table maps state indicies and action indicies to the next state
   def setup_step_table(self, reward_flag):
+    t0 = time.time()
+
     self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
       self.len_delta_grid, self.num_actions, 8))
       #8 is number of variables in a continuous state
@@ -131,6 +143,10 @@ class TableBased(object):
 
             new_state8, reward, _ = self.step(state8, action, reward_flag)
             self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state8
+
+    t1 = time.time()
+    print("Setup step_table (precalculated state transitions) in " + str(t1-t0)
+      + "seconds")
 
   #given: a 3-tuple state3_index of the indicies for phi, phi_dot, delta
   #       the index of the action to take

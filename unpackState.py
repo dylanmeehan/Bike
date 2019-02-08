@@ -14,7 +14,7 @@ def unpackState(state8):
   return(np.array([t, x, y, phi, psi, delta, phi_dot, v]))
 
 def state3_to_state8(state3, v = 3):
-  print("in state3_to_state8")
+
   assert len(state3) == 3
   phi = state3[0]
   phi_dot = state3[1]
