@@ -20,21 +20,21 @@ simulation_duration = 5
 
 t0 = time.time()
 
-VIteration_model = ValueIteration(state_grid_flag = 2, action_grid_flag = 0,
- reward_flag = 3, Ufile = "models/VI31.csv", use_only_continuous_actions = False)
+VIteration_model = ValueIteration(state_grid_flag = 3, action_grid_flag = 0,
+ reward_flag = 3, Ufile = "models/VI32.csv", use_only_continuous_actions = False)
 
 t1 = time.time()
 print("Initialized VI Model in " + str(t1-t0) + "sec")
 
-VIteration_model.train( gamma = 0.95, num_episodes = 10,
-      do_interpolation = True, use_continuous_actions = False)
+VIteration_model.train( gamma = 0.95, num_episodes = 30,
+      do_interpolation = True, use_continuous_actions = False, vectorize = True)
 
 t2 = time.time()
 print("Trained VI Model in " + str(t2-t1) + "sec")
 
-sys.exit()
+#sys.exit()
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+figObject = VIteration_model.test(tmax = simulation_duration, state_flag = 0,
    use_continuous_actions = True, gamma = 1, figObject = figObject)
 
 t3 = time.time()

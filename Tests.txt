@@ -156,6 +156,15 @@ VI28:
     does interpolation for training, but does not use continuous actions
     10 episodes: 16.14 sec, 22.8 sec, 20.6s, 19.75s
 
+VI32: timint tests
+    action grid flag = 0: 5 actions.
+    state grid flag = 3: 11x9x7 actions
+    discrete actions, interpolation
+
+VI33: timint tests
+    action grid flag = 1
+    state grid flag = 1
+    discrete actions, interpolation
 
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
 Q2: Q Learning 2. 11/

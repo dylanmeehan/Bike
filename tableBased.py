@@ -35,6 +35,7 @@ class TableBased(object):
     else:
       self.num_actions = len(self.action_grid)
 
+
   #discritize each of the state variables. Construct self.state_grid_points
   # which is a meshgrid of these points
   #given: state_grid_flag determines which grid points to use
@@ -71,6 +72,16 @@ class TableBased(object):
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid =  [.02, .05, .1, ]
       self.delta_grid = make_full_grid(delta_half_grid)
+
+   #small state space for testing timing (11x9x7)
+    elif state_grid_flag == 3:
+      phi_half_grid = [.02, .06, .1, .16, .22 ]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .05, .1, .2 ]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =  [.02, .05, .1]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
 
     else:
       raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
@@ -131,7 +142,7 @@ class TableBased(object):
     t0 = time.time()
 
     self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
-      self.len_delta_grid, self.num_actions, 8))
+      self.len_delta_grid, self.num_actions, 3))
       #8 is number of variables in a continuous state
 
     for i_phi in range(self.len_phi_grid):
@@ -142,7 +153,9 @@ class TableBased(object):
             action = self.action_grid[i_action]
 
             new_state8, reward, _ = self.step(state8, action, reward_flag)
-            self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state8
+            new_state3 = state8_to_state3(new_state8)
+
+            self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state3
 
     t1 = time.time()
     print("Setup step_table (precalculated state transitions) in " + str(t1-t0)
