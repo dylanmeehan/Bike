@@ -162,8 +162,8 @@ VI32: timint tests
     discrete actions, interpolation
 
 VI33: timint tests
-    action grid flag = 1
-    state grid flag = 1
+    action grid flag = 1: 11 actions.
+    state grid flag = 1:
     discrete actions, interpolation
 
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
