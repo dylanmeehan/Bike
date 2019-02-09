@@ -57,8 +57,10 @@ class ValueIteration(TableBased):
 
     for action_index in range(self.num_actions):
 
-      new_state8 = self.step_fast(state3_index, action_index)
-      new_state3 = state8_to_state3(new_state8)
+      new_state3 = self.step_fast(state3_index, action_index)
+
+      #new_state3 = state8_to_state3(new_state8)
+      #TODO: change step_fast to use lookup table which returns new_state3
 
       Qtemp[action_index] = self.get_value(new_state3, do_interpolation)
 
@@ -162,7 +164,7 @@ class ValueIteration(TableBased):
   #when training finishes, utilities are stored in a csv
   # if continuous actions is true, do_interpolation must be true
   def train(self, gamma = 0.95, num_episodes = 30,
-    do_interpolation = True, use_continuous_actions = False):
+    do_interpolation = True, use_continuous_actions = False, vectorize = False):
 
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
 
@@ -190,11 +192,13 @@ class ValueIteration(TableBased):
       # shuffle indicies (so that we update states in a random order reach loop)
       #this *attempts* prevents "circle" bug
       phi_indices = list(range(self.len_phi_grid))
-      np.random.shuffle(phi_indices)
+      #np.random.shuffle(phi_indices)
       phi_dot_indices = list(range(self.len_phi_dot_grid))
-      np.random.shuffle(phi_dot_indices)
+      #np.random.shuffle(phi_dot_indices)
       delta_indices = list(range (self.len_delta_grid))
-      np.random.shuffle(delta_indices)
+      #np.random.shuffle(delta_indices)
+      action_indicies = list(range(self.num_actions))
+
 
       def update_state(state3_index):
         phi_i = state3_index[0]; phi_dot_i = state3_index[1]; delta_i = state3_index[2]
@@ -225,14 +229,66 @@ class ValueIteration(TableBased):
         t_4 = time.time()
         #print("calculated reward in : " + str(t_4-t_3) + " sec")
 
+      #assume we are not using continuous actions, but are doing interpolation
+      #let indicies_matrix be states and actions
+      def update_state_vectorized(indicies_matrix):
+
+        #lookup 4 tuple in step lookup table
+        lookup = lambda indicies: \
+          self.step_table[indicies[0], indicies[1], indicies[2], indicies[3]]
+        new_states = np.apply_along_axis(lookup, 0, indicies_matrix)
+        #print("new_states shape is " + str(np.shape(new_states)))
+
+
+        t_1 = time.time()
+        #interpolate values
+        value_of_states_and_actions = np.transpose(self.itp(new_states.T))
+        #print("value_of_states_and_actions shape is " + str(np.shape(value_of_states_and_actions)))
+
+        #find max value for each state3
+        value_of_states = np.amax(value_of_states_and_actions, axis = 3)
+        #print("value_of_states shape is " + str(np.shape(value_of_states)))
+
+        self.U = value_of_states
+
+        t_2 = time.time()
+        #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
+
+        t_3 = time.time()
+        #note: utilities of nonfallen states are always positive (and the
+        # reward for falling is = 0. then all utilities of valid states will
+        # always be greater than the reward for falling)
+        # reward_matricies = self.get_reward(state8)
+        # if (reward == 0):
+        #   #print("entered top of if statement")
+        #   self.U[state3_index] = 0
+        # else:
+        #   self.U[state3_index] = reward + gamma*best_utility
+        # t_4 = time.time()
+        # #print("calculated reward in : " + str(t_4-t_3) + " sec")
+
+
+      if vectorize:
+        indicies_matrix = np.meshgrid(phi_indices, phi_dot_indices, delta_indices,
+        action_indicies, indexing = "ij")
+        print("indicies_matrix shape is: " + str(np.shape(indicies_matrix)))
+
+        update_state_vectorized(indicies_matrix)
+
+      else:
+        for phi_i in phi_indices:
+          for phi_dot_i in phi_dot_indices:
+            for delta_i in delta_indices:
+
+              state3_index = (phi_i, phi_dot_i, delta_i)
+              update_state(state3_index)
+
       tloop = time.time()
-      for phi_i in phi_indices:
-        for phi_dot_i in phi_dot_indices:
-          for delta_i in delta_indices:
+      #for phi_i in phi_indices:
+      #  for phi_dot_i in phi_dot_indices:
+      #    for delta_i in delta_indices:
 
-            state3_index = (phi_i, phi_dot_i, delta_i)
 
-            update_state(state3_index)
 
       n_episode += 1
       tend = time.time()
