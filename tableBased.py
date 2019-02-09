@@ -54,6 +54,7 @@ class TableBased(object):
       delta_half_grid =   [.02, .05, .1, .2, .3, .4,  .7, 1]
       self.delta_grid = make_full_grid(delta_half_grid)
 
+    #DON'T USE FOR VECTORIZED TESTING. .8 phi is past falling lolz
     #19x17x15 states
     elif state_grid_flag == 1:
       #self.phi_grid = [-.8, -.6, -.4, -.28, -.22, -.16, -.1, -.06, -.02, 0, \
@@ -64,6 +65,7 @@ class TableBased(object):
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid =  [.02, .05, .1, .2, .4,  .7, 1]
       self.delta_grid = make_full_grid(delta_half_grid)
+
 
     #small state space for testing timing (9x7x7)
     elif state_grid_flag == 2:
@@ -81,6 +83,16 @@ class TableBased(object):
       phi_dot_half_grid = [.02, .05, .1, .2 ]
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid =  [.02, .05, .1]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+   #19x17x15 states
+    elif state_grid_flag == 4:
+      #.785 is falling criteria
+      phi_half_grid = [.02, .06, .1, .16, .22, .28, .4, .6, .77 ]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .05, .1, .2, .3, .4,  .7, 1 ]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =  [.02, .05, .1, .2, .4,  .7, 1]
       self.delta_grid = make_full_grid(delta_half_grid)
 
 

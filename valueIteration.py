@@ -49,7 +49,7 @@ class ValueIteration(TableBased):
   #return: (best_action_index, best_action_utility) for that state.
   # best_action_index is the index of the action which has the highest utility
   # best_action_utility is the utility of that action
-  def calc_best_action_and_utility(self, state3_index, do_interpolation):
+  def calc_best_action_and_utility(self, state3_index):
 
     Qtemp = np.zeros(self.num_actions)
 
@@ -62,7 +62,7 @@ class ValueIteration(TableBased):
       #new_state3 = state8_to_state3(new_state8)
       #TODO: change step_fast to use lookup table which returns new_state3
 
-      Qtemp[action_index] = self.get_value(new_state3, do_interpolation)
+      Qtemp[action_index] = self.get_value(new_state3)
 
     best_action_utility = np.max(Qtemp)
     best_action_index = np.argmax(Qtemp)
@@ -75,7 +75,7 @@ class ValueIteration(TableBased):
     (new_state8, reward, isDone) = self.step(state8, u, self.reward_flag)
 
     new_state3 = state8_to_state3(new_state8)
-    utility = self.get_value(new_state3, do_interpolation = True)
+    utility = self.get_value(new_state3)
     #does NOT calculate the reward at new_state3 (ie, does not calculate R(s'))
 
     return utility
@@ -138,56 +138,43 @@ class ValueIteration(TableBased):
   # return: the index of the best action to take
   def act_index(self, state3_index, epsilon):
 
-    (best_action_index, _) = self.calc_best_action_and_utility(state3_index, False)
+    (best_action_index, _) = self.calc_best_action_and_utility(state3_index)
     return best_action_index
 
   # return a value for the (continuous) new_state3
-  # do_interpolation is a boolean to decide if to interpolate valuesS
-  def get_value(self,new_state3, do_interpolation= True):
+  def get_value(self,new_state3):
 
-    #the interpolator (itp) is initialized in train, one for each episode.
-    # this saves on the overhead of creating an interpolator
-    if do_interpolation:
-      #commented out calculating reward for state we got to by interpolating
-      #add reward_at_new_state3 to try to differentiate states
-      #new_state8 = state3_to_state8(new_state3)
-      #reward_at_new_state3 =  self.get_reward(new_state8, self.reward_flag)
-      utility_from_new_state3 = self.itp([new_state3[0],new_state3[1],new_state3[2]])
-      return utility_from_new_state3 #+ reward_at_new_state3
+    #the interpolator (itp) is initialized in train, and interpolation_method
+    # sets the interpolator to use either linear or nearest methods
+    return self.itp([new_state3[0],new_state3[1],new_state3[2]])
 
-    else:
-    #dont interpolate
-      new_state3_index = self.discretize(state3_to_state8(new_state3))
-      return self.U[new_state3_index]
 
   #trains a valueIteration, table-based mode.
   #when training finishes, utilities are stored in a csv
   # if continuous actions is true, do_interpolation must be true
   def train(self, gamma = 0.95, num_episodes = 30,
-    do_interpolation = True, use_continuous_actions = False, vectorize = False):
+    interpolation_method = "linear", use_continuous_actions = False, vectorize = False):
 
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
 
-    if use_continuous_actions and not do_interpolation:
-      raise Exception("do_interpolation must be true if continuous_actions is true")
+    if use_continuous_actions and interpolation_method != "linear":
+      raise Exception("'interpolation_method' must be 'linear' if 'continuous_actions' is 'true'")
 
     n_episode = 0
-
 
     while (n_episode < num_episodes):
       tstart = time.time()
 
-      if do_interpolation:
-        #t3 = time.time()
-        self.itp = RegularGridInterpolator(\
-          (self.phi_grid, self.phi_dot_grid, self.delta_grid), self.U,
-          bounds_error = False, fill_value = 0)
-          # false bounds error causes us to extrapolate values out of range
-          #fill_value = 0, sets the value outside of the interpolation range to 0
-          # thus, if the bicycle gets no reward for a state outside of the grid
-          # this ensures bad states have a reward of 0 (as desired)
+
+
+      self.itp = RegularGridInterpolator(\
+        (self.phi_grid, self.phi_dot_grid, self.delta_grid), self.U,
+        bounds_error = False, fill_value = 0, method = interpolation_method)
+        # false bounds error causes us to extrapolate values out of range
+        #fill_value = 0, sets the value outside of the interpolation range to 0
+        # thus, if the bicycle gets no reward for a state outside of the grid
+        # this ensures bad states have a reward of 0 (as desired)
         #t4 = time.time()
-        #print("made interpolator in : " + str(t4-t3) + "sec")
 
       # shuffle indicies (so that we update states in a random order reach loop)
       #this *attempts* prevents "circle" bug
@@ -212,7 +199,7 @@ class ValueIteration(TableBased):
             self.calc_best_action_and_utility_continuous(state8)
         else:
           (_, best_utility) = \
-            self.calc_best_action_and_utility(state3_index,do_interpolation)
+            self.calc_best_action_and_utility(state3_index)
         t_2 = time.time()
         #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
 
@@ -229,7 +216,8 @@ class ValueIteration(TableBased):
         reward = self.get_reward(state8)
         if (reward == 0):
 
-          print("entered top of if statement")
+          print("WE SHOULD NEVER BE IN THIS BRANCH")
+          sys.exit()
           self.U[state3_index] = 0
         else:
           self.U[state3_index] = reward + gamma*best_utility
@@ -314,7 +302,7 @@ class ValueIteration(TableBased):
     if use_continuous_actions:
       self.itp = RegularGridInterpolator(
           (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
-          bounds_error = False, fill_value = 0)
+          bounds_error = False, fill_value = 0, method = "linear")
 
     epsilon = 0; alpha = 0
 
