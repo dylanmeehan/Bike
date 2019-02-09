@@ -143,23 +143,35 @@ class TableBased(object):
 
     self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
       self.len_delta_grid, self.num_actions, 3))
+    self.reward_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
+      self.len_delta_grid))
       #8 is number of variables in a continuous state
 
     for i_phi in range(self.len_phi_grid):
       for i_phi_dot in range(self.len_phi_dot_grid):
         for i_delta in range(self.len_delta_grid):
+
+          state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
+            #don't use reward from stepping because that is reward for next state
+            # s', and not current state, s (I think)
+          s_reward = self.get_reward(state8, reward_flag)
+          self.reward_table[i_phi, i_phi_dot, i_delta] = s_reward
+
           for i_action in range(self.num_actions):
-            state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
+
             action = self.action_grid[i_action]
 
-            new_state8, reward, _ = self.step(state8, action, reward_flag)
+            new_state8, next_s_reward, _ = self.step(state8, action, reward_flag)
             new_state3 = state8_to_state3(new_state8)
 
             self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state3
 
+
     t1 = time.time()
     print("Setup step_table (precalculated state transitions) in " + str(t1-t0)
       + "seconds")
+
+    print("shape of reward table:" + str(np.shape(self.reward_table)))
 
   #given: a 3-tuple state3_index of the indicies for phi, phi_dot, delta
   #       the index of the action to take
