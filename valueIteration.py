@@ -220,9 +220,16 @@ class ValueIteration(TableBased):
         #note: utilities of nonfallen states are always positive (and the
         # reward for falling is = 0. then all utilities of valid states will
         # always be greater than the reward for falling)
+        #this if statement is unecessary. All states in the grid should not be
+        #fallend states. Otherwise, they are useless to have in the grid.
+        #reward is for the current state, not the state we would get to.
+        #additionally, any state outside of the grid would get assigned a value
+        # of 0 by the interpolator, so any potentially fallen states would have
+        # a value of 0
         reward = self.get_reward(state8)
         if (reward == 0):
-          #print("entered top of if statement")
+
+          print("entered top of if statement")
           self.U[state3_index] = 0
         else:
           self.U[state3_index] = reward + gamma*best_utility
@@ -249,6 +256,7 @@ class ValueIteration(TableBased):
         value_of_states = np.amax(value_of_states_and_actions, axis = 3)
         #print("value_of_states shape is " + str(np.shape(value_of_states)))
 
+        #I dont need to check if this is a fallend states
         self.U = self.reward_table + gamma*value_of_states
 
         t_2 = time.time()
