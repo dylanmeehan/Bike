@@ -180,7 +180,7 @@ class ValueIteration(TableBased):
       if do_interpolation:
         #t3 = time.time()
         self.itp = RegularGridInterpolator(\
-          (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
+          (self.phi_grid, self.phi_dot_grid, self.delta_grid), self.U,
           bounds_error = False, fill_value = 0)
           # false bounds error causes us to extrapolate values out of range
           #fill_value = 0, sets the value outside of the interpolation range to 0
@@ -249,7 +249,7 @@ class ValueIteration(TableBased):
         value_of_states = np.amax(value_of_states_and_actions, axis = 3)
         #print("value_of_states shape is " + str(np.shape(value_of_states)))
 
-        self.U = value_of_states
+        self.U = self.reward_table + gamma*value_of_states
 
         t_2 = time.time()
         #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
@@ -271,7 +271,7 @@ class ValueIteration(TableBased):
       if vectorize:
         indicies_matrix = np.meshgrid(phi_indices, phi_dot_indices, delta_indices,
         action_indicies, indexing = "ij")
-        print("indicies_matrix shape is: " + str(np.shape(indicies_matrix)))
+        #print("indicies_matrix shape is: " + str(np.shape(indicies_matrix)))
 
         update_state_vectorized(indicies_matrix)
 
