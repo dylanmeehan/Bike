@@ -54,6 +54,7 @@ class TableBased(object):
       delta_half_grid =   [.02, .05, .1, .2, .3, .4,  .7, 1]
       self.delta_grid = make_full_grid(delta_half_grid)
 
+    #19x17x15 states
     elif state_grid_flag == 1:
       #self.phi_grid = [-.8, -.6, -.4, -.28, -.22, -.16, -.1, -.06, -.02, 0, \
       #  .02, .06, .1, .16, .22, .28, .4, .6, .8 ]

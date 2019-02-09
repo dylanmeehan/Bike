@@ -34,7 +34,7 @@ print("Trained VI Model in " + str(t2-t1) + "sec")
 
 #sys.exit()
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = 0,
+figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
    use_continuous_actions = True, gamma = 1, figObject = figObject)
 
 t3 = time.time()
