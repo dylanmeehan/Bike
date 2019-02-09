@@ -196,38 +196,43 @@ class ValueIteration(TableBased):
       delta_indices = list(range (self.len_delta_grid))
       np.random.shuffle(delta_indices)
 
+      def update_state(state3_index):
+        phi_i = state3_index[0]; phi_dot_i = state3_index[1]; delta_i = state3_index[2]
+        state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
+
+        t_1 = time.time()
+        if use_continuous_actions:
+          state3 = self.state_grid_points[state3_index]
+          state8 = state3_to_state8(state3)
+          (_, best_utility) = \
+            self.calc_best_action_and_utility_continuous(state8)
+        else:
+          (_, best_utility) = \
+            self.calc_best_action_and_utility(state3_index,do_interpolation)
+        t_2 = time.time()
+        #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
+
+        t_3 = time.time()
+        #note: utilities of nonfallen states are always positive (and the
+        # reward for falling is = 0. then all utilities of valid states will
+        # always be greater than the reward for falling)
+        reward = self.get_reward(state8)
+        if (reward == 0):
+          #print("entered top of if statement")
+          self.U[state3_index] = 0
+        else:
+          self.U[state3_index] = reward + gamma*best_utility
+        t_4 = time.time()
+        #print("calculated reward in : " + str(t_4-t_3) + " sec")
+
       tloop = time.time()
       for phi_i in phi_indices:
         for phi_dot_i in phi_dot_indices:
           for delta_i in delta_indices:
 
             state3_index = (phi_i, phi_dot_i, delta_i)
-            state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
 
-            t_1 = time.time()
-            if use_continuous_actions:
-              state3 = self.state_grid_points[state3_index]
-              state8 = state3_to_state8(state3)
-              (_, best_utility) = \
-                self.calc_best_action_and_utility_continuous(state8)
-            else:
-              (_, best_utility) = \
-                self.calc_best_action_and_utility(state3_index,do_interpolation)
-            t_2 = time.time()
-            #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
-
-            t_3 = time.time()
-            #note: utilities of nonfallen states are always positive (and the
-            # reward for falling is = 0. then all utilities of valid states will
-            # always be greater than the reward for falling)
-            reward = self.get_reward(state8)
-            if (reward == 0):
-              #print("entered top of if statement")
-              self.U[state3_index] = 0
-            else:
-              self.U[state3_index] = reward + gamma*best_utility
-            t_4 = time.time()
-            #print("calculated reward in : " + str(t_4-t_3) + " sec")
+            update_state(state3_index)
 
       n_episode += 1
       tend = time.time()
