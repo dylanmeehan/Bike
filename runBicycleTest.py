@@ -38,7 +38,7 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
     tspan = list(np.linspace(0, time, num=time/timestep+1))
 
     #solve ode (uncontrolled)
-    solution = inter.solve_ivp(rhs_fun, [0, time], state, method='RK23', t_eval = tspan,
+    solution = inter.solve_ivp(rhs_fun, [0, time], state, method='RK45', t_eval = tspan,
       rtol = 1e-12, atol = 1e-12)
     states = solution.y
     states = states.T

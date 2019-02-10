@@ -18,15 +18,17 @@ mpl.rcParams['font.size']=14
 class ValueIteration(TableBased):
 
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
-    Ufile = "models/valueIteration_U.csv", use_only_continuous_actions = False):
+    Ufile = "models/valueIteration_U.csv", use_only_continuous_actions = False,
+    step_table_integration_method = "Euler"):
 
     print("Initializing VI model")
+    init_t1 = time.time()
 
     super(ValueIteration, self).__init__(state_grid_flag, action_grid_flag,
       reward_flag)
 
     if not use_only_continuous_actions:
-      self.setup_step_table(reward_flag)
+      self.setup_step_table(reward_flag,  step_table_integration_method)
 
     self.Ufile = Ufile
 
@@ -40,6 +42,9 @@ class ValueIteration(TableBased):
       print("Creating new VI file " + Ufile)
 
 
+
+    init_t2 = time.time()
+    print("Initialized VI Model " + self.Ufile + " in " + str(init_t1-init_t1) + "sec")
     #TODO: precompute reward function. Set up table (similiar to step_table), so
     #       that we don't compute the reward for a state every time. We only
     #       look up the reward
@@ -154,6 +159,8 @@ class ValueIteration(TableBased):
   # if continuous actions is true, do_interpolation must be true
   def train(self, gamma = 0.95, num_episodes = 30,
     interpolation_method = "linear", use_continuous_actions = False, vectorize = False):
+
+    train_t1 = time.time()
 
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
 
@@ -295,8 +302,14 @@ class ValueIteration(TableBased):
     #print(self.U)
     np.savetxt(self.Ufile, self.U.reshape(self.num_states), delimiter = ",")
 
+
+    train_t2 = time.time()
+    print("Trained VI Model " + self.Ufile + " in " + str(train_t2-train_t1) + "sec")
+
   def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
       gamma = 1, figObject = None, plot_is_inside_last_gridpoint = False):
+
+    t_test1 = time.time()
 
     # if using continuous actions, need to interpolate value function
     if use_continuous_actions:
@@ -306,12 +319,12 @@ class ValueIteration(TableBased):
 
     epsilon = 0; alpha = 0
 
-    reward, time, states8, motorCommands = \
+    reward, time_testing, states8, motorCommands = \
       self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag, True,
         use_continuous_actions, state_flag)
 
     print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
-      + str(time))
+      + str(time_testing))
 
 
     points_inside_last_gridpoint = []
@@ -322,6 +335,10 @@ class ValueIteration(TableBased):
     # graph
     figObject = graph.graph(states8, motorCommands, figObject,
       points_inside_last_gridpoint, name = self.Ufile)
+
+    t_test2 = time.time()
+    print("Tested VI Model " + self.Ufile + " in " + str(t_test2-t_test1))
+
     return figObject
 
 
