@@ -27,7 +27,7 @@ t1 = time.time()
 print("Initialized VI Model in " + str(t1-t0) + "sec")
 
 
-VIteration_model.train( gamma = 0.95, num_episodes = 100,
+VIteration_model.train( gamma = 0.95, num_episodes = 30,
       interpolation_method = "linear", use_continuous_actions = False, vectorize = True)
 
 t2 = time.time()

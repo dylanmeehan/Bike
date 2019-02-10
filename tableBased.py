@@ -160,24 +160,51 @@ class TableBased(object):
       self.len_delta_grid))
       #8 is number of variables in a continuous state
 
-    for i_phi in range(self.len_phi_grid):
-      for i_phi_dot in range(self.len_phi_dot_grid):
-        for i_delta in range(self.len_delta_grid):
+    #this code is duplicated from inside value iteration and should be streamlined
+    phi_indices = list(range(self.len_phi_grid))
+      #np.random.shuffle(phi_indices)
+    phi_dot_indices = list(range(self.len_phi_dot_grid))
+      #np.random.shuffle(phi_dot_indices)
+    delta_indices = list(range (self.len_delta_grid))
+      #np.random.shuffle(delta_indices)
+    action_indicies = list(range(self.num_actions))
 
-          state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
-            #don't use reward from stepping because that is reward for next state
-            # s', and not current state, s (I think)
-          s_reward = self.get_reward(state8, reward_flag)
-          self.reward_table[i_phi, i_phi_dot, i_delta] = s_reward
+    indicies_matrix1 = np.meshgrid(phi_indices, phi_dot_indices, delta_indices,
+      indexing = "ij")
 
-          for i_action in range(self.num_actions):
+    reward = lambda indicies: \
+      self.get_reward(self.state8_from_indicies(indicies[0], indicies[1],
+        indicies[2]), reward_flag)
 
-            action = self.action_grid[i_action]
+    self.reward_table = np.apply_along_axis(reward, 0, indicies_matrix1)
 
-            new_state8, next_s_reward, _ = self.step(state8, action, reward_flag)
-            new_state3 = state8_to_state3(new_state8)
+    step = lambda indicies: \
+      state8_to_state3(self.step(self.state8_from_indicies(indicies[0],indicies[1],
+        indicies[2]),self.action_grid[indicies[3]], reward_flag)[0])
 
-            self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state3
+    indicies_matrix2 = np.meshgrid(phi_indices, phi_dot_indices, delta_indices,
+      action_indicies, indexing = "ij")
+
+    self.step_table = np.apply_along_axis(step, 0, indicies_matrix2)
+
+    # for i_phi in range(self.len_phi_grid):
+    #   for i_phi_dot in range(self.len_phi_dot_grid):
+    #     for i_delta in range(self.len_delta_grid):
+
+    #       state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
+    #         #don't use reward from stepping because that is reward for next state
+    #         # s', and not current state, s (I think)
+    #       s_reward = self.get_reward(state8, reward_flag)
+    #       self.reward_table[i_phi, i_phi_dot, i_delta] = s_reward
+
+    #       for i_action in range(self.num_actions):
+
+    #         action = self.action_grid[i_action]
+
+    #         new_state8, next_s_reward, _ = self.step(state8, action, reward_flag)
+    #         new_state3 = state8_to_state3(new_state8)
+
+    #         self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state3
 
 
     t1 = time.time()
