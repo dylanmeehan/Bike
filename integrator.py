@@ -4,7 +4,7 @@ import scipy.integrate as inter
 from unpackState import *
 
 #solve the EoMs numerically
-# method = ["Euler", "RK45"]
+# method = ["Euler", "RK45", "fixed_step_RK4"]
 def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
   method = "Euler"):
 
@@ -28,6 +28,20 @@ def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
       state8 = state8 + zdot*integration_timestep
       #print(str(state8))
       count += 1
+
+  elif method == "fixed_step_RK4":
+    #print("using fixed_step_RK4 method")
+    dt = controller_timestep    #use same time step as controller
+    f = lambda s: rhs.rhs(s,u)  #f = ydot = rhs
+    y0 = state8                 # IC, initial state, y0
+
+    k1 = dt*f(y0)
+    k2 = dt*f(y0 + 1/2*k1)
+    k3 = dt*f(y0 + 1/2*k2)
+    k4 = dt*f(y0 + k3)
+
+    state8 = y0 + 1/6*k1 + 1/3*k2 + 1/3*k3 + 1/6*k4  #do integration
+    #state8 = y1 = state value at final timestep.
 
   elif method == "RK45":
     #calculate time to integrate
