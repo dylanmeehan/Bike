@@ -204,7 +204,8 @@ class TableBased(object):
   #return: (state, reward, isDone)
   def step(self, state8, u, reward_flag, tstep_multiplier = 1):
 
-    state8 = integrator.integrate(state8, u, self.timestep, tstep_multiplier = 1)
+    state8 = integrator.integrate(state8, u, self.timestep, tstep_multiplier = 1,
+       method = "RK45")
 
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 

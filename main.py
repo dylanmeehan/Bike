@@ -10,12 +10,6 @@ state_flag2 = 5
 figObject = None
 simulation_duration = 5
 
-#Qlearning_model = Qlearning(state_grid_flag = 0, action_grid_flag = 0,
-#  reward_flag = 2, Qfile = "Q.csv")
-# #Qlearning_model.train()
-#figObject = Qlearning_model.test( tmax = 10, state_flag= state_flag,
-#   gamma =1, figObject = figObject)
-
 #####################################################3
 
 t0 = time.time()
@@ -27,7 +21,7 @@ t1 = time.time()
 print("Initialized VI Model in " + str(t1-t0) + "sec")
 
 
-VIteration_model.train( gamma = 0.95, num_episodes = 100,
+VIteration_model.train( gamma = 0.95, num_episodes = 10,
       interpolation_method = "linear", use_continuous_actions = False, vectorize = True)
 
 t2 = time.time()
@@ -42,20 +36,6 @@ t3 = time.time()
 print("Tested VI Model in " + str(t3-t2))
 
 
-# VIteration_model1 = ValueIteration(state_grid_flag = 1, action_grid_flag = 1,
-#  reward_flag = 3, Ufile = "models/VI26.csv", use_only_continuous_actions = True)
-# # # VIteration_model.train( gamma = 0.95, num_episodes = 100,
-# # #      do_interpolation = True, use_continuous_actions = False)
-# figObject = VIteration_model1.test(tmax = time, state_flag = state_flag2,
-#    use_continuous_actions = True, gamma = 1, figObject = figObject)
-
-# VIteration_model = ValueIteration(state_grid_flag = 1, action_grid_flag = 1,
-#  reward_flag = 3, Ufile = "models/VI25.csv", use_only_continuous_actions = True)
-# # VIteration_model.train( gamma = 0.95, num_episodes = 100,
-# #      do_interpolation = True, use_continuous_actions = False)
-# figObject = VIteration_model.test(tmax = time, state_flag = state_flag1,
-#   use_continuous_actions = True, gamma = 1, figObject = figObject)
-
 
 
 
@@ -68,7 +48,7 @@ t1 = time.time()
 [success, states, figObject] = runBicycleTest(state_flag1,
   controller = LinearController.LinearController(),
   time = simulation_duration, isGraphing  = True, figObject = figObject,
-  tstep_multiplier = 1, name = "LQR")
+  name = "LQR")
 
 t2 = time.time()
 print("Tested linear controller in " + str(t2-t1) +"sec")
