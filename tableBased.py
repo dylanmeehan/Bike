@@ -151,7 +151,7 @@ class TableBased(object):
   #this function only works for states which are the state gridpoints.
   #this is useful for value Iteration
   #step table maps state indicies and action indicies to the next state
-  def setup_step_table(self, reward_flag):
+  def setup_step_table(self, reward_flag, step_table_integration_method = "Euler"):
     t0 = time.time()
 
     self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
@@ -174,7 +174,8 @@ class TableBased(object):
 
             action = self.action_grid[i_action]
 
-            new_state8, next_s_reward, _ = self.step(state8, action, reward_flag)
+            new_state8, next_s_reward, _ = self.step(state8, action, reward_flag,
+              method = step_table_integration_method)
             new_state3 = state8_to_state3(new_state8)
 
             self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state3
@@ -202,9 +203,10 @@ class TableBased(object):
   # tstep_multiplier is the number of integration_timesteps for every one
   # controller timestep. Should be an integer >= 1
   #return: (state, reward, isDone)
-  def step(self, state8, u, reward_flag, tstep_multiplier = 1):
+  def step(self, state8, u, reward_flag, tstep_multiplier = 1,  method = "Euler"):
 
-    state8 = integrator.integrate(state8, u, self.timestep, tstep_multiplier = 1)
+    state8 = integrator.integrate(state8, u, self.timestep, tstep_multiplier = 1,
+      method = method)
 
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
