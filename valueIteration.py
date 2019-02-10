@@ -44,7 +44,7 @@ class ValueIteration(TableBased):
 
 
     init_t2 = time.time()
-    print("Initialized VI Model " + self.Ufile + " in " + str(init_t1-init_t1) + "sec")
+    print("Initialized VI Model " + self.Ufile + " in " + str(init_t2-init_t1) + "sec")
     #TODO: precompute reward function. Set up table (similiar to step_table), so
     #       that we don't compute the reward for a state every time. We only
     #       look up the reward
@@ -75,9 +75,10 @@ class ValueIteration(TableBased):
     return (best_action_index, best_action_utility)
 
   #
-  def continuous_utility_function(self, state8, u):
+  def continuous_utility_function(self, state8, u, integration_method = "Euler"):
 
-    (new_state8, reward, isDone) = self.step(state8, u, self.reward_flag)
+    (new_state8, reward, isDone) = self.step(state8, u, self.reward_flag,
+      method = integration_method)
 
     new_state3 = state8_to_state3(new_state8)
     utility = self.get_value(new_state3)
@@ -104,11 +105,13 @@ class ValueIteration(TableBased):
     return points_inside_last_gridpoint
 
   #always do interpolation
-  def calc_best_action_and_utility_continuous(self, state8):
+  def calc_best_action_and_utility_continuous(self, state8,
+    integration_method = "Euler"):
 
     #we need to minimiza something. minimizning negations of the utility function
     # is equivalent to maximizing the utilty function
-    negated_utility_fun = lambda u: -1*self.continuous_utility_function(state8, u)
+    negated_utility_fun = lambda u: -1*self.continuous_utility_function(state8, u,
+      integration_method = integration_method)
 
     # find the action which maximizes the utility function
 
@@ -135,8 +138,9 @@ class ValueIteration(TableBased):
 
     return (u, best_action_utility)
 
-  def get_action_continuous(self, state8, epsilon = 0):
-    (u, _) = self.calc_best_action_and_utility_continuous(state8)
+  def get_action_continuous(self, state8, epsilon = 0, integration_method = "Euler"):
+    (u, _) = self.calc_best_action_and_utility_continuous(state8,
+      integration_method = integration_method)
     return u
 
   # given: state3_index (a discritized state 3 tuple).
@@ -307,21 +311,20 @@ class ValueIteration(TableBased):
     print("Trained VI Model " + self.Ufile + " in " + str(train_t2-train_t1) + "sec")
 
   def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
-      gamma = 1, figObject = None, plot_is_inside_last_gridpoint = False):
+      gamma = 1, figObject = None, plot_is_inside_last_gridpoint = False,
+      integration_method = "Euler"):
 
     t_test1 = time.time()
 
-    # if using continuous actions, need to interpolate value function
-    if use_continuous_actions:
-      self.itp = RegularGridInterpolator(
-          (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
-          bounds_error = False, fill_value = 0, method = "linear")
+    self.itp = RegularGridInterpolator(
+        (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
+        bounds_error = False, fill_value = 0, method = "linear")
 
     epsilon = 0; alpha = 0
 
     reward, time_testing, states8, motorCommands = \
       self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag, True,
-        use_continuous_actions, state_flag)
+        use_continuous_actions, state_flag, integration_method = integration_method)
 
     print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
       + str(time_testing))

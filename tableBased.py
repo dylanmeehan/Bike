@@ -152,7 +152,7 @@ class TableBased(object):
   #this is useful for value Iteration
   #step table maps state indicies and action indicies to the next state
   def setup_step_table(self, reward_flag, step_table_integration_method = "Euler"):
-    t0 = time.time()
+    #t0 = time.time()
 
     self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
       self.len_delta_grid, self.num_actions, 3))
@@ -181,11 +181,11 @@ class TableBased(object):
             self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state3
 
 
-    t1 = time.time()
-    print("Setup step_table (precalculated state transitions) in " + str(t1-t0)
-      + "seconds")
+    #t1 = time.time()
+    #print("Setup step_table (precalculated state transitions) in " + str(t1-t0)
+    #  + "seconds")
 
-    print("shape of reward table:" + str(np.shape(self.reward_table)))
+    #print("shape of reward table:" + str(np.shape(self.reward_table)))
 
   #given: a 3-tuple state3_index of the indicies for phi, phi_dot, delta
   #       the index of the action to take
@@ -263,7 +263,7 @@ class TableBased(object):
   # state_flag determines the starting state
   # can be used to test or for training a Qlearning agent
   def simulate_episode(self, epsilon, gamma, alpha, tmax, reward_flag,
-    isTesting, use_continuous_actions, state_flag = 0):
+    isTesting, use_continuous_actions, state_flag = 0, integration_method = "Euler"):
 
     state8 = getStartingState8(state_flag)
 
@@ -295,7 +295,8 @@ class TableBased(object):
     while( (count < maxNumTimeSteps) and (not is_done)):
 
       if use_continuous_actions:
-        action = self.get_action_continuous(state8, epsilon)
+        action = self.get_action_continuous(state8, epsilon,
+         integration_method = integration_method)
         #print("continuous action:" + str(action))
       else:
         action_index = self.act_index(state_grid_point_index, epsilon)
@@ -304,7 +305,8 @@ class TableBased(object):
         #print("discrete action:" + str(action))
 
 
-      new_state8, reward, is_done = self.step(state8, action, reward_flag)
+      new_state8, reward, is_done = self.step(state8, action, reward_flag,
+        method = integration_method )
 
       if not use_continuous_actions:
         new_state_grid_point_index = self.discretize(new_state8)
