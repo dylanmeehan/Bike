@@ -30,7 +30,6 @@ def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
       count += 1
 
   elif method == "fixed_step_RK4":
-    #print("using fixed_step_RK4 method")
     dt = controller_timestep    #use same time step as controller
     f = lambda s: rhs.rhs(s,u)  #f = ydot = rhs
     y0 = state8                 # IC, initial state, y0
