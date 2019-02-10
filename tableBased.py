@@ -172,15 +172,23 @@ class TableBased(object):
     indicies_matrix1 = np.meshgrid(phi_indices, phi_dot_indices, delta_indices,
       indexing = "ij")
 
+    t0 = time.time()
+
     reward = lambda indicies: \
       self.get_reward(self.state8_from_indicies(indicies[0], indicies[1],
         indicies[2]), reward_flag)
 
     self.reward_table = np.apply_along_axis(reward, 0, indicies_matrix1)
 
+    t1 = time.time()
+    print("reward_table setup in " + str(t1-t0) + " sec")
+
+
+
     step = lambda indicies: \
       state8_to_state3(self.step(self.state8_from_indicies(indicies[0],indicies[1],
-        indicies[2]),self.action_grid[indicies[3]], reward_flag)[0])
+        indicies[2]),self.action_grid[indicies[3]], reward_flag,
+        method = step_table_integration_method )[0])
 
 
     indicies_matrix2 = np.meshgrid(phi_indices, phi_dot_indices, delta_indices,
