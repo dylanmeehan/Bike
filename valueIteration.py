@@ -28,6 +28,7 @@ class ValueIteration(TableBased):
       reward_flag)
 
     self.step_table_file = Ufile+ "_step_table.csv"
+    self.reward_file = Ufile+ "_reward_table.csv"
     self.Ufile = Ufile + ".csv"
    # self.step_file
 
