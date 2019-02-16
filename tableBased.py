@@ -157,9 +157,14 @@ class TableBased(object):
 
     if Path(self.step_table_file).is_file():
       print("Loading step_table {} from file".format(self.Ufile))
+
       saved_step_table = np.genfromtxt(self.step_table_file, delimiter = ",")
       self.step_table = saved_step_table.reshape(self.len_phi_grid,
         self.len_phi_dot_grid, self.len_delta_grid, self.num_actions,3)
+
+      saved_reward_table = np.genfromtxt(self.reward_file, delimiter = ",")
+      self.reward_table = saved_reward_table.reshape(self.len_phi_grid,
+        self.len_phi_dot_grid, self.len_delta_grid)
 
 
 
@@ -193,6 +198,8 @@ class TableBased(object):
 
       np.savetxt(self.step_table_file,
         self.step_table.reshape(self.num_states*self.num_actions*3), delimiter = ",")
+      np.savetxt(self.reward_file,
+        self.reward_table.reshape(self.num_states), delimiter = ",")
 
       #
 

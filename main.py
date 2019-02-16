@@ -31,21 +31,21 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
    integration_method = "fixed_step_RK4", name = "VI34: discrete")
 
 
-# VIteration_model = ValueIteration(state_grid_flag = 4, action_grid_flag = 2,
-#  reward_flag = 3, Ufile = "models/VI35", use_only_continuous_actions = False,
-#  step_table_integration_method = "fixed_step_RK4")
+VIteration_model = ValueIteration(state_grid_flag = 4, action_grid_flag = 2,
+ reward_flag = 3, Ufile = "models/VI35", use_only_continuous_actions = False,
+ step_table_integration_method = "fixed_step_RK4")
 
 # VIteration_model.train( gamma = 0.95, num_episodes = 30,
 #        interpolation_method = "linear", use_continuous_actions = False, vectorize = True)
 
 
-# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-#    use_continuous_actions = True, gamma = 1, figObject = figObject,
-#    integration_method = "fixed_step_RK4", name = "VI35: continuous")
+figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+   use_continuous_actions = True, gamma = 1, figObject = figObject,
+   integration_method = "fixed_step_RK4", name = "VI35: continuous")
 
-# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-#    use_continuous_actions = False, gamma = 1, figObject = figObject,
-#    integration_method = "fixed_step_RK4", name = "VI35: discrete")
+figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+   use_continuous_actions = False, gamma = 1, figObject = figObject,
+   integration_method = "fixed_step_RK4", name = "VI35: discrete")
 
 
 
