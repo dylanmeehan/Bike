@@ -6,6 +6,7 @@ import graph
 from unpackState import *
 from scipy.interpolate import interpn
 import time
+from pathlib import Path
 
 class TableBased(object):
 
@@ -85,7 +86,7 @@ class TableBased(object):
       delta_half_grid =  [.02, .05, .1]
       self.delta_grid = make_full_grid(delta_half_grid)
 
-   #19x17x15 states
+   #19x17x15 states, all states are not fallen states lol
     elif state_grid_flag == 4:
       #.785 is falling criteria
       phi_half_grid = [.02, .06, .1, .16, .22, .28, .4, .6, .77 ]
@@ -151,34 +152,52 @@ class TableBased(object):
   #this function only works for states which are the state gridpoints.
   #this is useful for value Iteration
   #step table maps state indicies and action indicies to the next state
-  def setup_step_table(self, reward_flag, step_table_integration_method = "Euler"):
+  def setup_step_table(self, reward_flag, step_table_integration_method = "fixed_step_RK4"):
     #t0 = time.time()
 
-    self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
-      self.len_delta_grid, self.num_actions, 3))
-    self.reward_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
-      self.len_delta_grid))
-      #8 is number of variables in a continuous state
+    if Path(self.step_table_file).is_file():
+      print("Loading step_table {} from file".format(self.Ufile))
+      saved_step_table = np.genfromtxt(self.step_table_file, delimiter = ",")
+      self.step_table = saved_step_table.reshape(self.len_phi_grid,
+        self.len_phi_dot_grid, self.len_delta_grid, self.num_actions,3)
 
-    for i_phi in range(self.len_phi_grid):
-      for i_phi_dot in range(self.len_phi_dot_grid):
-        for i_delta in range(self.len_delta_grid):
 
-          state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
-            #don't use reward from stepping because that is reward for next state
-            # s', and not current state, s (I think)
-          s_reward = self.get_reward(state8, reward_flag)
-          self.reward_table[i_phi, i_phi_dot, i_delta] = s_reward
 
-          for i_action in range(self.num_actions):
+    else:
+      print("Making new step table {}".format(self.Ufile))
+      self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
+        self.len_delta_grid, self.num_actions, 3))
+      self.reward_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
+        self.len_delta_grid))
+        #8 is number of variables in a continuous state
 
-            action = self.action_grid[i_action]
+      for i_phi in range(self.len_phi_grid):
+        for i_phi_dot in range(self.len_phi_dot_grid):
+          for i_delta in range(self.len_delta_grid):
 
-            new_state8, next_s_reward, _ = self.step(state8, action, reward_flag,
-              method = step_table_integration_method)
-            new_state3 = state8_to_state3(new_state8)
+            state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
+              #don't use reward from stepping because that is reward for next state
+              # s', and not current state, s (I think)
+            s_reward = self.get_reward(state8, reward_flag)
+            self.reward_table[i_phi, i_phi_dot, i_delta] = s_reward
 
-            self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state3
+            for i_action in range(self.num_actions):
+
+              action = self.action_grid[i_action]
+
+              new_state8, next_s_reward, _ = self.step(state8, action, reward_flag,
+                method = step_table_integration_method)
+              new_state3 = state8_to_state3(new_state8)
+
+              self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state3
+
+      np.savetxt(self.step_table_file,
+        self.step_table.reshape(self.num_states*self.num_actions*3), delimiter = ",")
+
+      #
+
+
+
 
 
     #t1 = time.time()
