@@ -19,7 +19,7 @@ class ValueIteration(TableBased):
 
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
     Ufile = "models/valueIteration_U.csv", use_only_continuous_actions = False,
-    step_table_integration_method = "Euler"):
+    step_table_integration_method = "fixed_step_RK4"):
 
     print("Initializing VI model")
     init_t1 = time.time()
@@ -27,13 +27,17 @@ class ValueIteration(TableBased):
     super(ValueIteration, self).__init__(state_grid_flag, action_grid_flag,
       reward_flag)
 
+    self.step_table_file = Ufile+ "_step_table.csv"
+    self.Ufile = Ufile + ".csv"
+   # self.step_file
+
     if not use_only_continuous_actions:
       self.setup_step_table(reward_flag,  step_table_integration_method)
 
-    self.Ufile = Ufile
+
 
     if Path(self.Ufile).is_file():
-      saved_U = np.genfromtxt(Ufile, delimiter = ",")
+      saved_U = np.genfromtxt(self.Ufile, delimiter = ",")
       self.U = saved_U.reshape(self.len_phi_grid, self.len_phi_dot_grid,
           self.len_delta_grid)
     else:
@@ -161,8 +165,9 @@ class ValueIteration(TableBased):
   #trains a valueIteration, table-based mode.
   #when training finishes, utilities are stored in a csv
   # if continuous actions is true, do_interpolation must be true
+  # vectorize == True updates states using vectorized code (fast)
   def train(self, gamma = 0.95, num_episodes = 30,
-    interpolation_method = "linear", use_continuous_actions = False, vectorize = False):
+    interpolation_method = "linear", use_continuous_actions = False, vectorize = True):
 
     train_t1 = time.time()
 
@@ -310,9 +315,14 @@ class ValueIteration(TableBased):
     train_t2 = time.time()
     print("Trained VI Model " + self.Ufile + " in " + str(train_t2-train_t1) + "sec")
 
+
+  # integration_method = "fixed_step_RK4", "Euler"
   def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
       gamma = 1, figObject = None, plot_is_inside_last_gridpoint = False,
-      integration_method = "Euler"):
+      integration_method = "fixed_step_RK4", name = None):
+
+    if name == None:
+      name = self.Ufile
 
     t_test1 = time.time()
 
@@ -337,7 +347,7 @@ class ValueIteration(TableBased):
 
     # graph
     figObject = graph.graph(states8, motorCommands, figObject,
-      points_inside_last_gridpoint, name = self.Ufile)
+      points_inside_last_gridpoint, name)
 
     t_test2 = time.time()
     print("Tested VI Model " + self.Ufile + " in " + str(t_test2-t_test1))

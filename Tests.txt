@@ -148,7 +148,7 @@ VI28:
     state_grid_flag = 1. gamma_training = 0.95, action_grid_flag = 1 (11 actions). reward_flag = 3. trained with discrete actions.
     tested with state_flag = 3 and state_flag = 5 (lean angle has reverse sign). trained 100 episodes
     same as VI28, but with 500 episodes.
-----------------------------------------------------------------
+---------------------------   Timing  -------------------------------------
 
 -VI31: timing tests.
     Actions grid flag = 0: 5 actions.
@@ -165,6 +165,21 @@ VI33: timint tests
     action grid flag = 1: 11 actions.
     state grid flag = 1:
     discrete actions, interpolation
+
+-------------------------  Smooth Controller Development   ------------------
+
+VI34: smooth action tests
+    action grid flag = 1: 11 actions.
+    state grid flag = 1: 19x17x15 states
+    discrete actions, interpolation
+
+VI35: VI34 but with 100 actions
+    action grid flag = 2: 101 actions.
+    state grid flag = 1: 19x17x15 states
+    discrete actions, interpolation
+
+
+
 
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
 Q2: Q Learning 2. 11/
