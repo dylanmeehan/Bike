@@ -170,13 +170,52 @@ VI33: timint tests
 
 VI34: smooth action tests
     action grid flag = 1: 11 actions.
-    state grid flag = 1: 19x17x15 states
+    state grid flag = 4: 19x17x15 states
+    reward flag = 3
     discrete actions, interpolation
+    trained for 30 episodes
 
 VI35: VI34 but with 100 actions
     action grid flag = 2: 101 actions.
-    state grid flag = 1: 19x17x15 states
+    state grid flag = 4: 19x17x15 states
+    reward flag = 3
     discrete actions, interpolation
+    trained for 30 episodes
+
+VI36: VI34 but with 100 episodes
+    action grid flag = 2: 101 actions.
+    state grid flag = 4: 19x17x15 states
+    reward flag = 3
+    discrete actions, interpolation
+    trained for 100 episodes
+
+VI37: VI34 but with 500 episodes
+    action grid flag = 2: 101 actions.
+    state grid flag = 4: 19x17x15 states
+    reward flag = 3
+    discrete actions, interpolation
+    trained for 500 episodes
+
+VI38: VI34 but with reward_flag = 5
+    action grid flag = 1: 1 actions.
+    state grid flag = 4: 19x17x15 states
+    reward flag = 5 (penalize all three states)
+    discrete actions, interpolation
+    trained for 30 episodes
+
+VI39: VI38 but trained for 100 episodes
+    action grid flag = 1: 11 actions.
+    state grid flag = 4: 19x17x15 states
+    reward flag = 5 (penalize all three states)
+    discrete actions, interpolation
+    trained for 100 episodes
+
+VI40: VI34, but with tighter state space
+    action grid flag = 1: 11 actions.
+    state grid flag = 6 : 27x29x25 states
+    reward flag = 3
+    discrete actions, interpolation
+    trained for 30 episodes
 
 
 
