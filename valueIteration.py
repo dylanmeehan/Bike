@@ -17,6 +17,8 @@ mpl.rcParams['font.size']=14
 
 class ValueIteration(TableBased):
 
+  #initializing makes table for rewards and state transitions, so if any of those
+  # are changed after the original initialization, that will cause a problem.
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
     Ufile = "models/valueIteration_U.csv", use_only_continuous_actions = False,
     step_table_integration_method = "fixed_step_RK4"):

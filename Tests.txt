@@ -217,6 +217,16 @@ VI40: VI34, but with tighter state space
     discrete actions, interpolation
     trained for 30 episodes
 
+--------------------   changed reward to include action ----------
+
+
+VI41: same as VI34, but testing reward = r(s,a)
+    action grid flag = 1: 11 actions.
+    state grid flag = 4: 19x17x15 states
+    reward flag = 3
+    discrete actions, interpolation
+    trained for 30 episodes
+
 
 
 
