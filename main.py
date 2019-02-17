@@ -12,9 +12,9 @@ simulation_duration = 5
 
 #####################################################3
 
-
+name = "VI34"
 VIteration_model = ValueIteration(state_grid_flag = 4, action_grid_flag = 1,
- reward_flag = 3, Ufile = "models/VI34", use_only_continuous_actions = False,
+ reward_flag = 3, Ufile = "models/"+name, use_only_continuous_actions = False,
  step_table_integration_method = "fixed_step_RK4")
 
 
@@ -24,30 +24,37 @@ VIteration_model = ValueIteration(state_grid_flag = 4, action_grid_flag = 1,
 
 figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
    use_continuous_actions = True, gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = "VI34: continuous")
+   integration_method = "fixed_step_RK4", name = name+": continuous")
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-   use_continuous_actions = False, gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = "VI34: discrete")
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = False, gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = name+" discrete")
 
 
-VIteration_model = ValueIteration(state_grid_flag = 4, action_grid_flag = 2,
- reward_flag = 3, Ufile = "models/VI35", use_only_continuous_actions = False,
+name = "VI40"
+VIteration_model = ValueIteration(state_grid_flag = 6, action_grid_flag = 1,
+ reward_flag = 3, Ufile = "models/"+name, use_only_continuous_actions = False,
  step_table_integration_method = "fixed_step_RK4")
 
-# VIteration_model.train( gamma = 0.95, num_episodes = 30,
-#        interpolation_method = "linear", use_continuous_actions = False, vectorize = True)
+
+VIteration_model.train( gamma = 0.95, num_episodes = 30,
+       interpolation_method = "linear", use_continuous_actions = False, vectorize = True)
 
 
 figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
    use_continuous_actions = True, gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = "VI35: continuous")
+   integration_method = "fixed_step_RK4", name = name+": continuous")
 
 figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
    use_continuous_actions = False, gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = "VI35: discrete")
+   integration_method = "fixed_step_RK4", name = name+" discrete")
 
 
+
+
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = False, gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = "VI34: discrete")
 
 
 # #I don't need to store the figObject returned by test. this returns the same
@@ -55,7 +62,7 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 # # to None
 # t1 = time.time()
 
-[success, states, figObject] = runBicycleTest(state_flag1,
+[success, states, figObject] = runBicycleTest(state_flag2,
   controller = LinearController.LinearController(),
   time = simulation_duration, isGraphing  = True, figObject = figObject,
   name = "LQR")

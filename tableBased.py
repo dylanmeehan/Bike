@@ -97,6 +97,28 @@ class TableBased(object):
       self.delta_grid = make_full_grid(delta_half_grid)
 
 
+    elif state_grid_flag == 5:
+      #.785 is falling criteria
+      phi_half_grid = [.02, .04, .07, .10, .13, .16, .20, .25, .3, .35, .4, .45,
+        .5, .55, .6, .65, .7, .77 ]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .04, .07, .1, .15, .2, .25,.3,.4,.5,.6,.7,.8,.9,1 ]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =   [.02, .04, .07, .1, .15, .2, .25,.3,.4,.5,.75,1 ]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+    #tight grid space, but only cloose to the balanced state
+    # 27x 29 x 25 state space
+    elif state_grid_flag == 6:
+      #.785 is falling criteria
+      phi_half_grid = [.02, .04, .06, .08, .10, .12, .14, .16, .18, .20, .22, .24, .26]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .04, .06, .08, .10, .13, .17, .2, .25, .3, .35, .4, .45, .5]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =   [.02, .04, .06, .08, .10, .13, .16, .19, .22, .25, .28, .31]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+
     else:
       raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
 
@@ -278,6 +300,8 @@ class TableBased(object):
         reward = 5 - phi**2
       elif reward_flag == 4:
         reward = 3 - np.abs(phi)
+      elif reward_flag == 5:
+        reward = 5 - (np.abs(phi) + np.abs(phi_dot/4) + np.abs(delta))
       else:
         raise Exception("Invalid reward_flag: {}".format(reward_flag))
 
