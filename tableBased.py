@@ -184,9 +184,10 @@ class TableBased(object):
       self.step_table = saved_step_table.reshape(self.len_phi_grid,
         self.len_phi_dot_grid, self.len_delta_grid, self.num_actions,3)
 
+
       saved_reward_table = np.genfromtxt(self.reward_file, delimiter = ",")
       self.reward_table = saved_reward_table.reshape(self.len_phi_grid,
-        self.len_phi_dot_grid, self.len_delta_grid)
+        self.len_phi_dot_grid, self.len_delta_grid, self.num_actions)
 
 
 
@@ -195,7 +196,7 @@ class TableBased(object):
       self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
         self.len_delta_grid, self.num_actions, 3))
       self.reward_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
-        self.len_delta_grid))
+        self.len_delta_grid, self.num_actions))
         #8 is number of variables in a continuous state
 
       for i_phi in range(self.len_phi_grid):
@@ -205,12 +206,13 @@ class TableBased(object):
             state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
               #don't use reward from stepping because that is reward for next state
               # s', and not current state, s (I think)
-            s_reward = self.get_reward(state8, reward_flag)
-            self.reward_table[i_phi, i_phi_dot, i_delta] = s_reward
 
             for i_action in range(self.num_actions):
 
               action = self.action_grid[i_action]
+
+              reward = self.get_reward(state8, action, reward_flag)
+              self.reward_table[i_phi, i_phi_dot, i_delta, i_action] = reward
 
               new_state8, next_s_reward, _ = self.step(state8, action, reward_flag,
                 method = step_table_integration_method)
@@ -221,7 +223,7 @@ class TableBased(object):
       np.savetxt(self.step_table_file,
         self.step_table.reshape(self.num_states*self.num_actions*3), delimiter = ",")
       np.savetxt(self.reward_file,
-        self.reward_table.reshape(self.num_states), delimiter = ",")
+        self.reward_table.reshape(self.num_states*self.num_actions), delimiter = ",")
 
       #
 
@@ -265,7 +267,7 @@ class TableBased(object):
     else:
       isDone = False
 
-    reward = self.get_reward(state8)
+    reward = self.get_reward(state8, action = u)
 
     return (state8, reward, isDone)
 
@@ -273,7 +275,7 @@ class TableBased(object):
   #       reward_flag - dictates what reward shaping to use
   # returns: reward - a nunber greater than or equal to  0
   # reward = 0 iff the bike has fallen (phi > pi/4)
-  def get_reward(self,state8, reward_flag = 3):
+  def get_reward(self,state8, action, reward_flag = 3):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
     #REWARD_FOR_FALLING = 0
