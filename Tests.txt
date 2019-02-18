@@ -234,11 +234,19 @@ VI42: small state space
     discrete actions, interpolation
     trained for 30 episodes
 
-VI43: small state space
+VI43: working
     action grid flag = 1: 11 actions.
-    state grid flag = : 11x9x7 states
+    state grid flag = 4 :
     reward flag = 3
     discrete actions, interpolation
+    trained for 30 episodes
+    gamma = 1
+
+VI43: trained with continuous actions
+    action grid flag = 4
+    state grid flag = 4 :
+    reward flag = 3
+    continuous actions, interpolation
     trained for 30 episodes
     gamma = 1
 
