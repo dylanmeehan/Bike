@@ -86,7 +86,7 @@ class ValueIteration(TableBased):
     return (best_action_index, best_action_utility)
 
   #
-  def continuous_utility_function(self, state8, u, integration_method):
+  def continuous_utility_function(self, state8, u, integration_method, gamma):
 
     (new_state8, reward, isDone) = self.step(state8, u, self.reward_flag,
       method = integration_method)
@@ -120,12 +120,12 @@ class ValueIteration(TableBased):
 
   #always do interpolation
   def calc_best_action_and_utility_continuous(self, state8,
-    integration_method = "Euler"):
+    integration_method = "Euler", gamma = 1):
 
     #we need to minimiza something. minimizning negations of the utility function
     # is equivalent to maximizing the utilty function
     negated_utility_fun = lambda u: -1*self.continuous_utility_function(state8, u,
-      integration_method = integration_method)
+      integration_method = integration_method, gamma = gamma)
 
     # find the action which maximizes the utility function
 
@@ -147,14 +147,15 @@ class ValueIteration(TableBased):
     elif u < -params.MAX_STEER_RATE:
       u = -params.MAX_STEER_RATE
 
-    best_action_utility = self.continuous_utility_function(state8, u, integration_method)
+    utility_of_best_action = self.continuous_utility_function(state8, u,
+      integration_method, gamma)
     #print(u)
 
-    return (u, best_action_utility)
+    return (u, utility_of_best_action)
 
-  def get_action_continuous(self, state8, epsilon = 0, integration_method = "Euler"):
+  def get_action_continuous(self, state8, epsilon = 0, gamma = 1, integration_method = "Euler"):
     (u, _) = self.calc_best_action_and_utility_continuous(state8,
-      integration_method = integration_method)
+      integration_method = integration_method, gamma = gamma)
     return u
 
   # given: state3_index (a discritized state 3 tuple).
@@ -176,8 +177,11 @@ class ValueIteration(TableBased):
   #when training finishes, utilities are stored in a csv
   # if continuous actions is true, do_interpolation must be true
   # vectorize == True updates states using vectorized code (fast)
-  def train(self, gamma = 0.95, num_episodes = 30,
-    interpolation_method = "linear", use_continuous_actions = False, vectorize = True):
+  def train(self, gamma = 1, num_episodes = 30,
+    interpolation_method = "linear", use_continuous_actions = False, vectorize = None):
+
+    if vectorize == None:
+      vectorize = not use_continuous_actions
 
     train_t1 = time.time()
 
@@ -221,7 +225,9 @@ class ValueIteration(TableBased):
           state3 = self.state_grid_points[state3_index]
           state8 = state3_to_state8(state3)
           (_, best_utility) = \
-            self.calc_best_action_and_utility_continuous(state8, gamma)
+            self.calc_best_action_and_utility_continuous(state8, gamma = gamma)
+            #gamma is inherited from outer class
+
         else:
           (_, best_utility) = \
             self.calc_best_action_and_utility(state3_index, gamma)
@@ -446,7 +452,7 @@ class ValueIteration(TableBased):
 
           if use_continuous_actions:
             state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
-            VI_action = self.get_action_continuous(state8, epsilon = 0)
+            VI_action = self.get_action_continuous(state8, epsilon = 0, gamma = 1)
           else:
             action_index = self.act_index(state3_index, epsilon = 0, gamma = 1)
             #self.act_index returns which action to take. defined for each model.

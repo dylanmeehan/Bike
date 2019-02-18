@@ -6,7 +6,7 @@ from unpackState import *
 #solve the EoMs numerically
 # method = ["Euler", "RK45", "fixed_step_RK4"]
 def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
-  method = "Euler"):
+  method = "fixed_step_RK4"):
 
   if method == "Euler":
 
