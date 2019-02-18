@@ -250,7 +250,13 @@ VI43: trained with continuous actions
     trained for 30 episodes
     gamma = 1
 
-
+VI45: penalize actions
+    action grid flag = 1: 11 actions.
+    state grid flag = 4 : 19 x 17 x 15 states
+    reward flag = 6
+    discrete actions, interpolation
+    trained for 30 episodes
+    gamma = 1
 
 
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
