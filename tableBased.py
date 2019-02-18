@@ -294,6 +294,9 @@ class TableBased(object):
         reward = 3 - np.abs(phi)
       elif reward_flag == 5:
         reward = 5 - (np.abs(phi) + np.abs(phi_dot/4) + np.abs(delta))
+      #incorperate actions
+      elif reward_flag == 6:
+         reward = 5 - phi**2 - 0.01*action**2
       else:
         raise Exception("Invalid reward_flag: {}".format(reward_flag))
 
