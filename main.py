@@ -14,7 +14,7 @@ simulation_duration = 5
 
 
 name = "VI44"
-VIteration_model = ValueIteration(state_grid_flag = 2, action_grid_flag = 0,
+VIteration_model = ValueIteration(state_grid_flag = 4, action_grid_flag = 4,
  reward_flag = 3, Ufile = "modelsB/"+name, use_only_continuous_actions = True,
  remake_table = False, step_table_integration_method = "fixed_step_RK4")
 

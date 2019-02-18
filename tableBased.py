@@ -32,7 +32,7 @@ class TableBased(object):
       raise Exception("Invalid action_grid_flag: {}".format(action_grid_flag))
 
     if action_grid_flag == 4:
-      self.num_actions = np.inf
+      self.num_actions = 0
     else:
       self.num_actions = len(self.action_grid)
 
