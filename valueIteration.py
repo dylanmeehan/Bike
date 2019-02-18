@@ -77,6 +77,7 @@ class ValueIteration(TableBased):
       #TODO: change step_fast to use lookup table which returns new_state3
 
       # reward = R(s,a)
+      # Q(s,a) = R(s,a) + gamma * U(s')
       Qtemp[action_index] = reward + gamma*self.get_value(new_state3)
 
     best_action_utility = np.max(Qtemp)
@@ -90,8 +91,11 @@ class ValueIteration(TableBased):
     (new_state8, reward, isDone) = self.step(state8, u, self.reward_flag,
       method = integration_method)
 
+
     new_state3 = state8_to_state3(new_state8)
-    utility = self.get_value(new_state3)
+
+    utility = reward + gamma*self.get_value(new_state3)
+    #reward = R(s,a). utility of s' comes exclusively from get_value(s')
     #does NOT calculate the reward at new_state3 (ie, does not calculate R(s'))
 
     return utility
