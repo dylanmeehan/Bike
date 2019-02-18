@@ -256,7 +256,8 @@ class TableBased(object):
     else:
       isDone = False
 
-    reward = self.get_reward(new_state8, u)
+    reward = self.get_reward(state8, u, reward_flag)
+    #reward = self.get_reward(new_state8, u, reward_flag)
 
     return (new_state8, reward, isDone)
 
