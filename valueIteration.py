@@ -20,8 +20,8 @@ class ValueIteration(TableBased):
   #initializing makes table for rewards and state transitions, so if any of those
   # are changed after the original initialization, that will cause a problem.
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
-    Ufile = "models/valueIteration_U.csv", use_only_continuous_actions = False,
-    step_table_integration_method = "fixed_step_RK4"):
+    Ufile = "modelsB/valueIteration_U.csv", use_only_continuous_actions = False,
+    step_table_integration_method = "fixed_step_RK4", remake_table = False):
 
     print("Initializing VI model")
     init_t1 = time.time()
@@ -35,11 +35,11 @@ class ValueIteration(TableBased):
    # self.step_file
 
     if not use_only_continuous_actions:
-      self.setup_step_table(reward_flag,  step_table_integration_method)
+      self.setup_step_table(reward_flag, remake_table, step_table_integration_method)
 
 
 
-    if Path(self.Ufile).is_file():
+    if Path(self.Ufile).is_file() and not remake_table:
       saved_U = np.genfromtxt(self.Ufile, delimiter = ",")
       self.U = saved_U.reshape(self.len_phi_grid, self.len_phi_dot_grid,
           self.len_delta_grid)
@@ -61,7 +61,7 @@ class ValueIteration(TableBased):
   #return: (best_action_index, best_action_utility) for that state.
   # best_action_index is the index of the action which has the highest utility
   # best_action_utility is the utility of that action
-  def calc_best_action_and_utility(self, state3_index):
+  def calc_best_action_and_utility(self, state3_index, gamma):
 
     Qtemp = np.zeros(self.num_actions)
 
@@ -70,11 +70,14 @@ class ValueIteration(TableBased):
     for action_index in range(self.num_actions):
 
       new_state3 = self.step_fast(state3_index, action_index)
+      reward = self.reward_table[state3_index[0], state3_index[1],
+          state3_index[2], action_index]
 
       #new_state3 = state8_to_state3(new_state8)
       #TODO: change step_fast to use lookup table which returns new_state3
 
-      Qtemp[action_index] = self.get_value(new_state3)
+      # reward = R(s,a)
+      Qtemp[action_index] = reward + gamma*self.get_value(new_state3)
 
     best_action_utility = np.max(Qtemp)
     best_action_index = np.argmax(Qtemp)
@@ -82,7 +85,7 @@ class ValueIteration(TableBased):
     return (best_action_index, best_action_utility)
 
   #
-  def continuous_utility_function(self, state8, u, integration_method = "Euler"):
+  def continuous_utility_function(self, state8, u, integration_method):
 
     (new_state8, reward, isDone) = self.step(state8, u, self.reward_flag,
       method = integration_method)
@@ -140,7 +143,7 @@ class ValueIteration(TableBased):
     elif u < -params.MAX_STEER_RATE:
       u = -params.MAX_STEER_RATE
 
-    best_action_utility = self.continuous_utility_function(state8, u)
+    best_action_utility = self.continuous_utility_function(state8, u, integration_method)
     #print(u)
 
     return (u, best_action_utility)
@@ -152,9 +155,9 @@ class ValueIteration(TableBased):
 
   # given: state3_index (a discritized state 3 tuple).
   # return: the index of the best action to take
-  def act_index(self, state3_index, epsilon):
+  def act_index(self, state3_index, epsilon, gamma):
 
-    (best_action_index, _) = self.calc_best_action_and_utility(state3_index)
+    (best_action_index, _) = self.calc_best_action_and_utility(state3_index, gamma)
     return best_action_index
 
   # return a value for the (continuous) new_state3
@@ -210,19 +213,18 @@ class ValueIteration(TableBased):
         phi_i = state3_index[0]; phi_dot_i = state3_index[1]; delta_i = state3_index[2]
         state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
 
-        t_1 = time.time()
         if use_continuous_actions:
           state3 = self.state_grid_points[state3_index]
           state8 = state3_to_state8(state3)
           (_, best_utility) = \
-            self.calc_best_action_and_utility_continuous(state8)
+            self.calc_best_action_and_utility_continuous(state8, gamma)
         else:
           (_, best_utility) = \
-            self.calc_best_action_and_utility(state3_index)
-        t_2 = time.time()
+            self.calc_best_action_and_utility(state3_index, gamma)
+
+        self.U[state3_index] = best_utility
         #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
 
-        t_3 = time.time()
         #note: utilities of nonfallen states are always positive (and the
         # reward for falling is = 0. then all utilities of valid states will
         # always be greater than the reward for falling)
@@ -232,15 +234,6 @@ class ValueIteration(TableBased):
         #additionally, any state outside of the grid would get assigned a value
         # of 0 by the interpolator, so any potentially fallen states would have
         # a value of 0
-        reward = self.get_reward(state8)
-        if (reward == 0):
-
-          print("WE SHOULD NEVER BE IN THIS BRANCH")
-          sys.exit()
-          self.U[state3_index] = 0
-        else:
-          self.U[state3_index] = reward + gamma*best_utility
-        t_4 = time.time()
         #print("calculated reward in : " + str(t_4-t_3) + " sec")
 
       #assume we are not using continuous actions, but are doing interpolation
@@ -254,22 +247,27 @@ class ValueIteration(TableBased):
         #print("new_states shape is " + str(np.shape(new_states)))
 
 
-        t_1 = time.time()
+        #t_1 = time.time()
         #interpolate values
         value_of_states_and_actions = np.transpose(self.itp(new_states.T))
         #print("value_of_states_and_actions shape is " + str(np.shape(value_of_states_and_actions)))
 
-        #find max value for each state3
-        value_of_states = np.amax(value_of_states_and_actions, axis = 3)
+        #find max value for each state3. Don't do this because U
+        #value_of_states = np.amax(value_of_states_and_actions, axis = 3)
         #print("value_of_states shape is " + str(np.shape(value_of_states)))
 
-        #I dont need to check if this is a fallend states
-        self.U = self.reward_table + gamma*value_of_states
+        #Q values contain both states and actions: Q(s,a)
+        #reward value depends on (s,a)
+       # print("reward shape: " + str(np.shape(self.reward_table)))
+       # print("value_of_states_and_actions shape:" + str(np.shape(value_of_states_and_actions)))
+        Q_values = self.reward_table + gamma*value_of_states_and_actions
+        #U(s) = max_a Q(S,a)
+        self.U =  np.amax(Q_values, axis = 3)
 
-        t_2 = time.time()
+        #t_2 = time.time()
         #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
 
-        t_3 = time.time()
+       # t_3 = time.time()
         #note: utilities of nonfallen states are always positive (and the
         # reward for falling is = 0. then all utilities of valid states will
         # always be greater than the reward for falling)
@@ -446,7 +444,7 @@ class ValueIteration(TableBased):
             state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
             VI_action = self.get_action_continuous(state8, epsilon = 0)
           else:
-            action_index = self.act_index(state3_index, epsilon = 0)
+            action_index = self.act_index(state3_index, epsilon = 0, gamma = 1)
             #self.act_index returns which action to take. defined for each model.
             VI_action = self.get_action_from_index(action_index)
 

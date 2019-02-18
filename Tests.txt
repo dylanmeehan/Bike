@@ -218,7 +218,7 @@ VI40: VI34, but with tighter state space
     trained for 30 episodes
 
 --------------------   changed reward to include action ----------
-
+started saving things in modelsB directory
 
 VI41: same as VI34, but testing reward = r(s,a)
     action grid flag = 1: 11 actions.
@@ -226,6 +226,21 @@ VI41: same as VI34, but testing reward = r(s,a)
     reward flag = 3
     discrete actions, interpolation
     trained for 30 episodes
+
+VI42: small state space
+    action grid flag = 0: 5 actions.
+    state grid flag = : 11x9x7 states
+    reward flag = 3
+    discrete actions, interpolation
+    trained for 30 episodes
+
+VI43: small state space
+    action grid flag = 1: 11 actions.
+    state grid flag = : 11x9x7 states
+    reward flag = 3
+    discrete actions, interpolation
+    trained for 30 episodes
+    gamma = 1
 
 
 
