@@ -215,7 +215,8 @@ class TableBased(object):
               reward = self.get_reward(state8, action, reward_flag)
               self.reward_table[i_phi, i_phi_dot, i_delta, i_action] = reward
 
-              new_state8, next_s_reward, _ = self.step(state8, action, reward_flag,
+              #reward for step is reward for the current action and NEXT state
+              new_state8, _, _ = self.step(state8, action, reward_flag,
                 method = step_table_integration_method)
               new_state3 = state8_to_state3(new_state8)
 
@@ -244,9 +245,9 @@ class TableBased(object):
   #return: (state, reward, isDone)
   def step(self, state8, u, reward_flag, tstep_multiplier = 1,  method = "fixed_step_RK4"):
 
-    state8 = integrator.integrate(state8, u, self.timestep, method = method)
+    new_state8 = integrator.integrate(state8, u, self.timestep, method = method)
 
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
+    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(new_state8)
 
     # check if bike has fallen, only need to do once a timestep
     if (np.abs(phi) >= np.pi/4):
@@ -255,9 +256,9 @@ class TableBased(object):
     else:
       isDone = False
 
-    reward = self.get_reward(state8, u)
+    reward = self.get_reward(new_state8, u)
 
-    return (state8, reward, isDone)
+    return (new_state8, reward, isDone)
 
   #given: state8 - the state to get the reward of
   #       reward_flag - dictates what reward shaping to use

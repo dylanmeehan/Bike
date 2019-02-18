@@ -34,7 +34,7 @@ simulation_duration = 5
 name = "VI43"
 VIteration_model = ValueIteration(state_grid_flag = 4, action_grid_flag = 1,
  reward_flag = 3, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
- remake_table = False, step_table_integration_method = "fixed_step_RK4")
+ remake_table = True, step_table_integration_method = "fixed_step_RK4")
 
 
 VIteration_model.train( gamma = 1, num_episodes = 30,
