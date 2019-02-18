@@ -31,13 +31,13 @@ simulation_duration = 5
 # #    integration_method = "fixed_step_RK4", name = name+" discrete")
 
 
-name = "VI41"
+name = "VI43"
 VIteration_model = ValueIteration(state_grid_flag = 4, action_grid_flag = 1,
- reward_flag = 3, Ufile = "models/"+name, use_only_continuous_actions = False,
- step_table_integration_method = "fixed_step_RK4")
+ reward_flag = 3, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+ remake_table = False, step_table_integration_method = "fixed_step_RK4")
 
 
-VIteration_model.train( gamma = 0.95, num_episodes = 30,
+VIteration_model.train( gamma = 1, num_episodes = 30,
        interpolation_method = "linear", use_continuous_actions = False, vectorize = True)
 
 
@@ -45,9 +45,9 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
    use_continuous_actions = True, gamma = 1, figObject = figObject,
    integration_method = "fixed_step_RK4", name = name+": continuous")
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-   use_continuous_actions = False, gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = name+" discrete")
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = False, gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = name+" discrete")
 
 
 

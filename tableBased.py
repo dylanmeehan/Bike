@@ -174,10 +174,11 @@ class TableBased(object):
   #this function only works for states which are the state gridpoints.
   #this is useful for value Iteration
   #step table maps state indicies and action indicies to the next state
-  def setup_step_table(self, reward_flag, step_table_integration_method = "fixed_step_RK4"):
+  def setup_step_table(self, reward_flag, remake_table,
+    step_table_integration_method = "fixed_step_RK4"):
     #t0 = time.time()
 
-    if Path(self.step_table_file).is_file():
+    if Path(self.step_table_file).is_file() and not remake_table:
       print("Loading step_table {} from file".format(self.Ufile))
 
       saved_step_table = np.genfromtxt(self.step_table_file, delimiter = ",")
@@ -225,18 +226,6 @@ class TableBased(object):
       np.savetxt(self.reward_file,
         self.reward_table.reshape(self.num_states*self.num_actions), delimiter = ",")
 
-      #
-
-
-
-
-
-    #t1 = time.time()
-    #print("Setup step_table (precalculated state transitions) in " + str(t1-t0)
-    #  + "seconds")
-
-    #print("shape of reward table:" + str(np.shape(self.reward_table)))
-
   #given: a 3-tuple state3_index of the indicies for phi, phi_dot, delta
   #       the index of the action to take
   # return: state (continous, 8 varible) corresponding to taking the action
@@ -253,10 +242,9 @@ class TableBased(object):
   # tstep_multiplier is the number of integration_timesteps for every one
   # controller timestep. Should be an integer >= 1
   #return: (state, reward, isDone)
-  def step(self, state8, u, reward_flag, tstep_multiplier = 1,  method = "Euler"):
+  def step(self, state8, u, reward_flag, tstep_multiplier = 1,  method = "fixed_step_RK4"):
 
-    state8 = integrator.integrate(state8, u, self.timestep, tstep_multiplier = 1,
-      method = method)
+    state8 = integrator.integrate(state8, u, self.timestep, method = method)
 
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
 
@@ -267,7 +255,7 @@ class TableBased(object):
     else:
       isDone = False
 
-    reward = self.get_reward(state8, action = u)
+    reward = self.get_reward(state8, u)
 
     return (state8, reward, isDone)
 
@@ -351,7 +339,7 @@ class TableBased(object):
          integration_method = integration_method)
         #print("continuous action:" + str(action))
       else:
-        action_index = self.act_index(state_grid_point_index, epsilon)
+        action_index = self.act_index(state_grid_point_index, epsilon, gamma)
         #self.act_index returns which action to take. defined for each model.
         action = self.get_action_from_index(action_index)
         #print("discrete action:" + str(action))
