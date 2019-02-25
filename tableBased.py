@@ -297,6 +297,8 @@ class TableBased(object):
       #incorperate actions
       elif reward_flag == 6:
          reward = 5 - phi**2 - 0.01*action**2
+      elif reward_flag == 7:
+         reward = 5 - phi**2 - 0.001*action**2
       else:
         raise Exception("Invalid reward_flag: {}".format(reward_flag))
 

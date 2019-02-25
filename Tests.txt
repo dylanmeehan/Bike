@@ -242,7 +242,9 @@ VI43: working
     trained for 30 episodes
     gamma = 1
 
-VI43: trained with continuous actions
+------- smooth controller development continued ---------------
+
+VI44: trained with continuous actions
     action grid flag = 4
     state grid flag = 4 :
     reward flag = 3
@@ -257,6 +259,30 @@ VI45: penalize actions
     discrete actions, interpolation
     trained for 30 episodes
     gamma = 1
+
+VI46: less regularization
+    action grid flag = 1: 11 actions.
+    state grid flag = 4 : 19 x 17 x 15 states
+    reward flag = 7
+    discrete actions, interpolation
+    trained for 30 episodes
+    gamma = 1
+
+VI43, VI45, VI46 -100 variants trained for 100 episodes
+ - used state grid flag = 3 for faster testing
+    (VI46 version accidentally named VI46-11)
+
+VI43, VI45, VI46 -s6 variants use state_flag = 6. Tight, small state space
+ - trained for 30 episodes
+
+ VI43, VI45, VI46 -s6a2 variants use state_flag = 6 and action_flag = 2.
+  Tight, small state space, many actions
+ - trained for 30 episodes
+
+
+
+
+
 
 
 # I SHOULD WRITE THING TO AUTOMATICALLY GENERATE THESE. Automate
