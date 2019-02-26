@@ -279,6 +279,8 @@ VI43, VI45, VI46 -s6 variants use state_flag = 6. Tight, small state space
   Tight, small state space, many actions
  - trained for 30 episodes
 
+ -s6cont variants use state_flag =6 and are trained with continuous actions
+
 
 
 

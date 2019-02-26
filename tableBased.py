@@ -41,6 +41,7 @@ class TableBased(object):
   # which is a meshgrid of these points
   #given: state_grid_flag determines which grid points to use
   def set_state_grid_points(self, state_grid_flag):
+    print("Using State Grid Flag " + str(state_grid_flag))
 
     def make_full_grid(half_grid):
       return [-1*i for i in half_grid[::-1]] + [0] + half_grid
@@ -116,6 +117,31 @@ class TableBased(object):
       phi_dot_half_grid = [.02, .04, .06, .08, .10, .13, .17, .2, .25, .3, .35, .4, .45, .5]
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid =   [.02, .04, .06, .08, .10, .13, .16, .19, .22, .25, .28, .31]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+     #tight grid space, same as 6 but increase phi dot so that se don't overrun
+    # 27x 29 x 25 state space
+    elif state_grid_flag == 7:
+      #.785 is falling criteria
+      phi_half_grid = [.02, .04, .06, .08, .10, .12, .14, .16, .18, .20, .22, .24, .26]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .04, .06, .08, .10, .13, .17, .2, .25, .3, .35, .4, .45,
+       .5, 0.55, 0.6, 0.65, 0.7]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =   [.02, .04, .06, .08, .10, .13, .16, .19, .22, .25, .28, .31]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+     #tight grid space, same as 6 but increase phi dot so that se don't overrun
+    # 27x 29 x 25 state space
+    elif state_grid_flag == 8:
+      #.785 is falling criteria
+      phi_half_grid = [.02, .04, .06, .08, .10, .12, .14, .16, .18, .20, .22, .24, .26]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .04, .06, .08, .10, .13, .17, .2, .25, .3, .35, .4, .45,
+       .5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =   [.02, .04, .06, .08, .10, .13, .16, .19, .22, .25, .28, .31,
+      .35, .39, .43, .47, .51]
       self.delta_grid = make_full_grid(delta_half_grid)
 
 
@@ -299,6 +325,8 @@ class TableBased(object):
          reward = 5 - phi**2 - 0.01*action**2
       elif reward_flag == 7:
          reward = 5 - phi**2 - 0.001*action**2
+      elif reward_flag == 8:
+         reward = 5 - phi**2 - 0.0001*action**2
       else:
         raise Exception("Invalid reward_flag: {}".format(reward_flag))
 
