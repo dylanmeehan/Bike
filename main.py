@@ -33,7 +33,7 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 
 name = "VI43-s8"
 VIteration_model = ValueIteration(state_grid_flag = 8, action_grid_flag = 1,
- reward_flag = 6, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+ reward_flag = 3, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
  remake_table = False, step_table_integration_method = "fixed_step_RK4",
  USE_LINEAR_EOM = False, name = name)
 
@@ -69,7 +69,7 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 
 name = "VI46-s8"
 VIteration_model = ValueIteration(state_grid_flag = 8, action_grid_flag = 1,
- reward_flag = 9, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+ reward_flag = 7, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
  remake_table = False, step_table_integration_method = "fixed_step_RK4",
  USE_LINEAR_EOM = False, name = name)
 
