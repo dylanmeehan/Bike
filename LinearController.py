@@ -4,8 +4,9 @@ from unpackState import *
 
 class LinearController(object):
 
+  # both arundathi and LQR gains work on the real bicycle
   # "Arundathi" Gains: 71, 21, -20
-  # LQR gains: 24, 7, -8
+  # LQR gains from Spring 2018: 24, 7, -8
 
   def __init__(self, k1 = 24., k2 = 7., k3 = -8.):
     self.k1 = k1;

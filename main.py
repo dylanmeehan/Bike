@@ -63,8 +63,8 @@ VIteration_model = ValueIteration(state_grid_flag = 8, action_grid_flag = 1,
  remake_table = False, step_table_integration_method = "fixed_step_RK4")
 
 
-VIteration_model.train( gamma = 1, num_episodes = 30,
-       interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+# VIteration_model.train( gamma = 1, num_episodes = 30,
+#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
 
 figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
@@ -89,10 +89,15 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 # # to None
 # t1 = time.time()
 
+# [success, states, figObject] = runBicycleTest(state_flag2,
+#   controller = LinearController.LinearController(),
+#   time = simulation_duration, isGraphing  = True, figObject = figObject,
+#   name = "classic linear")
+
 [success, states, figObject] = runBicycleTest(state_flag2,
-  controller = LinearController.LinearController(),
+  controller = LinearController.LinearController(k1 = 40.353, k2 = 5.749, k3 = -7.852),
   time = simulation_duration, isGraphing  = True, figObject = figObject,
-  name = "LQR")
+  name = "r7_LQR")
 
 # t2 = time.time()
 
