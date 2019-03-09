@@ -332,9 +332,13 @@ class TableBased(object):
          reward = 5 - phi**2 - 0.0001*action**2
       elif reward_flag == 9:
          reward = 5 - phi**2 - .0005*action**2
+      elif reward_flag == 10:
+         reward = 5 - phi**2 - .002*action**2
       else:
         raise Exception("Invalid reward_flag: {}".format(reward_flag))
 
+      if reward <= 0:
+        print("reward: " + str(reward) + ", action: " + str(action))
       assert (reward > 0)
 
     return reward

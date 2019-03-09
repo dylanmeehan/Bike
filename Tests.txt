@@ -286,6 +286,14 @@ VI48: lesser regularization
     trained for 30 episodes
     gamma = 1
 
+VI49:
+    action grid flag = 1: 11 actions.
+    state grid flag = 4 : 19 x 17 x 15 states
+    reward flag = 10
+    discrete actions, interpolation
+    trained for 30 episodes
+    gamma = 1
+
 
 VI43, VI45, VI46 -100 variants trained for 100 episodes
  - used state grid flag = 3 for faster testing

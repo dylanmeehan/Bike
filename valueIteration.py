@@ -376,6 +376,8 @@ class ValueIteration(TableBased):
     #  str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
     #print("U size = " + str(self.U.shape))
 
+    print("making heatmap of value function")
+
     n = 1
 
     fig1, ax1 = plt.subplots(1,n)
@@ -437,17 +439,19 @@ class ValueIteration(TableBased):
 
   # options = "average", "zero"
   def heatmap_of_policy(self, option, include_linear_controller = False,
-    use_continuous_actions = False):
+    use_continuous_actions = False, linear_controller = LinearController.LinearController()):
+
+    print("making heatmap of policy")
+    if use_continuous_actions:
+      print("*** using continuous actions may cause problems for the solver \
+      for using continuous actions ")
 
     VI_policy = np.zeros(self.U.shape)
     linear_controller_policy = np.zeros(self.U.shape)
 
-    LQR_controller = LinearController.LinearController()
-
-    if use_continuous_actions:
-      self.itp = RegularGridInterpolator(\
-        (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
-        bounds_error = False, fill_value = 0)
+    self.itp = RegularGridInterpolator(\
+      (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
+      bounds_error = False, fill_value = 0)
 
     for phi_i in range(self.len_phi_grid):
       for phi_dot_i in range(self.len_phi_dot_grid):
@@ -467,17 +471,17 @@ class ValueIteration(TableBased):
 
           if include_linear_controller:
             state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
-            LQR_action = LQR_controller.act(state8)
+            linear_action = linear_controller.act(state8)
             #to get shadding to tbe equal, limit max steer rate of linear controller
 
             if not use_continuous_actions:
               # limit LQR controller to be in the same range as the linear
               # controller. This way the colors are the same on the heatmap
-              if LQR_action > self.action_grid[-1]:
-                LQR_action = self.action_grid[-1]
-              if LQR_action < self.action_grid[0]:
-                LQR_action = self.action_grid[0]
-            linear_controller_policy[phi_i, phi_dot_i, delta_i] = LQR_action
+              if linear_action > self.action_grid[-1]:
+                linear_action = self.action_grid[-1]
+              if linear_action < self.action_grid[0]:
+                linear_action = self.action_grid[0]
+            linear_controller_policy[phi_i, phi_dot_i, delta_i] = linear_action
 
     if not use_continuous_actions:
       print("Linear Controller output clipped to {} rad/s for \
