@@ -11,7 +11,7 @@ import scipy.integrate as inter
 # use Euler Integration to simulate a bicycle
 def runBicycleTest(stateflag = 4, controller = LinearController.LinearController(),
   time = 10, isGraphing  = True, figObject = None, tstep_multiplier = 1,  name = "LQR",
-  test_rh45_uncontrolled = False, integrator_method = "Euler"):
+  test_rh45_uncontrolled = False, integrator_method = "Euler", USE_LINEAR_EOM = False):
 
   print("running test with LQR controller")
 
@@ -32,7 +32,7 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
 
   #used for comparision of rk45 integrator to Euler Integrator, not genearlly used.
   if test_rh45_uncontrolled:
-    rhs_fun = lambda t,state: rhs.rhs(state,0)
+    rhs_fun = lambda t,state: rhs.rhs(state,0, USE_LINEAR_EOM = False)
 
     #give list of times at which to get solution
     tspan = list(np.linspace(0, time, num=time/timestep+1))
@@ -60,7 +60,7 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
 
       # integrate the odes
       state = integrator.integrate(state, u, timestep, tstep_multiplier,
-        method = integrator_method)
+        method = integrator_method, USE_LINEAR_EOM = USE_LINEAR_EOM)
 
       [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
 

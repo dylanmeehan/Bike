@@ -300,6 +300,8 @@ VI43, VI45, VI46 -s6 variants use state_flag = 6. Tight, small state space
 
 -s8 variants: used with state flag 8
 
+-linear variants: trained using linear EoMs. (can be tested on nonlinear EoMs)
+
 
  -s6cont variants use state_flag =6 and are trained with continuous actions
 

@@ -166,10 +166,11 @@ class TableBased(object):
     self.state_grid_points = np.rec.fromarrays([phi_points, phi_dot_points,
       delta_points], names='phi_points,phi_dot_points,delta_points')
 
-  def __init__(self, state_grid_flag, action_grid_flag, reward_flag):
+  def __init__(self, state_grid_flag, action_grid_flag, reward_flag, USE_LINEAR_EOM):
     self.set_state_grid_points(state_grid_flag)
     self.set_action_grid_points(action_grid_flag)
     self.reward_flag = reward_flag
+    self.USE_LINEAR_EOM = USE_LINEAR_EOM
 
   #given: phi_index, phi_dot_index, delta_index
   #returns:continous, full - 8 variable, state for this index
@@ -271,7 +272,8 @@ class TableBased(object):
   #return: (state, reward, isDone)
   def step(self, state8, u, reward_flag, tstep_multiplier = 1,  method = "fixed_step_RK4"):
 
-    new_state8 = integrator.integrate(state8, u, self.timestep, method = method)
+    new_state8 = integrator.integrate(state8, u, self.timestep, method = method,
+      USE_LINEAR_EOM = self.USE_LINEAR_EOM)
 
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(new_state8)
 

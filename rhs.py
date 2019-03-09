@@ -2,7 +2,7 @@ from parameters import *
 from unpackState import *
 import numpy as np
 
-def rhs(state, u):
+def rhs(state, u, USE_LINEAR_EOM):
     # Equivalent to rhs in Matlab. (as of 10/27/18)
     # Calculates the derivative of the state variables
 
@@ -16,8 +16,10 @@ def rhs(state, u):
     psi_dot = (v/L)*(np.tan(delta)/np.cos(phi))
     delta_dot = u # ideal steer rate
     v_dot = 0
-   # phi_ddot = (((-(v**2))*delta) - B*v*u + G*L*phi)/(H*L)
-    phi_ddot =( (1/H)*
+    if USE_LINEAR_EOM:
+      phi_ddot = (((-(v**2))*delta) - B*v*u + G*L*phi)/(H*L)
+    else:
+      phi_ddot =( (1/H)*
                 (G*np.sin(phi) - np.tan(delta)
                     *((v**2)/L + B*v_dot/L + np.tan(phi)
                         *((B/L)*v*phi_dot

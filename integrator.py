@@ -6,7 +6,7 @@ from unpackState import *
 #solve the EoMs numerically
 # method = ["Euler", "RK45", "fixed_step_RK4"]
 def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
-  method = "fixed_step_RK4"):
+  method = "fixed_step_RK4", USE_LINEAR_EOM = False) :
 
   if method == "Euler":
 
@@ -21,7 +21,7 @@ def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
     count = 0
     for _ in range(tstep_multiplier):
       # take in a state and an action
-      zdot = rhs.rhs(state8,u)
+      zdot = rhs.rhs(state8,u, USE_LINEAR_EOM)
 
       #update state. Euler Integration
       #prevState8 = state8
@@ -31,7 +31,7 @@ def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
 
   elif method == "fixed_step_RK4":
     dt = controller_timestep    #use same time step as controller
-    f = lambda s: rhs.rhs(s,u)  #f = ydot = rhs
+    f = lambda s: rhs.rhs(s,u, USE_LINEAR_EOM)  #f = ydot = rhs
     y0 = state8                 # IC, initial state, y0
 
     k1 = dt*f(y0)
@@ -48,7 +48,7 @@ def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
     t_end = t_start + controller_timestep
     #print("integrating stuff at t=" + str(t_start))
 
-    rhs_fun = lambda t,state: rhs.rhs(state,u)
+    rhs_fun = lambda t,state: rhs.rhs(state,u, USE_LINEAR_EOM)
 
     tspan = list(np.linspace(t_start, t_end, 10))
 

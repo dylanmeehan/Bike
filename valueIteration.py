@@ -22,17 +22,21 @@ class ValueIteration(TableBased):
   # remake_table remakes both step table and reward table
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
     Ufile = "modelsB/valueIteration_U.csv", use_only_continuous_actions = False,
-    step_table_integration_method = "fixed_step_RK4", remake_table = False):
+    step_table_integration_method = "fixed_step_RK4", remake_table = False,
+    USE_LINEAR_EOM = False, name = None):
 
     print("Initializing VI model")
     init_t1 = time.time()
 
     super(ValueIteration, self).__init__(state_grid_flag, action_grid_flag,
-      reward_flag)
+      reward_flag, USE_LINEAR_EOM)
 
     self.step_table_file = Ufile+ "_step_table.csv"
     self.reward_file = Ufile+ "_reward_table.csv"
     self.Ufile = Ufile + ".csv"
+    self.name = name
+
+    print(name + ": ********* USE_LINEAR_EOM = " + str(USE_LINEAR_EOM) + " *********")
    # self.step_file
 
     if not use_only_continuous_actions:
