@@ -260,7 +260,7 @@ VI45: penalize actions
     trained for 30 episodes
     gamma = 1
 
-** THIS IS THE GOOD TEST **
+** THIS IS THE GOOD TEST: VI46-s8 **
 VI46: less regularization
     action grid flag = 1: 11 actions.
     state grid flag = 4 : 19 x 17 x 15 states
@@ -289,7 +289,7 @@ VI48: lesser regularization
 VI49:
     action grid flag = 1: 11 actions.
     state grid flag = 4 : 19 x 17 x 15 states
-    reward flag = 10
+    reward flag = 1
     discrete actions, interpolation
     trained for 30 episodes
     gamma = 1
@@ -307,9 +307,12 @@ VI43, VI45, VI46 -s6 variants use state_flag = 6. Tight, small state space
  - trained for 30 episodes
 
 -s8 variants: used with state flag 8
-
+-s9 : used state flag 9 :
 -linear variants: trained using linear EoMs. (can be tested on nonlinear EoMs)
 
+
+-s10: same size grid as s8, but with uneven spacing, more logrithmic
+-a5: with more actions, more logrithmic ish spacings
 
  -s6cont variants use state_flag =6 and are trained with continuous actions
 

@@ -74,6 +74,7 @@ def graph(states, motorCommands, figObject,  points_inside_last_gridpoint = [],
 
   fig1.tight_layout()
   fig2.tight_layout()
+  plt.tight_layout()
   #plt.show()
   # plt.show() waits until you close the figure
 

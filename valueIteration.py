@@ -36,7 +36,8 @@ class ValueIteration(TableBased):
     self.Ufile = Ufile + ".csv"
     self.name = name
 
-    print(name + ": ********* USE_LINEAR_EOM = " + str(USE_LINEAR_EOM) + " *********")
+    if USE_LINEAR_EOM:
+      print(name + ": ********* USE_LINEAR_EOM = " + str(USE_LINEAR_EOM) + " *********")
    # self.step_file
 
     if not use_only_continuous_actions:
@@ -67,6 +68,30 @@ class ValueIteration(TableBased):
   # best_action_index is the index of the action which has the highest utility
   # best_action_utility is the utility of that action
   def calc_best_action_and_utility(self, state3_index, gamma):
+
+    Qtemp = np.zeros(self.num_actions)
+
+    state3 = self.state_grid_points[state3_index]
+
+    for action_index in range(self.num_actions):
+
+      new_state3 = self.step_fast(state3_index, action_index)
+      reward = self.reward_table[state3_index[0], state3_index[1],
+          state3_index[2], action_index]
+
+      #new_state3 = state8_to_state3(new_state8)
+      #TODO: change step_fast to use lookup table which returns new_state3
+
+      # reward = R(s,a)
+      # Q(s,a) = R(s,a) + gamma * U(s')
+      Qtemp[action_index] = reward + gamma*self.get_value(new_state3)
+
+    best_action_utility = np.max(Qtemp)
+    best_action_index = np.argmax(Qtemp)
+
+    return (best_action_index, best_action_utility)
+
+  def calc_best_action_and_utility_continuous_state(self, state3_index, gamma):
 
     Qtemp = np.zeros(self.num_actions)
 
@@ -124,7 +149,7 @@ class ValueIteration(TableBased):
     return points_inside_last_gridpoint
 
   #always do interpolation
-  def calc_best_action_and_utility_continuous(self, state8,
+  def calc_best_action_and_utility_continuous_action(self, state8,
     integration_method = "Euler", gamma = 1):
 
     #we need to minimiza something. minimizning negations of the utility function
@@ -159,7 +184,7 @@ class ValueIteration(TableBased):
     return (u, utility_of_best_action)
 
   def get_action_continuous(self, state8, epsilon = 0, gamma = 1, integration_method = "Euler"):
-    (u, _) = self.calc_best_action_and_utility_continuous(state8,
+    (u, _) = self.calc_best_action_and_utility_continuous_action(state8,
       integration_method = integration_method, gamma = gamma)
     return u
 
@@ -230,7 +255,7 @@ class ValueIteration(TableBased):
           state3 = self.state_grid_points[state3_index]
           state8 = state3_to_state8(state3)
           (_, best_utility) = \
-            self.calc_best_action_and_utility_continuous(state8, gamma = gamma)
+            self.calc_best_action_and_utility_continuous_action(state8, gamma = gamma)
             #gamma is inherited from outer class
 
         else:
@@ -371,10 +396,13 @@ class ValueIteration(TableBased):
     return figObject
 
 
-  def heatmap_value_function(self):
+  # option = ["average", "zero"]
+  def heatmap_value_function(self, option):
     #print("phi num = " + str(self.len_phi_grid) + ", phi dot num = "  +
     #  str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
     #print("U size = " + str(self.U.shape))
+
+    get_middle = lambda array: array[int((len(array)-1)/2)]
 
     print("making heatmap of value function")
 
@@ -387,11 +415,17 @@ class ValueIteration(TableBased):
     U = self.U
     title = "Value Iteration"
 
-    phi_vs_phidot = np.mean(U, axis = 2)
+    if option == "average":
+      phi_vs_phidot = np.mean(U, axis = 2)
+    elif option == "zero":
+      phi_vs_phidot = np.apply_along_axis(get_middle, axis=2, arr= U)
+    else:
+      raise("Invalid option for heatmap_value_function")
+
     #print("phi vs phidot shape: " + str(phi_vs_phidot.shape))
 
     im1 = ax1.imshow(phi_vs_phidot)
-    ax1.set_title("{}: Utility (averaged over delta)".format(title))
+    ax1.set_title("{}: Utility: {} delta".format(title,option))
     ax1.set_ylabel("phi [rad]")
     ax1.set_xlabel("phi_dot [rad/s]")
     ax1.set_yticks(np.arange(self.len_phi_grid))
@@ -402,11 +436,16 @@ class ValueIteration(TableBased):
     fig1.colorbar(im1)
 
     #figure 2
-    phi_vs_delta = np.mean(U, axis = 1)
+    if option == "average":
+      phi_vs_delta = np.mean(U, axis = 1)
+    elif option == "zero":
+      phi_vs_delta = np.apply_along_axis(get_middle, axis=1, arr= U)
+    else:
+      raise("Invalid option for heatmap_value_function")
     #print("phi vs phidot shape: " + str(phi_vs_delta))
 
     im2 = ax2.imshow(phi_vs_delta)
-    ax2.set_title("{}: Utility (averaged over phidot)".format(title))
+    ax2.set_title("{}: Utility: {} phidot".format(title,option))
     ax2.set_ylabel("phi [rad]")
     ax2.set_xlabel("delta [rad]")
     ax2.set_yticks(np.arange(self.len_phi_grid))
@@ -417,11 +456,17 @@ class ValueIteration(TableBased):
     fig2.colorbar(im2)
 
     #figure 3
-    phidot_vs_delta = np.mean(U, axis = 0)
+    if option == "average":
+      phidot_vs_delta = np.mean(U, axis = 0)
+    elif option == "zero":
+      phidot_vs_delta = np.apply_along_axis(get_middle, axis=0, arr= U)
+    else:
+      raise("Invalid option for heatmap_value_function")
+
     #print("phi vs phidot shape: " + str(phidot_vs_delta))
 
     im3 = ax3.imshow(phidot_vs_delta)
-    ax3.set_title("{}: Utility (averaged over phi)".format(title))
+    ax3.set_title("{}: Utility: {} phi".format(title,option))
     ax3.set_ylabel("phi_dot [rad/s]")
     ax3.set_xlabel("delta [rad]")
     ax3.set_yticks(np.arange(self.len_phi_dot_grid))

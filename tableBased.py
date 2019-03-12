@@ -27,6 +27,10 @@ class TableBased(object):
     elif action_grid_flag == 4:
       # Flag for continuous action space
       self.action_grid = None
+    # 15 actions
+    elif action_grid_flag == 5:
+      self.action_grid = [-2, -1.5, -1, -.75, -.5, -.25, -.1, 0, .1, .25, .5, .75,  1, 1.5, 2]
+
 
     else:
       raise Exception("Invalid action_grid_flag: {}".format(action_grid_flag))
@@ -132,7 +136,7 @@ class TableBased(object):
       self.delta_grid = make_full_grid(delta_half_grid)
 
      #tight grid space, same as 6 but increase phi dot so that se don't overrun
-    # 27x 29 x 25 state space
+    # 27x 49 x 35 state space
     elif state_grid_flag == 8:
       #.785 is falling criteria
       phi_half_grid = [.02, .04, .06, .08, .10, .12, .14, .16, .18, .20, .22, .24, .26]
@@ -142,6 +146,30 @@ class TableBased(object):
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid =   [.02, .04, .06, .08, .10, .13, .16, .19, .22, .25, .28, .31,
       .35, .39, .43, .47, .51]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+    #small grid, half the states as state_grid_flag 9 in each direction
+    # 15 x 25 x 19 state space
+    elif state_grid_flag == 9:
+      #.785 is falling criteria
+      phi_half_grid = [.02, .06,  .10, .14, .18, .22, .26]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .06, .10, .17, .25, .35, .45, 0.55, 0.65, 0.75,
+      0.85, 0.95]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =   [.02, .06, .10, .16, .22, .28, .35, .43, .51]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+      # same size as 8 but arranged differently. more logrithmically
+    elif state_grid_flag == 10:
+      #.785 is falling criteria
+      phi_half_grid = [.01, .02, .03, .04, .05, .07, .09, .11, .14, .17, .2, .23, .26]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.01, .02, .03, .05, .07, .09, .12, .16, .2, .25, .3, .35, .4, .45,
+       .5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =   [.01, .02, .03, .05, .07, .09, .12, .15, .18, .22, .26, .3,
+      .34, .38, .42, .46, .51]
       self.delta_grid = make_full_grid(delta_half_grid)
 
 
