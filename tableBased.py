@@ -375,7 +375,8 @@ class TableBased(object):
   # state_flag determines the starting state
   # can be used to test or for training a Qlearning agent
   def simulate_episode(self, epsilon, gamma, alpha, tmax, reward_flag,
-    isTesting, use_continuous_actions, state_flag = 0, integration_method = "Euler"):
+    isTesting, use_continuous_actions, use_continuous_state_with_discrete_actions,
+    state_flag = 0, integration_method = "Euler"):
 
     state8 = getStartingState8(state_flag)
 
@@ -410,6 +411,10 @@ class TableBased(object):
         action = self.get_action_continuous(state8, epsilon,
          integration_method = integration_method)
         #print("continuous action:" + str(action))
+      elif use_continuous_state_with_discrete_actions:
+        (action_index, _) = self.calc_best_action_and_utility_continuous_state(state8,
+          gamma = gamma, integration_method = "fixed_step_RK4")
+        action = self.action_grid[action_index]
       else:
         action_index = self.act_index(state_grid_point_index, epsilon, gamma)
         #self.act_index returns which action to take. defined for each model.
@@ -420,7 +425,7 @@ class TableBased(object):
       new_state8, reward, is_done = self.step(state8, action, reward_flag,
         method = integration_method )
 
-      if not use_continuous_actions:
+      if not (use_continuous_actions or use_continuous_state_with_discrete_actions):
         new_state_grid_point_index = self.discretize(new_state8)
 
       if (not isTesting):
@@ -436,7 +441,7 @@ class TableBased(object):
       #print state3 values
       #print([state8[3],state8[5], state8[6]])
 
-      if not use_continuous_actions:
+      if not (use_continuous_actions or use_continuous_state_with_discrete_actions):
         state_grid_point_index = new_state_grid_point_index
 
       if isTesting:

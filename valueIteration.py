@@ -91,30 +91,30 @@ class ValueIteration(TableBased):
 
     return (best_action_index, best_action_utility)
 
-  def calc_best_action_and_utility_continuous_state(self, state3_index, gamma):
+  def calc_best_action_and_utility_continuous_state(self, state8, gamma,
+    integration_method = "fixed_step_RK4"):
 
     Qtemp = np.zeros(self.num_actions)
 
-    state3 = self.state_grid_points[state3_index]
-
     for action_index in range(self.num_actions):
+      action = self.action_grid[action_index] #equivalent to get_action_from_index()
 
-      new_state3 = self.step_fast(state3_index, action_index)
-      reward = self.reward_table[state3_index[0], state3_index[1],
-          state3_index[2], action_index]
+
+      (new_state8, reward, _) = self.step(state8, action, self.reward_flag,
+       method = integration_method)
 
       #new_state3 = state8_to_state3(new_state8)
       #TODO: change step_fast to use lookup table which returns new_state3
 
       # reward = R(s,a)
       # Q(s,a) = R(s,a) + gamma * U(s')
-      Qtemp[action_index] = reward + gamma*self.get_value(new_state3)
+      Qtemp[action_index] = reward + gamma*self.get_value(state8_to_state3(new_state8))
 
     best_action_utility = np.max(Qtemp)
     best_action_index = np.argmax(Qtemp)
 
-    return (best_action_index, best_action_utility)
 
+    return (best_action_index, best_action_utility)
   #
   def continuous_utility_function(self, state8, u, integration_method, gamma):
 
@@ -359,6 +359,7 @@ class ValueIteration(TableBased):
 
   # integration_method = "fixed_step_RK4", "Euler"
   def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
+      use_continuous_state_with_discrete_actions = True,
       gamma = 1, figObject = None, plot_is_inside_last_gridpoint = False,
       integration_method = "fixed_step_RK4", name = None):
 
@@ -375,7 +376,8 @@ class ValueIteration(TableBased):
 
     reward, time_testing, states8, motorCommands = \
       self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag, True,
-        use_continuous_actions, state_flag, integration_method = integration_method)
+        use_continuous_actions, use_continuous_state_with_discrete_actions,
+        state_flag, integration_method = integration_method)
 
     print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
       + str(time_testing))
