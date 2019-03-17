@@ -376,7 +376,7 @@ class TableBased(object):
   # can be used to test or for training a Qlearning agent
   def simulate_episode(self, epsilon, gamma, alpha, tmax, reward_flag,
     isTesting, use_continuous_actions, use_continuous_state_with_discrete_actions,
-    state_flag = 0, integration_method = "Euler"):
+    state_flag = 0, integration_method = "Euler", use_regression= False):
 
     state8 = getStartingState8(state_flag)
 
@@ -409,11 +409,12 @@ class TableBased(object):
 
       if use_continuous_actions:
         action = self.get_action_continuous(state8, epsilon,
-         integration_method = integration_method)
+         integration_method = integration_method, use_regression = use_regression)
         #print("continuous action:" + str(action))
       elif use_continuous_state_with_discrete_actions:
         (action_index, _) = self.calc_best_action_and_utility_continuous_state(state8,
-          gamma = gamma, integration_method = "fixed_step_RK4")
+          gamma = gamma, integration_method = "fixed_step_RK4",
+          use_regression = use_regression)
         action = self.action_grid[action_index]
       else:
         action_index = self.act_index(state_grid_point_index, epsilon, gamma)

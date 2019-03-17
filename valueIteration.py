@@ -3,7 +3,7 @@ import rhs
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
-
+from sklearn.linear_model import LinearRegression
 import graph
 import scipy
 import parameters as params
@@ -39,6 +39,11 @@ class ValueIteration(TableBased):
     self.reward_file = Ufile+ "_reward_table.csv"
     self.Ufile = Ufile + ".csv"
     self.name = name
+
+    #to be used in regression
+    self.map_to_basis_functions = lambda phi, phi_dot, delta: [
+      1, phi, phi_dot, delta, phi**2, phi_dot**2, delta**2, phi*phi_dot,
+      phi_dot*delta, phi*delta]
 
     if USE_LINEAR_EOM:
       print(name + ": ********* USE_LINEAR_EOM = " + str(USE_LINEAR_EOM) + " *********")
@@ -96,7 +101,7 @@ class ValueIteration(TableBased):
     return (best_action_index, best_action_utility)
 
   def calc_best_action_and_utility_continuous_state(self, state8, gamma,
-    integration_method = "fixed_step_RK4"):
+    integration_method = "fixed_step_RK4", use_regression = False):
 
     Qtemp = np.zeros(self.num_actions)
 
@@ -112,23 +117,42 @@ class ValueIteration(TableBased):
 
       # reward = R(s,a)
       # Q(s,a) = R(s,a) + gamma * U(s')
-      Qtemp[action_index] = reward + gamma*self.get_value(state8_to_state3(new_state8))
+
+      if use_regression:
+        phi= new_state8[3];
+        delta= new_state8[5];
+        phi_dot= new_state8[6];
+
+        current_value = np.dot(self.map_to_basis_functions(phi, phi_dot, delta),
+          self.regression_coefficients)
+        Qtemp[action_index] = reward + gamma*current_value
+      else:
+        Qtemp[action_index] = reward + gamma*self.get_value(state8_to_state3(new_state8))
 
     best_action_utility = np.max(Qtemp)
     best_action_index = np.argmax(Qtemp)
 
 
     return (best_action_index, best_action_utility)
-  #
-  def continuous_utility_function(self, state8, u, integration_method, gamma):
+
+  def continuous_utility_function(self, state8, u, integration_method, gamma,
+    use_regression = False):
 
     (new_state8, reward, isDone) = self.step(state8, u, self.reward_flag,
       method = integration_method)
 
-
     new_state3 = state8_to_state3(new_state8)
 
-    utility = reward + gamma*self.get_value(new_state3)
+    if use_regression:
+      phi= new_state8[3];
+      delta= new_state8[5];
+      phi_dot= new_state8[6];
+
+      current_value = np.dot(self.map_to_basis_functions(phi, phi_dot, delta),
+        self.regression_coefficients)
+      utility = reward + gamma*current_value
+    else:
+      utility = reward + gamma*self.get_value(new_state3)
     #reward = R(s,a). utility of s' comes exclusively from get_value(s')
     #does NOT calculate the reward at new_state3 (ie, does not calculate R(s'))
 
@@ -154,12 +178,13 @@ class ValueIteration(TableBased):
 
   #always do interpolation
   def calc_best_action_and_utility_continuous_action(self, state8,
-    integration_method = "Euler", gamma = 1):
+    integration_method = "Euler", gamma = 1, use_regression = False):
 
     #we need to minimiza something. minimizning negations of the utility function
     # is equivalent to maximizing the utilty function
     negated_utility_fun = lambda u: -1*self.continuous_utility_function(state8, u,
-      integration_method = integration_method, gamma = gamma)
+      integration_method = integration_method, gamma = gamma,
+      use_regression = use_regression)
 
     # find the action which maximizes the utility function
 
@@ -187,9 +212,11 @@ class ValueIteration(TableBased):
 
     return (u, utility_of_best_action)
 
-  def get_action_continuous(self, state8, epsilon = 0, gamma = 1, integration_method = "Euler"):
+  def get_action_continuous(self, state8, epsilon = 0, gamma = 1,
+    integration_method = "Euler", use_regression = False):
     (u, _) = self.calc_best_action_and_utility_continuous_action(state8,
-      integration_method = integration_method, gamma = gamma)
+      integration_method = integration_method, gamma = gamma,
+      use_regression = use_regression)
     return u
 
   # given: state3_index (a discritized state 3 tuple).
@@ -365,7 +392,10 @@ class ValueIteration(TableBased):
   def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
       use_continuous_state_with_discrete_actions = True,
       gamma = 1, figObject = None, plot_is_inside_last_gridpoint = False,
-      integration_method = "fixed_step_RK4", name = None):
+      integration_method = "fixed_step_RK4", name = None, use_regression = False):
+
+    if use_regression:
+      self.run_regression()
 
     if name == None:
       name = self.Ufile
@@ -381,7 +411,8 @@ class ValueIteration(TableBased):
     reward, time_testing, states8, motorCommands = \
       self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag, True,
         use_continuous_actions, use_continuous_state_with_discrete_actions,
-        state_flag, integration_method = integration_method)
+        state_flag, integration_method = integration_method,
+        use_regression = use_regression)
 
     print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
       + str(time_testing))
@@ -668,17 +699,17 @@ class ValueIteration(TableBased):
     subset_delta_coords = np.where((self.U <125) & (self.U>120), delta_coords, np.nan)
     ax.scatter(phi_coords, phi_dot_coords, subset_delta_coords, c = "r")
 
-    subset_delta_coords = np.where((self.U <149) & (self.U>148), delta_coords, np.nan)
-    ax.scatter(phi_coords, phi_dot_coords, subset_delta_coords, c = "b")
-
     subset_delta_coords = np.where((self.U >149.5) & (self.U<149.6), delta_coords, np.nan)
     ax.scatter(phi_coords, phi_dot_coords, subset_delta_coords, c = "c")
+
+    subset_delta_coords = np.where((self.U <149.9) & (self.U>149.85), delta_coords, np.nan)
+    ax.scatter(phi_coords, phi_dot_coords, subset_delta_coords, c = "b")
 
 
     subset_delta_coords = np.where((self.U>149.99), delta_coords, np.nan)
     ax.scatter(phi_coords, phi_dot_coords, subset_delta_coords, c = "g")
 
-    ax.legend(["120<U<125", "148<U<149", "149.5<149.6", "U>149.99"])
+    ax.legend(["120<U<125", "149.5<149.6",  "149.85<U<149.9", "U>149.99"])
 
     ax.set_zlim(self.delta_grid[0], self.delta_grid[-1])
     ax.set_ylim(self.phi_dot_grid[0], self.phi_dot_grid[-1])
@@ -691,5 +722,33 @@ class ValueIteration(TableBased):
 
 
     plt.show()
+
+  def run_regression(self):
+
+    print("running regression")
+
+    U = self.U.flatten()
+    # print("size of U" + str(np.shape(U)))
+
+    (phi_coords, phi_dot_coords, delta_coords) = \
+     np.meshgrid(self.phi_grid, self.phi_dot_grid, self.delta_grid, indexing="ij")
+
+
+    phi_coords = phi_coords.flatten()
+    phi_dot_coords = phi_dot_coords.flatten()
+    delta_coords = delta_coords.flatten()
+    # print("size of phi coords: " + str(np.shape(phi_coords)))
+    # print("size of phi_dot coords: " + str(np.shape(phi_dot_coords)))
+    # print("size of delta coords: " + str(np.shape(delta_coords)))
+
+    inputs = np.asarray(list(map(self.map_to_basis_functions, phi_coords,
+      phi_dot_coords, delta_coords)))
+    # print("size of inputs: " + str(np.shape(inputs)))
+
+    reg = LinearRegression().fit(inputs, U)
+    print("reg score:" + str(reg.score(inputs, U)))
+
+    self.regression_coefficients = reg.coef_
+    print("reg coeffs: " + str(self.regression_coefficients))
 
 
