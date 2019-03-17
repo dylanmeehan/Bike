@@ -76,7 +76,8 @@ class ValueIteration(TableBased):
   #return: (best_action_index, best_action_utility) for that state.
   # best_action_index is the index of the action which has the highest utility
   # best_action_utility is the utility of that action
-  def calc_best_action_and_utility(self, state3_index, gamma):
+  def calc_best_action_and_utility(self, state3_index, gamma,
+    make_action_utility_graph = False):
 
     Qtemp = np.zeros(self.num_actions)
 
@@ -94,6 +95,9 @@ class ValueIteration(TableBased):
       # reward = R(s,a)
       # Q(s,a) = R(s,a) + gamma * U(s')
       Qtemp[action_index] = reward + gamma*self.get_value(new_state3)
+
+    if make_action_utility_graph:
+      self.graph_action_vs_utility(action_index, Qtemp)
 
     best_action_utility = np.max(Qtemp)
     best_action_index = np.argmax(Qtemp)
@@ -221,9 +225,11 @@ class ValueIteration(TableBased):
 
   # given: state3_index (a discritized state 3 tuple).
   # return: the index of the best action to take
-  def act_index(self, state3_index, epsilon, gamma):
+  def act_index(self, state3_index, epsilon, gamma,
+    make_action_utility_graph = False, time = None):
 
-    (best_action_index, _) = self.calc_best_action_and_utility(state3_index, gamma)
+    (best_action_index, _) = self.calc_best_action_and_utility(state3_index, gamma,
+      make_action_utility_graph = make_action_utility_graph)
     return best_action_index
 
   # return a value for the (continuous) new_state3
@@ -392,7 +398,8 @@ class ValueIteration(TableBased):
   def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
       use_continuous_state_with_discrete_actions = True,
       gamma = 1, figObject = None, plot_is_inside_last_gridpoint = False,
-      integration_method = "fixed_step_RK4", name = None, use_regression = False):
+      integration_method = "fixed_step_RK4", name = None, use_regression = False,
+      timesteps_to_graph_actions_vs_utilites = []):
 
     if use_regression:
       self.run_regression()
@@ -412,7 +419,8 @@ class ValueIteration(TableBased):
       self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag, True,
         use_continuous_actions, use_continuous_state_with_discrete_actions,
         state_flag, integration_method = integration_method,
-        use_regression = use_regression)
+        use_regression = use_regression, timesteps_to_graph_actions_vs_utilites =
+        timesteps_to_graph_actions_vs_utilites)
 
     print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
       + str(time_testing))
@@ -763,5 +771,18 @@ class ValueIteration(TableBased):
 
     self.regression_coefficients = reg.coef_
     print("reg coeffs: " + str(self.regression_coefficients))
+
+  def graph_action_vs_utility(self, action_index, Qtemp):
+    actions = np.zeros(self.num_actions)
+    for i in list(range(self.num_actions)):
+      actions[i] = self.get_action_from_index(i)
+
+    fig, ax = plt.subplots()
+    ax.plot(actions, Qtemp)
+
+    ax.set(xlabel='action', ylabel='value',
+       title='action vs value ')
+
+
 
 

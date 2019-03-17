@@ -376,7 +376,8 @@ class TableBased(object):
   # can be used to test or for training a Qlearning agent
   def simulate_episode(self, epsilon, gamma, alpha, tmax, reward_flag,
     isTesting, use_continuous_actions, use_continuous_state_with_discrete_actions,
-    state_flag = 0, integration_method = "Euler", use_regression= False):
+    state_flag = 0, integration_method = "Euler", use_regression= False,
+    timesteps_to_graph_actions_vs_utilites = False):
 
     state8 = getStartingState8(state_flag)
 
@@ -407,6 +408,8 @@ class TableBased(object):
     count = 0;
     while( (count < maxNumTimeSteps) and (not is_done)):
 
+      make_action_and_utility_graph = count in timesteps_to_graph_actions_vs_utilites
+
       if use_continuous_actions:
         action = self.get_action_continuous(state8, epsilon,
          integration_method = integration_method, use_regression = use_regression)
@@ -417,7 +420,8 @@ class TableBased(object):
           use_regression = use_regression)
         action = self.action_grid[action_index]
       else:
-        action_index = self.act_index(state_grid_point_index, epsilon, gamma)
+        action_index = self.act_index(state_grid_point_index, epsilon, gamma,
+          make_action_and_utility_graph)
         #self.act_index returns which action to take. defined for each model.
         action = self.get_action_from_index(action_index)
         #print("discrete action:" + str(action))
