@@ -28,17 +28,17 @@ VIteration_model = ValueIteration(state_grid_flag = 8, action_grid_flag = 1,
 
 # VIteration_model.run_regression()
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-   use_continuous_actions = True, use_continuous_state_with_discrete_actions = True,
-    gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = name+": cont S, A",
-   plot_is_inside_last_gridpoint = False, use_regression = False)
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = True, use_continuous_state_with_discrete_actions = True,
+#     gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = name+": cont S, A",
+#    plot_is_inside_last_gridpoint = False, use_regression = False)
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-   use_continuous_actions = True, use_continuous_state_with_discrete_actions = True,
-    gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = name+": cont S, A, regression",
-   plot_is_inside_last_gridpoint = False, use_regression = True)
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = True, use_continuous_state_with_discrete_actions = True,
+#     gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = name+": cont S, A, regression",
+#    plot_is_inside_last_gridpoint = False, use_regression = True)
 
 # figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
 #    use_continuous_actions = False, use_continuous_state_with_discrete_actions = True,
@@ -58,7 +58,7 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 ###############################################################################
 ###############################################################################
 
-#VIteration_model.heatmap_value_function(option = "zero")
+VIteration_model.heatmap_value_function(option = "zero", use_regression = False)
 
 # VIteration_model.heatmap_of_policy(option = "zero", include_linear_controller = True,
 #     use_continuous_actions = False,
@@ -73,10 +73,10 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 
 
 
-[success, states, figObject] = runBicycleTest(state_flag2,
-  controller = LinearController.LinearController(k1 = 40.353, k2 = 5.749, k3 = -7.852),
-  time = simulation_duration, isGraphing  = True, figObject = figObject,
-  name = "r7_LQR", USE_LINEAR_EOM = False)
+# [success, states, figObject] = runBicycleTest(state_flag2,
+#   controller = LinearController.LinearController(k1 = 40.353, k2 = 5.749, k3 = -7.852),
+#   time = simulation_duration, isGraphing  = True, figObject = figObject,
+#   name = "r7_LQR", USE_LINEAR_EOM = False)
 
 # [success, states, figObject] = runBicycleTest(state_flag2,
 #   controller = LinearController.LinearController(),

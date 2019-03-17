@@ -434,7 +434,7 @@ class ValueIteration(TableBased):
 
 
   # option = ["average", "zero"]
-  def heatmap_value_function(self, option):
+  def heatmap_value_function(self, option, use_regression = False):
     #print("phi num = " + str(self.len_phi_grid) + ", phi dot num = "  +
     #  str(self.len_phi_dot_grid) + ", delta num: " + str(self.len_delta_grid))
     #print("U size = " + str(self.U.shape))
@@ -449,8 +449,21 @@ class ValueIteration(TableBased):
     fig2, ax2 = plt.subplots(1,n)
     fig3, ax3 = plt.subplots(1,n)
 
-    U = self.U
+    if use_regression:
+      (phi_coords, phi_dot_coords, delta_coords) = \
+        np.meshgrid(self.phi_grid, self.phi_dot_grid, self.delta_grid, indexing="ij")
+
+      get_value_from_regression = lambda phi, phi_dot, delta : \
+        np.dot(self.map_to_basis_functions(phi, phi_dot, delta),self.regression_coefficients)
+
+      U = np.asarray(list(map(get_value_from_regression, phi_coords,
+        phi_dot_coords, delta_coords)))
+    else:
+      U = self.U
+
+
     title = "Value Iteration"
+
 
     if option == "average":
       phi_vs_phidot = np.mean(U, axis = 2)
