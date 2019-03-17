@@ -314,6 +314,8 @@ VI43, VI45, VI46 -s6 variants use state_flag = 6. Tight, small state space
 -s10: same size grid as s8, but with uneven spacing, more logrithmic
 -a5: with more actions, more logrithmic ish spacings
 
+-a2: 101 actions
+
  -s6cont variants use state_flag =6 and are trained with continuous actions
 
 

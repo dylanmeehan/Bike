@@ -2,11 +2,15 @@ import numpy as np
 import rhs
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+
 import graph
+import scipy
 import parameters as params
 from unpackState import *
 from tableBased import *
 from scipy.interpolate import RegularGridInterpolator
+
 from pathlib import Path
 import scipy.optimize as opt
 import LinearController
@@ -633,3 +637,59 @@ class ValueIteration(TableBased):
     plt.close(fig1)
     plt.close(fig2)
     plt.close(fig3)
+
+
+  def plot_level_sets(self):
+    mean = np.mean(self.U, axis=None)
+    std = np.std(self.U, axis=None)
+    dmax = np.max(self.U, axis=None)
+    dmin = np.min(self.U, axis=None)
+
+    print("mean: " + str(mean))
+    print("std: " + str(std))
+    print("dmax: " + str(dmax))
+    print("dmin: " + str(dmin))
+
+    print("size of U: " + str(np.shape(self.U)))
+
+    (phi_coords, phi_dot_coords, delta_coords) = \
+     np.meshgrid(self.phi_grid, self.phi_dot_grid, self.delta_grid, indexing="ij")
+    print("size of phi coords: " + str(np.shape(phi_coords)))
+    print("size of phi_dot coords: " + str(np.shape(phi_dot_coords)))
+    print("size of delta coords: " + str(np.shape(delta_coords)))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    #set points violating the first condition to be NaN, so they are not plotted,
+    #otherwise, do not change their value
+
+
+    subset_delta_coords = np.where((self.U <125) & (self.U>120), delta_coords, np.nan)
+    ax.scatter(phi_coords, phi_dot_coords, subset_delta_coords, c = "r")
+
+    subset_delta_coords = np.where((self.U <149) & (self.U>148), delta_coords, np.nan)
+    ax.scatter(phi_coords, phi_dot_coords, subset_delta_coords, c = "b")
+
+    subset_delta_coords = np.where((self.U >149.5) & (self.U<149.6), delta_coords, np.nan)
+    ax.scatter(phi_coords, phi_dot_coords, subset_delta_coords, c = "c")
+
+
+    subset_delta_coords = np.where((self.U>149.99), delta_coords, np.nan)
+    ax.scatter(phi_coords, phi_dot_coords, subset_delta_coords, c = "g")
+
+    ax.legend(["120<U<125", "148<U<149", "149.5<149.6", "U>149.99"])
+
+    ax.set_zlim(self.delta_grid[0], self.delta_grid[-1])
+    ax.set_ylim(self.phi_dot_grid[0], self.phi_dot_grid[-1])
+    ax.set_xlim(self.phi_grid[0], self.phi_grid[-1])
+
+    ax.set_xlabel('phi')
+    ax.set_ylabel('phi_dot')
+    ax.set_zlabel('delta')
+
+
+
+    plt.show()
+
+

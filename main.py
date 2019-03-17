@@ -22,28 +22,31 @@ VIteration_model = ValueIteration(state_grid_flag = 8, action_grid_flag = 1,
  USE_LINEAR_EOM = False, name = name)
 
 
+VIteration_model.plot_level_sets()
+
 # VIteration_model.train( gamma = 1, num_episodes = 30,
 #        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-   use_continuous_actions = False, use_continuous_state_with_discrete_actions = True,
-    gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = name+": cont S, disc A",
-   plot_is_inside_last_gridpoint = False)
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = False, use_continuous_state_with_discrete_actions = True,
+#     gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = name+": cont S, disc A",
+#    plot_is_inside_last_gridpoint = False)
 
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-   use_continuous_actions = False, use_continuous_state_with_discrete_actions = False,
-    gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = name+": discrete S, A",
-   plot_is_inside_last_gridpoint = False)
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-   use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
-    gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = name+": continuous A, S",
-   plot_is_inside_last_gridpoint = False)
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = False, use_continuous_state_with_discrete_actions = False,
+#     gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = name+": discrete S, A",
+#    plot_is_inside_last_gridpoint = False)
+
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
+#     gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = name+": continuous A, S",
+#    plot_is_inside_last_gridpoint = False)
 
 ###############################################################################
 ###############################################################################
@@ -63,10 +66,10 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 
 
 
-[success, states, figObject] = runBicycleTest(state_flag2,
-  controller = LinearController.LinearController(k1 = 40.353, k2 = 5.749, k3 = -7.852),
-  time = simulation_duration, isGraphing  = True, figObject = figObject,
-  name = "r7_LQR", USE_LINEAR_EOM = False)
+# [success, states, figObject] = runBicycleTest(state_flag2,
+#   controller = LinearController.LinearController(k1 = 40.353, k2 = 5.749, k3 = -7.852),
+#   time = simulation_duration, isGraphing  = True, figObject = figObject,
+#   name = "r7_LQR", USE_LINEAR_EOM = False)
 
 # [success, states, figObject] = runBicycleTest(state_flag2,
 #   controller = LinearController.LinearController(),
