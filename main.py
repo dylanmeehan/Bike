@@ -62,11 +62,24 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 ###############################################################################
 
 
-#LQR controller with PSD Q matrix. reward flag = 11
+# #LQR controller with PSD Q matrix. reward flag = 11
+# [success, states, figObject] = runBicycleTest(state_flag2,
+#   controller = LinearController.LinearController(k1 = 40.352939, k2 = 5.7491159, k3 = -7.8522597),
+#   reward_flag = 7, time = simulation_duration, isGraphing  = True, figObject = figObject,
+#   name = "fixed PSD, LQR", USE_LINEAR_EOM = False, timestep = 1/50)
+
+#LQR controller with 0's in Q matrix. reward flag = 7
 [success, states, figObject] = runBicycleTest(state_flag2,
-  controller = LinearController.LinearController(k1 = 40.352939, k2 = 5.7491159, k3 = -7.8522597),
+  controller = LinearController.LinearController(k1 = 40.352891, k2 = 5.7490112, k3 = -7.8522343),
   reward_flag = 7, time = simulation_duration, isGraphing  = True, figObject = figObject,
   name = "r7_LQR", USE_LINEAR_EOM = False, timestep = 1/50)
+
+
+#LQR controller with 0's in Q matrix. reward flag = 7
+[success, states, figObject] = runBicycleTest(state_flag2,
+  controller = LinearController.LinearController(k1 = 40.3, k2 = 5.7, k3 = -7.9),
+  reward_flag = 7, time = simulation_duration, isGraphing  = True, figObject = figObject,
+  name = "r7_LQR_truncated", USE_LINEAR_EOM = False, timestep = 1/50)
 
 # [success, states, figObject] = runBicycleTest(state_flag2,
 #   controller = LinearController.LinearController(k1 = 39.827362, k2 = 4.5645095,k3 = -7.5558888),
