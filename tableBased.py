@@ -267,12 +267,13 @@ class TableBased(object):
 
               action = self.action_grid[i_action]
 
-              reward = self.get_reward(state8, action, reward_flag)
+              reward = get_reward(state8, action, reward_flag)
               self.reward_table[i_phi, i_phi_dot, i_delta, i_action] = reward
 
               #reward for step is reward for the current action and NEXT state
-              new_state8, _, _ = self.step(state8, action, reward_flag,
-                method = step_table_integration_method)
+              new_state8, _, _ = step(state8, action, reward_flag,
+                method = step_table_integration_method,
+                USE_LINEAR_EOM = self.USE_LINEAR_EOM, timestep = self.timestep)
               new_state3 = state8_to_state3(new_state8)
 
               self.step_table[i_phi, i_phi_dot, i_delta, i_action] = new_state3
@@ -292,84 +293,6 @@ class TableBased(object):
     delta_i = state3_index[2]
 
     return self.step_table[phi_i, phi_dot_i, delta_i, action_index]
-
-  #given: state (a state in the continous space)
-  #       u (an action in the continoue state)
-  # tstep_multiplier is the number of integration_timesteps for every one
-  # controller timestep. Should be an integer >= 1
-  #return: (state, reward, isDone)
-  def step(self, state8, u, reward_flag, tstep_multiplier = 1,  method = "fixed_step_RK4"):
-
-    new_state8 = integrator.integrate(state8, u, self.timestep, method = method,
-      USE_LINEAR_EOM = self.USE_LINEAR_EOM)
-
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(new_state8)
-
-    # check if bike has fallen, only need to do once a timestep
-    if (np.abs(phi) >= np.pi/4):
-      #print("Bike has fallen; Test Failure")
-      isDone = True
-    else:
-      isDone = False
-
-    reward = self.get_reward(state8, u, reward_flag)
-    #reward = self.get_reward(new_state8, u, reward_flag)
-
-    return (new_state8, reward, isDone)
-
-  #given: state8 - the state to get the reward of
-  #       reward_flag - dictates what reward shaping to use
-  # returns: reward - a nunber greater than or equal to  0
-  # reward = 0 iff the bike has fallen (phi > pi/4)
-  def get_reward(self,state8, action, reward_flag = 3):
-    [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
-
-    #REWARD_FOR_FALLING = 0
-    #Do not change (if the bike falls, the utility
-    # of that state is set to 0, ie ,no need to look at utilities going forward
-    # so, the reward_for_falling should always be 0 and all other rewards should
-    # be greater than 0, so when the bicycle does not fall, it gets a utility
-    # greater than that if it falls).
-
-    # test ifbike has fallen
-    if (abs(phi) > np.pi/4):
-      reward = 0
-      #If reward is changed from 0, also change fill_value in the interpolator,
-      #I should set them both to be dependent on 1 parameter
-    else:
-      if reward_flag == 0:
-        reward =  1 #no shapping
-      elif reward_flag == 1:
-        reward = (1-(abs(phi))/2 - np.sign(phi)*phi_dot/20) #basic reward shaping
-      elif reward_flag == 2:
-        reward = 1/(phi**2+0.01) #add a little bit, so that we don't divide by 0
-      #garantees reward for not falling down is greater than that for falling
-      elif reward_flag == 3:
-        reward = 5 - phi**2
-      elif reward_flag == 4:
-        reward = 3 - np.abs(phi)
-      elif reward_flag == 5:
-        reward = 5 - (np.abs(phi) + np.abs(phi_dot/4) + np.abs(delta))
-      #incorperate actions
-      elif reward_flag == 6:
-         reward = 5 - phi**2 - 0.01*action**2
-      # state flag 7 is good
-      elif reward_flag == 7:
-         reward = 5 - phi**2 - 0.001*action**2
-      elif reward_flag == 8:
-         reward = 5 - phi**2 - 0.0001*action**2
-      elif reward_flag == 9:
-         reward = 5 - phi**2 - .0005*action**2
-      elif reward_flag == 10:
-         reward = 5 - phi**2 - .002*action**2
-      else:
-        raise Exception("Invalid reward_flag: {}".format(reward_flag))
-
-      if reward <= 0:
-        print("reward: " + str(reward) + ", action: " + str(action))
-      assert (reward > 0)
-
-    return reward
 
   # do 1 simulation of the bicycle
   # state_flag determines the starting state
@@ -426,9 +349,9 @@ class TableBased(object):
         action = self.get_action_from_index(action_index)
         #print("discrete action:" + str(action))
 
-
-      new_state8, reward, is_done = self.step(state8, action, reward_flag,
-        method = integration_method )
+      new_state8, reward, is_done = step(state8, action, reward_flag,
+        method = integration_method, USE_LINEAR_EOM = self.USE_LINEAR_EOM,
+        timestep = self.timestep )
 
       if not (use_continuous_actions or use_continuous_state_with_discrete_actions):
         new_state_grid_point_index = self.discretize(new_state8)
@@ -464,3 +387,82 @@ class TableBased(object):
       states8 = False; motorCommands = False;
 
     return [total_reward, total_time, states8, motorCommands]
+
+#given: state (a state in the continous space)
+#       u (an action in the continoue state)
+# tstep_multiplier is the number of integration_timesteps for every one
+# controller timestep. Should be an integer >= 1
+#return: (state, reward, isDone)
+def step(state8, u, reward_flag, tstep_multiplier = 1,
+  method = "fixed_step_RK4", USE_LINEAR_EOM = False, timestep = 1/50):
+
+  new_state8 = integrator.integrate(state8, u, timestep, method = method,
+    USE_LINEAR_EOM = USE_LINEAR_EOM)
+
+  [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(new_state8)
+
+  # check if bike has fallen, only need to do once a timestep
+  if (np.abs(phi) >= np.pi/4):
+    #print("Bike has fallen; Test Failure")
+    isDone = True
+  else:
+    isDone = False
+
+  reward = get_reward(state8, u, reward_flag)
+  #reward = self.get_reward(new_state8, u, reward_flag)
+
+  return (new_state8, reward, isDone)
+
+#given: state8 - the state to get the reward of
+#       reward_flag - dictates what reward shaping to use
+# returns: reward - a nunber greater than or equal to  0
+# reward = 0 iff the bike has fallen (phi > pi/4)
+def get_reward(state8, action, reward_flag = 3):
+  [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state8)
+
+  #REWARD_FOR_FALLING = 0
+  #Do not change (if the bike falls, the utility
+  # of that state is set to 0, ie ,no need to look at utilities going forward
+  # so, the reward_for_falling should always be 0 and all other rewards should
+  # be greater than 0, so when the bicycle does not fall, it gets a utility
+  # greater than that if it falls).
+
+  # test ifbike has fallen
+  if (abs(phi) > np.pi/4):
+    reward = 0
+    #If reward is changed from 0, also change fill_value in the interpolator,
+    #I should set them both to be dependent on 1 parameter
+  else:
+    if reward_flag == 0:
+      reward =  1 #no shapping
+    elif reward_flag == 1:
+      reward = (1-(abs(phi))/2 - np.sign(phi)*phi_dot/20) #basic reward shaping
+    elif reward_flag == 2:
+      reward = 1/(phi**2+0.01) #add a little bit, so that we don't divide by 0
+    #garantees reward for not falling down is greater than that for falling
+    elif reward_flag == 3:
+      reward = 5 - phi**2
+    elif reward_flag == 4:
+      reward = 3 - np.abs(phi)
+    elif reward_flag == 5:
+      reward = 5 - (np.abs(phi) + np.abs(phi_dot/4) + np.abs(delta))
+    #incorperate actions
+    elif reward_flag == 6:
+       reward = 5 - phi**2 - 0.01*action**2
+    # state flag 7 is good
+    elif reward_flag == 7:
+       reward = 5 - phi**2 - 0.001*action**2
+    elif reward_flag == 8:
+       reward = 5 - phi**2 - 0.0001*action**2
+    elif reward_flag == 9:
+       reward = 5 - phi**2 - .0005*action**2
+    elif reward_flag == 10:
+       reward = 5 - phi**2 - .002*action**2
+    else:
+      raise Exception("Invalid reward_flag: {}".format(reward_flag))
+
+    if reward <= 0:
+      print("reward: " + str(reward) + ", action: " + str(action))
+    assert (reward > 0)
+
+  return reward

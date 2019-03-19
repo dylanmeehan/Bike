@@ -112,9 +112,9 @@ class ValueIteration(TableBased):
     for action_index in range(self.num_actions):
       action = self.action_grid[action_index] #equivalent to get_action_from_index()
 
-
-      (new_state8, reward, _) = self.step(state8, action, self.reward_flag,
-       method = integration_method)
+      (new_state8, reward, _) = step(state8, action, self.reward_flag,
+       method = integration_method, USE_LINEAR_EOM = self.USE_LINEAR_EOM,
+       timestep = self.timestep)
 
       #new_state3 = state8_to_state3(new_state8)
       #TODO: change step_fast to use lookup table which returns new_state3
@@ -142,8 +142,12 @@ class ValueIteration(TableBased):
   def continuous_utility_function(self, state8, u, integration_method, gamma,
     use_regression = False):
 
-    (new_state8, reward, isDone) = self.step(state8, u, self.reward_flag,
-      method = integration_method)
+
+
+
+    (new_state8, reward, isDone) = step(state8, u, self.reward_flag,
+      method = integration_method, USE_LINEAR_EOM = self.USE_LINEAR_EOM,
+      timestep = self.timestep)
 
     new_state3 = state8_to_state3(new_state8)
 
@@ -422,7 +426,7 @@ class ValueIteration(TableBased):
         use_regression = use_regression, timesteps_to_graph_actions_vs_utilites =
         timesteps_to_graph_actions_vs_utilites)
 
-    print("VALUE ITERATION: testing reward: " + str(reward) + ", testing time: "
+    print("VI Model " + self.Ufile + " score:" + str(reward) + ", testing time: "
       + str(time_testing))
 
 

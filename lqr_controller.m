@@ -27,8 +27,8 @@ B = [   0  -b*v/(h*l)   1]';
 
 %Define costs
 Q = [1  0   0;
-    0   0   0;
-    0   0  0];
+    0   1e-6  0;
+    0   0  1e-6];
 R = [.001];
 
 %calculate LQR controller
@@ -36,4 +36,4 @@ R = [.001];
 K = -1*K; %get K from lqr controller to match sign convention
 
 disp("balance controller gains are")
-disp(K)
+vpa(K,8)

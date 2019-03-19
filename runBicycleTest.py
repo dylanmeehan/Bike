@@ -10,14 +10,14 @@ import scipy.integrate as inter
 
 # use Euler Integration to simulate a bicycle
 def runBicycleTest(stateflag = 4, controller = LinearController.LinearController(),
-  time = 10, isGraphing  = True, figObject = None, tstep_multiplier = 1,  name = "LQR",
-  test_rh45_uncontrolled = False, integrator_method = "Euler", USE_LINEAR_EOM = False):
+  reward_flag = 8, time = 10, isGraphing  = True, figObject = None, tstep_multiplier = 1,  name = "LQR",
+  test_rh45_uncontrolled = False, integrator_method = "Euler", USE_LINEAR_EOM = False,
+  timestep = 1/50):
 
   print("running test with LQR controller")
 
   state = getStartingState8(stateflag)
 
-  timestep = 1/50 #seconds
   numTimeSteps = int(time/timestep)+1
 
   #create arrays before loop
@@ -52,13 +52,21 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
 
 
   else:
-    count = 0;
+    count = 0
+    cum_reward = 0
+    sim_time = 0
+
     while( count < numTimeSteps):
+
+
+      # new_state8, reward, is_done = step(state8, action, reward_flag,
+      #   method = integration_method )
 
       #calculate control action
       u = controller.act(state)
 
       # integrate the odes
+      sim_time += timestep
       state = integrator.integrate(state, u, timestep, tstep_multiplier,
         method = integrator_method, USE_LINEAR_EOM = USE_LINEAR_EOM)
 
