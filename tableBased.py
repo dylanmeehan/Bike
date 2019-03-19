@@ -458,6 +458,8 @@ def get_reward(state8, action, reward_flag = 3):
        reward = 5 - phi**2 - .0005*action**2
     elif reward_flag == 10:
        reward = 5 - phi**2 - .002*action**2
+    elif reward_flag == 11:
+       reward = 5 - (phi**2 + phi_dot**2*1e-6 + delta**2*1e-6 + .001*action**2)
     else:
       raise Exception("Invalid reward_flag: {}".format(reward_flag))
 

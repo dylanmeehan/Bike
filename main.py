@@ -8,7 +8,7 @@ import sys
 state_flag1 = 3
 state_flag2 = 5
 figObject = None
-simulation_duration = 5
+simulation_duration = 2
 
 
 
@@ -17,7 +17,7 @@ simulation_duration = 5
 
 name = "VI46-s8"
 VIteration_model = ValueIteration(state_grid_flag = 8, action_grid_flag = 1,
- reward_flag = 3, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+ reward_flag = 7, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
  remake_table = False, step_table_integration_method = "fixed_step_RK4",
  USE_LINEAR_EOM = False, name = name)
 
@@ -62,10 +62,10 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 ###############################################################################
 
 
-
+#LQR controller with PSD Q matrix. reward flag = 11
 [success, states, figObject] = runBicycleTest(state_flag2,
-  controller = LinearController.LinearController(k1 = 40.3528919, k2 = 5.7490112, k3 = -7.8522343),
-  reward_flag = 8, time = simulation_duration, isGraphing  = True, figObject = figObject,
+  controller = LinearController.LinearController(k1 = 40.352939, k2 = 5.7491159, k3 = -7.8522597),
+  reward_flag = 7, time = simulation_duration, isGraphing  = True, figObject = figObject,
   name = "r7_LQR", USE_LINEAR_EOM = False, timestep = 1/50)
 
 # [success, states, figObject] = runBicycleTest(state_flag2,

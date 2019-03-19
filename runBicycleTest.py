@@ -10,9 +10,9 @@ import scipy.integrate as inter
 
 # use Euler Integration to simulate a bicycle
 def runBicycleTest(stateflag = 4, controller = LinearController.LinearController(),
-  reward_flag = 8, time = 10, isGraphing  = True, figObject = None, tstep_multiplier = 1,  name = "LQR",
-  test_rh45_uncontrolled = False, integrator_method = "Euler", USE_LINEAR_EOM = False,
-  timestep = 1/50):
+  reward_flag = 8, time = 10, isGraphing  = True, figObject = None, tstep_multiplier = 1,
+  name = "LQR", test_rh45_uncontrolled = False, integrator_method = "Euler",
+  USE_LINEAR_EOM = False, timestep = 1/50):
 
   print("running test with LQR controller")
 
@@ -58,34 +58,24 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
 
     while( count < numTimeSteps):
 
-
-      # new_state8, reward, is_done = step(state8, action, reward_flag,
-      #   method = integration_method )
-
       #calculate control action
       u = controller.act(state)
 
-      # integrate the odes
-      sim_time += timestep
-      state = integrator.integrate(state, u, timestep, tstep_multiplier,
-        method = integrator_method, USE_LINEAR_EOM = USE_LINEAR_EOM)
-
-      [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
-
-      #check if bike has fallen
-      if (np.abs(phi) >= np.pi/4):
-        print("Bike has fallen; Test Failure\n")
-        success = False
-        break
+      state, reward, is_done = step(state, u, reward_flag, tstep_multiplier = 1,
+        method = "fixed_step_RK4", USE_LINEAR_EOM = USE_LINEAR_EOM, timestep = timestep)
 
       states[count,:] = state
       motorCommands[count] = u
 
-
-      count = count + 1
+      sim_time += timestep
+      cum_reward += reward
+      count += 1
 
   states = states[:count,:]
   motorCommands = motorCommands[:count]
+
+  print(name + ": score:" + str(cum_reward) + ", testing time: "
+      + str(sim_time))
 
   figObject = graph.graph(states, motorCommands, figObject, [], name)
 
