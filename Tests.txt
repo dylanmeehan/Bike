@@ -294,6 +294,14 @@ VI49:
     trained for 30 episodes
     gamma = 1
 
+VI50-s8_lin: similiar to VI46 but with r=11, pd Q matrix. Linear EOM!
+    action grid flag = 1: 11 actions.
+    state grid flag = 8 : 19 x 17 x 15 states
+    reward flag = 11
+    discrete actions, interpolation
+    trained for 30 episodes
+    gamma = 1
+
 
 VI43, VI45, VI46 -100 variants trained for 100 episodes
  - used state grid flag = 3 for faster testing
@@ -308,6 +316,7 @@ VI43, VI45, VI46 -s6 variants use state_flag = 6. Tight, small state space
 
 -s8 variants: used with state flag 8
 -s9 : used state flag 9 :
+-s11: use state flag 11
 -linear variants: trained using linear EoMs. (can be tested on nonlinear EoMs)
 
 

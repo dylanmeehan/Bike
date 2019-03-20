@@ -148,6 +148,14 @@ class TableBased(object):
       .35, .39, .43, .47, .51]
       self.delta_grid = make_full_grid(delta_half_grid)
 
+    elif state_grid_flag == 11:
+      phi_half_grid = list(np.linspace(0.01,0.26,26, endpoint=True))
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
+      self.delta_grid = make_full_grid(delta_half_grid)
+
     #small grid, half the states as state_grid_flag 9 in each direction
     # 15 x 25 x 19 state space
     elif state_grid_flag == 9:
