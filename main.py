@@ -15,11 +15,11 @@ simulation_duration = 2
 
 ###############################################################################
 
-name = "VI50-s11_lin"
-VIteration_model = ValueIteration(state_grid_flag = 11, action_grid_flag = 1,
+name = "VI50-s12_lin"
+VIteration_model = ValueIteration(state_grid_flag = 12, action_grid_flag = 1,
  reward_flag = 11, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
  remake_table = False, step_table_integration_method = "fixed_step_RK4",
- USE_LINEAR_EOM = True, name = name)
+ USE_LINEAR_EOM = True, name = name, timestep = 1/50)
 
 
 
@@ -28,11 +28,55 @@ VIteration_model = ValueIteration(state_grid_flag = 11, action_grid_flag = 1,
 
 # # VIteration_model.run_regression()
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag1,
+figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
    use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
     gamma = 1, figObject = figObject,
    integration_method = "fixed_step_RK4", name = name+"",
    plot_is_inside_last_gridpoint = False, use_regression = False)
+
+
+#######################################################################3333
+
+
+# name = "VI50-s11_lin"
+# VIteration_model = ValueIteration(state_grid_flag = 11, action_grid_flag = 1,
+#  reward_flag = 11, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+#  remake_table = False, step_table_integration_method = "fixed_step_RK4",
+#  USE_LINEAR_EOM = True, name = name, timestep = 1/50)
+
+
+
+# VIteration_model.train( gamma = 1, num_episodes = 30,
+#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+
+# # VIteration_model.run_regression()
+
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
+#     gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = name+"",
+#    plot_is_inside_last_gridpoint = False, use_regression = False)
+
+
+
+# name = "VI50-s8_lin"
+# VIteration_model = ValueIteration(state_grid_flag = 8, action_grid_flag = 1,
+#  reward_flag = 11, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+#  remake_table = False, step_table_integration_method = "fixed_step_RK4",
+#  USE_LINEAR_EOM = True, name = name, timestep = 1/50)
+
+
+
+# # # VIteration_model.train( gamma = 1, num_episodes = 30,
+# # #        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+
+# # # # VIteration_model.run_regression()
+
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#    use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
+#     gamma = 1, figObject = figObject,
+#    integration_method = "fixed_step_RK4", name = name+"",
+#    plot_is_inside_last_gridpoint = False, use_regression = False)
 
 # figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
 #    use_continuous_actions = True, use_continuous_state_with_discrete_actions = True,
@@ -63,10 +107,10 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 
 
 #LQR controller with PSD Q matrix. reward flag = 11
-[success, states, figObject] = runBicycleTest(state_flag1,
+[success, states, figObject] = runBicycleTest(state_flag2,
   controller = LinearController.LinearController(k1 = 40.352939, k2 = 5.7491159, k3 = -7.8522597),
   reward_flag = 11, time = simulation_duration, isGraphing  = True, figObject = figObject,
-  name = "fixed PSD, LQR", USE_LINEAR_EOM = True, timestep = 1/50)
+  name = "Q is PD, LQR", USE_LINEAR_EOM = True, timestep = 1/500)
 
 # #LQR controller with 0's in Q matrix. reward flag = 7
 # [success, states, figObject] = runBicycleTest(state_flag2,

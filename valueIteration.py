@@ -27,13 +27,13 @@ class ValueIteration(TableBased):
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
     Ufile = "modelsB/valueIteration_U.csv", use_only_continuous_actions = False,
     step_table_integration_method = "fixed_step_RK4", remake_table = False,
-    USE_LINEAR_EOM = False, name = None):
+    USE_LINEAR_EOM = False, name = None, timestep = 1/50):
 
     print("Initializing VI model")
     init_t1 = time.time()
 
     super(ValueIteration, self).__init__(state_grid_flag, action_grid_flag,
-      reward_flag, USE_LINEAR_EOM)
+      reward_flag, USE_LINEAR_EOM, timestep = timestep)
 
     self.step_table_file = Ufile+ "_step_table.csv"
     self.reward_file = Ufile+ "_reward_table.csv"

@@ -10,8 +10,6 @@ from pathlib import Path
 
 class TableBased(object):
 
-  timestep = 1/50
-
   # create points for actions based on action_grid_flag
   # store actions in action_grid
   def set_action_grid_points(self, action_grid_flag):
@@ -31,6 +29,10 @@ class TableBased(object):
     elif action_grid_flag == 5:
       self.action_grid = [-2, -1.5, -1, -.75, -.5, -.25, -.1, 0, .1, .25, .5, .75,  1, 1.5, 2]
 
+    elif action_grid_flag == 6:
+      self.action_grid = np.linspace(-5,5,26, endpoint=True)
+    elif action_grid_flag == 7:
+      self.action_grid = np.linspace(-5,5,51, endpoint=True)
 
     else:
       raise Exception("Invalid action_grid_flag: {}".format(action_grid_flag))
@@ -156,6 +158,16 @@ class TableBased(object):
       delta_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
       self.delta_grid = make_full_grid(delta_half_grid)
 
+
+    elif state_grid_flag == 12:
+      phi_half_grid = list(np.linspace(0.001,0.009,9, endpoint=True)) + \
+      list(np.linspace(0.01,0.26,26, endpoint=True))
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
+      self.delta_grid = make_full_grid(delta_half_grid)
+
     #small grid, half the states as state_grid_flag 9 in each direction
     # 15 x 25 x 19 state space
     elif state_grid_flag == 9:
@@ -202,11 +214,13 @@ class TableBased(object):
     self.state_grid_points = np.rec.fromarrays([phi_points, phi_dot_points,
       delta_points], names='phi_points,phi_dot_points,delta_points')
 
-  def __init__(self, state_grid_flag, action_grid_flag, reward_flag, USE_LINEAR_EOM):
+  def __init__(self, state_grid_flag, action_grid_flag, reward_flag, USE_LINEAR_EOM,
+    timestep = 1/50):
     self.set_state_grid_points(state_grid_flag)
     self.set_action_grid_points(action_grid_flag)
     self.reward_flag = reward_flag
     self.USE_LINEAR_EOM = USE_LINEAR_EOM
+    self.timestep = timestep
 
   #given: phi_index, phi_dot_index, delta_index
   #returns:continous, full - 8 variable, state for this index
@@ -333,8 +347,8 @@ class TableBased(object):
       motorCommands = np.zeros([maxNumTimeSteps, 1])
 
       #initialize starting values of arrays
-      states8[1,:] = state8
-      motorCommands[1] = 0
+      # states8[0,:] = state8
+      # motorCommands[0] = 0
 
     count = 0;
     while( (count < maxNumTimeSteps) and (not is_done)):
@@ -372,7 +386,7 @@ class TableBased(object):
       if (not is_done):
         total_time += self.timestep
 
-      state8 = new_state8
+
 
       #print state3 values
       #print([state8[3],state8[5], state8[6]])
@@ -383,6 +397,8 @@ class TableBased(object):
       if isTesting:
         states8[count,:] = state8
         motorCommands[count] = action
+
+      state8 = new_state8
 
       count += 1
 
