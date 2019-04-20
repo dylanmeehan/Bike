@@ -7,8 +7,9 @@ from unpackState import *
 from scipy.interpolate import interpn
 import time
 from pathlib import Path
+from ControllerClass import *
 
-class TableBased(object):
+class TableBased(Controller):
 
   # create points for actions based on action_grid_flag
   # store actions in action_grid
@@ -267,6 +268,8 @@ class TableBased(object):
     self.USE_LINEAR_EOM = USE_LINEAR_EOM
     self.timestep = timestep
 
+    super(TableBased, self).__init__()
+
   #given: phi_index, phi_dot_index, delta_index
   #returns:continous, full - 8 variable, state for this index
   def state8_from_indicies(self, phi_index, phi_dot_index, delta_index):
@@ -279,8 +282,8 @@ class TableBased(object):
 
   #given: index of action in action_grid
   # return: action, (continous valued) steer rate command
-  def get_action_from_index(self, action_index):
-    return self.action_grid[action_index]
+  # def get_action_from_index(self, action_index):
+  #   return self.action_grid[action_index]
 
   # return the 3-tuple of the indicies of the state grid point closest to state8
   #return a state3 variable
@@ -363,101 +366,6 @@ class TableBased(object):
 
     return self.step_table[phi_i, phi_dot_i, delta_i, action_index]
 
-  # do 1 simulation of the bicycle
-  # state_flag determines the starting state
-  # can be used to test or for training a Qlearning agent
-  def simulate_episode(self, epsilon, gamma, alpha, tmax, reward_flag,
-    isTesting, use_continuous_actions, use_continuous_state_with_discrete_actions,
-    state_flag = 0, integration_method = "Euler", use_regression= False,
-    timesteps_to_graph_actions_vs_utilites = False):
-
-    state8 = getStartingState8(state_flag)
-
-    is_done = False
-    total_reward = 0
-    total_time = 0
-
-    # return index of closest point to phi, phi_dot, and delta
-    state_grid_point_index = self.discretize(state8)
-
-    maxNumTimeSteps = int(tmax/self.timestep)+1
-
-    if not use_continuous_actions:
-      # return index of closest point to phi, phi_dot, and delta
-      state_grid_point_index = self.discretize(state8)
-
-    if isTesting:
-      #create arrays before loop
-      success = True
-      numStates8 = state8.size
-      states8 = np.zeros([maxNumTimeSteps, numStates8])
-      motorCommands = np.zeros([maxNumTimeSteps, 1])
-
-      #initialize starting values of arrays
-      # states8[0,:] = state8
-      # motorCommands[0] = 0
-
-    count = 0;
-    while( (count < maxNumTimeSteps) and (not is_done)):
-
-      make_action_and_utility_graph = count in timesteps_to_graph_actions_vs_utilites
-
-      if use_continuous_actions:
-        action = self.get_action_continuous(state8, epsilon,
-         integration_method = integration_method, use_regression = use_regression)
-        #print("continuous action:" + str(action))
-      elif use_continuous_state_with_discrete_actions:
-        (action_index, _) = self.calc_best_action_and_utility_continuous_state(state8,
-          gamma = gamma, integration_method = "fixed_step_RK4",
-          use_regression = use_regression)
-        action = self.action_grid[action_index]
-      else:
-        action_index = self.act_index(state_grid_point_index, epsilon, gamma,
-          make_action_and_utility_graph)
-        #self.act_index returns which action to take. defined for each model.
-        action = self.get_action_from_index(action_index)
-        #print("discrete action:" + str(action))
-
-      new_state8, reward, is_done = step(state8, action, reward_flag,
-        method = integration_method, USE_LINEAR_EOM = self.USE_LINEAR_EOM,
-        timestep = self.timestep )
-
-      if not (use_continuous_actions or use_continuous_state_with_discrete_actions):
-        new_state_grid_point_index = self.discretize(new_state8)
-
-      if (not isTesting):
-        self.update_Q(state_grid_point_index, reward, action_index, \
-          new_state_grid_point_index, is_done, alpha, gamma)
-
-      total_reward += reward
-      if (not is_done):
-        total_time += self.timestep
-
-
-
-      #print state3 values
-      #print([state8[3],state8[5], state8[6]])
-
-      if not (use_continuous_actions or use_continuous_state_with_discrete_actions):
-        state_grid_point_index = new_state_grid_point_index
-
-      if isTesting:
-        states8[count,:] = state8
-        motorCommands[count] = action
-
-      state8 = new_state8
-
-      count += 1
-
-    if isTesting:
-    #trim off zero values. This avoids the graph drawing a line to the origin.
-      states8 = states8[:count,:]
-      motorCommands = motorCommands[:count]
-
-    if (not isTesting):
-      states8 = False; motorCommands = False;
-
-    return [total_reward, total_time, states8, motorCommands]
 
 #given: state (a state in the continous space)
 #       u (an action in the continoue state)

@@ -1,8 +1,9 @@
 import numpy as np
 from parameters import *
 from unpackState import *
+from ControllerClass import *
 
-class LinearController(object):
+class LinearController(Controller):
 
   # both arundathi and LQR gains work on the real bicycle
   # "Arundathi" Gains: 71, 21, -20
@@ -13,7 +14,9 @@ class LinearController(object):
     self.k2 = k2;
     self.k3 = k3;
 
-  def act(self, state):
+    self.is_initialized = True
+
+  def act(self, state, timestep):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
 
     #control variable

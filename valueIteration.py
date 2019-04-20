@@ -71,6 +71,58 @@ class ValueIteration(TableBased):
     #       that we don't compute the reward for a state every time. We only
     #       look up the reward
 
+  #intialize stuff needed to be a controller
+  def init_controller(self, use_continuous_actions = True,
+    use_continuous_state_with_discrete_actions = True,
+    controller_integration_method = "fixed_step_RK4",
+    use_regression_model_of_table = False):
+
+    self.use_continuous_actions = use_continuous_actions
+    self.use_continuous_state_with_discrete_actions = use_continuous_state_with_discrete_actions
+    self.controller_integration_method = controller_integration_method
+
+    self.itp = RegularGridInterpolator(
+    (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
+    bounds_error = False, fill_value = 0, method = "linear")
+
+    #use_regression_of_table determines if we use a regression model to replace
+    # the table. If true, instead of looking up stuff in the table, we use the
+    # regression model to predict the values of states
+    self.use_regression_model_of_table = use_regression_model_of_table
+    if use_regression_model_of_table:
+      self.run_regression()
+
+    self.is_initialized = True
+
+  # VI controller uses reward_flag of VI class, not reward flag of runBicycleTest call
+  # to decide which actions to take
+  def act(self, state8, timestep):
+    epsilon = 0; alpha = 0; gamma = 1
+
+    if self.use_continuous_actions:
+      (action, _) = self.calc_best_action_and_utility_continuous_action(state8,
+      timestep, gamma = gamma,
+      integration_method = self.controller_integration_method,
+      use_regression = self.use_regression_model_of_table)
+
+    elif self.use_continuous_state_with_discrete_actions:
+      (action_index, _) = self.calc_best_action_and_utility_continuous_state(state8,
+        timestep = timestep,
+        gamma = gamma, integration_method = self.controller_integration_method,
+        use_regression = self.use_regression_model_of_table)
+      action = self.action_grid[action_index]
+
+    else:
+      make_action_and_utility_graph = False   #ignore this for now
+      state_grid_point_index = self.discretize(state8)
+      action_index = self.act_index(state_grid_point_index, epsilon, gamma,
+        make_action_and_utility_graph)
+      #self.act_index returns which action to take. defined for each model.
+      action = self.action_grid[action_index]
+      #print("discrete action:" + str(action))
+
+    return action
+
   #given: state3_index: the index of a point in the descritized table
   #     do_intepolations: boolean to decide to interpolate or not
   #return: (best_action_index, best_action_utility) for that state.
@@ -104,7 +156,7 @@ class ValueIteration(TableBased):
 
     return (best_action_index, best_action_utility)
 
-  def calc_best_action_and_utility_continuous_state(self, state8, gamma,
+  def calc_best_action_and_utility_continuous_state(self, state8, timestep, gamma,
     integration_method = "fixed_step_RK4", use_regression = False):
 
     Qtemp = np.zeros(self.num_actions)
@@ -114,7 +166,7 @@ class ValueIteration(TableBased):
 
       (new_state8, reward, _) = step(state8, action, self.reward_flag,
        method = integration_method, USE_LINEAR_EOM = self.USE_LINEAR_EOM,
-       timestep = self.timestep)
+       timestep = timestep)
 
       #new_state3 = state8_to_state3(new_state8)
       #TODO: change step_fast to use lookup table which returns new_state3
@@ -139,15 +191,15 @@ class ValueIteration(TableBased):
 
     return (best_action_index, best_action_utility)
 
-  def continuous_utility_function(self, state8, u, integration_method, gamma,
-    use_regression = False):
+  def continuous_utility_function(self, state8, u, timestep, integration_method,
+    gamma, use_regression = False):
 
 
 
 
     (new_state8, reward, isDone) = step(state8, u, self.reward_flag,
       method = integration_method, USE_LINEAR_EOM = self.USE_LINEAR_EOM,
-      timestep = self.timestep)
+      timestep = timestep)
 
     new_state3 = state8_to_state3(new_state8)
 
@@ -185,12 +237,13 @@ class ValueIteration(TableBased):
     return points_inside_last_gridpoint
 
   #always do interpolation
-  def calc_best_action_and_utility_continuous_action(self, state8,
+  def calc_best_action_and_utility_continuous_action(self, state8, timestep,
     integration_method = "Euler", gamma = 1, use_regression = False):
 
     #we need to minimiza something. minimizning negations of the utility function
     # is equivalent to maximizing the utilty function
     negated_utility_fun = lambda u: -1*self.continuous_utility_function(state8, u,
+      timestep,
       integration_method = integration_method, gamma = gamma,
       use_regression = use_regression)
 
@@ -215,14 +268,15 @@ class ValueIteration(TableBased):
       u = -params.MAX_STEER_RATE
 
     utility_of_best_action = self.continuous_utility_function(state8, u,
+      timestep,
       integration_method, gamma)
     #print(u)
 
     return (u, utility_of_best_action)
 
-  def get_action_continuous(self, state8, epsilon = 0, gamma = 1,
+  def get_action_continuous(self, state8, timestep, epsilon = 0, gamma = 1,
     integration_method = "Euler", use_regression = False):
-    (u, _) = self.calc_best_action_and_utility_continuous_action(state8,
+    (u, _) = self.calc_best_action_and_utility_continuous_action(state8, timestep,
       integration_method = integration_method, gamma = gamma,
       use_regression = use_regression)
     return u
@@ -296,7 +350,8 @@ class ValueIteration(TableBased):
           state3 = self.state_grid_points[state3_index]
           state8 = state3_to_state8(state3)
           (_, best_utility) = \
-            self.calc_best_action_and_utility_continuous_action(state8, gamma = gamma)
+            self.calc_best_action_and_utility_continuous_action(state8,
+            self.timestep, gamma = gamma)
             #gamma is inherited from outer class
 
         else:
@@ -396,53 +451,6 @@ class ValueIteration(TableBased):
 
     train_t2 = time.time()
     print("Trained VI Model " + self.Ufile + " in " + str(train_t2-train_t1) + "sec")
-
-
-  # integration_method = "fixed_step_RK4", "Euler"
-  def test(self, tmax = 10, state_flag = 0, use_continuous_actions = False,
-      use_continuous_state_with_discrete_actions = True,
-      gamma = 1, figObject = None, plot_is_inside_last_gridpoint = False,
-      integration_method = "fixed_step_RK4", name = None, use_regression = False,
-      timesteps_to_graph_actions_vs_utilites = []):
-
-    if use_regression:
-      self.run_regression()
-
-    if name == None:
-      name = self.Ufile
-
-    t_test1 = time.time()
-
-    self.itp = RegularGridInterpolator(
-        (self.phi_grid, self.phi_dot_grid, self.delta_grid),self.U,
-        bounds_error = False, fill_value = 0, method = "linear")
-
-    epsilon = 0; alpha = 0
-
-    reward, time_testing, states8, motorCommands = \
-      self.simulate_episode(epsilon, gamma, alpha, tmax, self.reward_flag, True,
-        use_continuous_actions, use_continuous_state_with_discrete_actions,
-        state_flag, integration_method = integration_method,
-        use_regression = use_regression, timesteps_to_graph_actions_vs_utilites =
-        timesteps_to_graph_actions_vs_utilites)
-
-    print("VI Model " + self.Ufile + " score:" + str(reward) + ", testing time: "
-      + str(time_testing))
-
-
-    points_inside_last_gridpoint = []
-    if plot_is_inside_last_gridpoint:
-      points_inside_last_gridpoint = \
-        self.calculate_points_inside_last_gridpoint(states8)
-
-    # graph
-    figObject = graph.graph(states8, motorCommands, figObject,
-      points_inside_last_gridpoint, name)
-
-    t_test2 = time.time()
-    print("Tested VI Model " + self.Ufile + " in " + str(t_test2-t_test1))
-
-    return figObject
 
 
   # option = ["average", "zero"]
@@ -572,7 +580,7 @@ class ValueIteration(TableBased):
           else:
             action_index = self.act_index(state3_index, epsilon = 0, gamma = 1)
             #self.act_index returns which action to take. defined for each model.
-            VI_action = self.get_action_from_index(action_index)
+            VI_action = self.action_grid[action_index]
 
           VI_policy[phi_i, phi_dot_i, delta_i] = VI_action
 
@@ -779,7 +787,7 @@ class ValueIteration(TableBased):
   def graph_action_vs_utility(self, action_index, Qtemp):
     actions = np.zeros(self.num_actions)
     for i in list(range(self.num_actions)):
-      actions[i] = self.get_action_from_index(i)
+      actions[i] = self.action_grid[i]
 
     fig, ax = plt.subplots()
     ax.plot(actions, Qtemp)
