@@ -12,14 +12,14 @@ simulation_duration = 5
 
 ###############################################################################
 
-name = "VI49-s8"
-VI_model = ValueIteration(state_grid_flag = 8, action_grid_flag = 1,
- reward_flag = 1, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
- remake_table = False, step_table_integration_method = "fixed_step_RK4",
+name = "VI_r14_s6_a1"
+VI_model = ValueIteration(state_grid_flag = 6, action_grid_flag = 1,
+ reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+ remake_table = True, step_table_integration_method = "fixed_step_RK4",
  USE_LINEAR_EOM = False, name = name, timestep = 1/50)
 
-# VIteration_model.train( gamma = 1, num_episodes = 30,
-#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+VI_model.train( gamma = 1, num_episodes = 30,
+       interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
 
 VI_model.init_controller(use_continuous_actions = True,
@@ -27,10 +27,10 @@ VI_model.init_controller(use_continuous_actions = True,
     controller_integration_method = "fixed_step_RK4",
     use_regression_model_of_table = False)
 
-# (_, figObject) = runBicycleTest(state_flag1, VI_model, name, reward_flag = 1,
-#   simulation_duration = simulation_duration, isGraphing  = True, figObject = figObject,
-#   integrator_method = "fixed_step_RK4",
-#   USE_LINEAR_EOM = False, timestep = 1/50)
+(_, figObject) = runBicycleTest(state_flag1, VI_model, name, reward_flag = 1,
+  simulation_duration = simulation_duration, isGraphing  = True, figObject = figObject,
+  integrator_method = "fixed_step_RK4",
+  USE_LINEAR_EOM = False, timestep = 1/50)
 # # figObject = VI_odel.test(tmax = simulation_duration, state_flag = state_flag1,
 #   use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
 #   gamma = 1, figObject = figObject,

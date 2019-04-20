@@ -91,6 +91,6 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
     figObject = graph.graph(states, motorCommands, figObject, [], name)
 
     t_test2 = time.time()
-    print("Tested " + name + " in " + str(t_test2-t_test1) + " sec of comp. time")
+    print("Tested " + name + " in " + str(t_test2-t_test1) + " sec of computer time")
 
   return success, figObject

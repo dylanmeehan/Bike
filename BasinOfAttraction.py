@@ -5,7 +5,7 @@ import time
 from valueIteration import *
 
 
-def plot_basis_of_attraction(controllers, names, state_table_flag):
+def plot_basin_of_attraction(controllers, names, state_table_flag):
   t1 = time.time()
 
   GridPoints = StateGridPoints()
@@ -40,7 +40,7 @@ def plot_basis_of_attraction(controllers, names, state_table_flag):
     ax1 = ax1s[idx]
 
     im1 = ax1.imshow(success_array, cmap=plt.get_cmap("coolwarm"))
-    ax1.set_title(str(names[idx])+" Basis of Attraction (delta = 0)")
+    ax1.set_title(str(names[idx])+" Basin of Attraction (delta = 0)")
     ax1.set_ylabel("lean [rad]")
     ax1.set_xlabel("lean rate [rad/s]")
     ax1.set_yticks(np.arange(GridPoints.len_phi_grid))
@@ -69,5 +69,5 @@ VI_model.init_controller(use_continuous_actions = True,
   controller_integration_method = "fixed_step_RK4",
   use_regression_model_of_table = False)
 
-plot_basis_of_attraction([LinearController.LinearController(), VI_model],
+plot_basin_of_attraction([LinearController.LinearController(), VI_model],
   ["linear", "VI49-s8"],  3)
