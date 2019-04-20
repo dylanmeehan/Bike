@@ -30,27 +30,26 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
   states[1,:] = state
   motorCommands[1] = 0
 
-  else:
-    count = 0
-    cum_reward = 0
-    sim_time = 0
+  count = 0
+  cum_reward = 0
+  sim_time = 0
 
-    while( count < numTimeSteps):
+  while( count < numTimeSteps):
 
-      #calculate control action
-      u = controller.act(state)
+    #calculate control action
+    u = controller.act(state)
 
-      new_state, reward, is_done = step(state, u, reward_flag, tstep_multiplier = 1,
-        method = "fixed_step_RK4", USE_LINEAR_EOM = USE_LINEAR_EOM, timestep = timestep)
+    new_state, reward, is_done = step(state, u, reward_flag, tstep_multiplier = 1,
+      method = "fixed_step_RK4", USE_LINEAR_EOM = USE_LINEAR_EOM, timestep = timestep)
 
-      states[count,:] = state
-      motorCommands[count] = u
+    states[count,:] = state
+    motorCommands[count] = u
 
-      sim_time += timestep
-      cum_reward += reward
-      count += 1
+    sim_time += timestep
+    cum_reward += reward
+    count += 1
 
-      state = new_state
+    state = new_state
 
   states = states[:count,:]
   motorCommands = motorCommands[:count]

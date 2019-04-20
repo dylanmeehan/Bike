@@ -12,20 +12,20 @@ simulation_duration = 2
 
 ###############################################################################
 
-name = "VI_r14_a1_s16_30episodes"
-VIteration_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
- reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
- remake_table = False, step_table_integration_method = "fixed_step_RK4",
- USE_LINEAR_EOM = False, name = name, timestep = 1/50)
+# name = "VI_r14_a1_s16_30episodes"
+# VIteration_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
+#  reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+#  remake_table = False, step_table_integration_method = "fixed_step_RK4",
+#  USE_LINEAR_EOM = False, name = name, timestep = 1/50)
 
-# VIteration_model.train( gamma = 1, num_episodes = 30,
-#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+# # VIteration_model.train( gamma = 1, num_episodes = 30,
+# #        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
-figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-  use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
-  gamma = 1, figObject = figObject,
-  integration_method = "fixed_step_RK4", name = name+"",
-  plot_is_inside_last_gridpoint = False, use_regression = False)
+# figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
+#   use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
+#   gamma = 1, figObject = figObject,
+#   integration_method = "fixed_step_RK4", name = name+"",
+#   plot_is_inside_last_gridpoint = False, use_regression = False)
 
 
 #######################################################################3333
