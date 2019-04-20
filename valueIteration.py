@@ -10,6 +10,7 @@ import parameters as params
 from unpackState import *
 from tableBased import *
 from scipy.interpolate import RegularGridInterpolator
+from numba import jit
 
 from pathlib import Path
 import scipy.optimize as opt
@@ -374,6 +375,7 @@ class ValueIteration(TableBased):
 
       #assume we are not using continuous actions, but are doing interpolation
       #let indicies_matrix be states and actions
+
       def update_state_vectorized(indicies_matrix):
 
         #lookup 4 tuple in step lookup table

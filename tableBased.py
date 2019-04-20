@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 from ControllerClass import *
 from StateGridPoints import *
+from numba import jit
 
 class TableBased(Controller, StateGridPoints):
 
@@ -83,6 +84,7 @@ class TableBased(Controller, StateGridPoints):
   #this function only works for states which are the state gridpoints.
   #this is useful for value Iteration
   #step table maps state indicies and action indicies to the next state
+
   def setup_step_table(self, reward_flag, remake_table,
     step_table_integration_method = "fixed_step_RK4"):
 
@@ -156,6 +158,7 @@ class TableBased(Controller, StateGridPoints):
 # tstep_multiplier is the number of integration_timesteps for every one
 # controller timestep. Should be an integer >= 1
 #return: (state, reward, isDone)
+@jit()
 def step(state8, u, reward_flag, tstep_multiplier = 1,
   method = "fixed_step_RK4", USE_LINEAR_EOM = False, timestep = 1/50):
 

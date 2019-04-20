@@ -1,5 +1,8 @@
 import numpy as np
+from numba import jit
+import numba
 
+@jit(numba.float64[:](numba.float64[:]))
 def unpackState(state8):
   assert len(state8) == 8
   t = state8[0];

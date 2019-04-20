@@ -2,9 +2,11 @@ import rhs
 import scipy
 import scipy.integrate as inter
 from unpackState import *
+from numba import jit
 
 #solve the EoMs numerically
 # method = ["Euler", "RK45", "fixed_step_RK4"]
+
 def integrate(state8, u, controller_timestep, tstep_multiplier = 1,
   method = "fixed_step_RK4", USE_LINEAR_EOM = False) :
 

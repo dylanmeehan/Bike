@@ -1,7 +1,9 @@
 from parameters import *
 from unpackState import *
 import numpy as np
+from numba import jit
 
+@jit()
 def rhs(state, u, USE_LINEAR_EOM):
     # Equivalent to rhs in Matlab. (as of 10/27/18)
     # Calculates the derivative of the state variables
