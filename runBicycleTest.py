@@ -13,7 +13,12 @@ import time
 def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration,
   isGraphing  = True, figObject = None, tstep_multiplier = 1,
   integrator_method = "fixed_step_RK4",
-  USE_LINEAR_EOM = False, timestep = 1/50):
+  USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = None):
+
+  if stateflag == None:
+    state8 = np.array(state3_to_state8(starting_state3))
+  else:
+    state8 = getStartingState8(stateflag)
 
   #controllers get a reward every timestep, so normalize the rewards by a canonical
   # timestep so that we can compare rewards between controllers with different
@@ -26,7 +31,7 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
 
   t_test1 = time.time()
 
-  state8 = getStartingState8(stateflag)
+
 
   numTimeSteps = int(simulation_duration/timestep)+1
 
@@ -79,12 +84,13 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
   #   points_inside_last_gridpoint = \
   #     self.calculate_points_inside_last_gridpoint(states8)
 
-  print(name + " success: " + str(success) + ", cumulative reward:" + str(cum_reward) + ",  time in simulation: "
-      + str(sim_time))
+  if isGraphing:
+    print(name + " success: " + str(success) + ", cumulative reward:" + str(cum_reward) + ",  time in simulation: "
+        + str(sim_time))
 
-  figObject = graph.graph(states, motorCommands, figObject, [], name)
+    figObject = graph.graph(states, motorCommands, figObject, [], name)
 
-  t_test2 = time.time()
-  print("Tested " + name + " in " + str(t_test2-t_test1) + " sec of comp. time")
+    t_test2 = time.time()
+    print("Tested " + name + " in " + str(t_test2-t_test1) + " sec of comp. time")
 
   return success, figObject

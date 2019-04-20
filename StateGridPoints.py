@@ -18,7 +18,7 @@ class StateGridPoints(object):
       phi_half_grid = [.02, .06, .1, .16, .22, .28, .4, .6, .8 ]
       self.phi_grid = make_full_grid(phi_half_grid)
       phi_dot_half_grid = [.02, .05, .1, .2, .3, .4,  .7, 1]
-      self.phi_dot_grid = make_full_grid(phi_dot_halfgrid)
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid =   [.02, .05, .1, .2, .3, .4,  .7, 1]
       self.delta_grid = make_full_grid(delta_half_grid)
 
