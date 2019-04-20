@@ -11,7 +11,7 @@ import scipy.integrate as inter
 # use Euler Integration to simulate a bicycle
 def runBicycleTest(stateflag = 4, controller = LinearController.LinearController(),
   reward_flag = 8, time = 10, isGraphing  = True, figObject = None, tstep_multiplier = 1,
-  name = "LQR", test_rh45_uncontrolled = False, integrator_method = "Euler",
+  name = "LQR", integrator_method = "Euler",
   USE_LINEAR_EOM = False, timestep = 1/50):
 
   print("running test with LQR controller")
@@ -29,27 +29,6 @@ def runBicycleTest(stateflag = 4, controller = LinearController.LinearController
   #initialize starting values of arrays
   states[1,:] = state
   motorCommands[1] = 0
-
-  #used for comparision of rk45 integrator to Euler Integrator, not genearlly used.
-  if test_rh45_uncontrolled:
-    rhs_fun = lambda t,state: rhs.rhs(state,0, USE_LINEAR_EOM = False)
-
-    #give list of times at which to get solution
-    tspan = list(np.linspace(0, time, num=time/timestep+1))
-
-    #solve ode (uncontrolled)
-    solution = inter.solve_ivp(rhs_fun, [0, time], state, method='RK45', t_eval = tspan,
-      rtol = 1e-12, atol = 1e-12)
-    states = solution.y
-    states = states.T
-    #print(states)
-
-    #find count to truncate values after the bike has fallen
-    phis = states[:,3]
-    count1 = np.argmax(phis>np.pi/4)
-    count2 = np.argmax(phis<-np.pi/4)
-    count = max(count1, count2)
-
 
   else:
     count = 0

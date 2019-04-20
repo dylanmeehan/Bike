@@ -18,8 +18,8 @@ VIteration_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
  remake_table = False, step_table_integration_method = "fixed_step_RK4",
  USE_LINEAR_EOM = False, name = name, timestep = 1/50)
 
-VIteration_model.train( gamma = 1, num_episodes = 30,
-       interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+# VIteration_model.train( gamma = 1, num_episodes = 30,
+#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
 figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
   use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
