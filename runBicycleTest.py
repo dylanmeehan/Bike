@@ -44,24 +44,25 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
   cum_reward = 0
   sim_time = 0
 
-  is_done = False
+  is_fallen = False
 
-  while( (count < numTimeSteps) and not (is_done)):
+  while( (count < numTimeSteps) and not (is_fallen)):
 
     #calculate control action
     u = controller.act(state8, timestep)
 
-    new_state8, reward, is_done = step(state8, u, reward_flag, tstep_multiplier = 1,
+    new_state8, reward, is_fallen = step(state8, u, reward_flag, tstep_multiplier = 1,
       method = "fixed_step_RK4", USE_LINEAR_EOM = USE_LINEAR_EOM, timestep = timestep)
 
     states[count,:] = state8
     motorCommands[count] = u
 
-    if not is_done:
+    if not is_fallen:
       sim_time += timestep
+      cum_reward += reward
+      count += 1
 
-    cum_reward += reward
-    count += 1
+
 
     state8 = new_state8
 
@@ -69,6 +70,7 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
   motorCommands = motorCommands[:count]
 
   cum_reward = cum_reward / (canonical_timestep/timestep)
+  success = not is_fallen
 
   #### copied from simulate_episode. used to calculate which states are inside
   # the last gridpoint of a VI model
@@ -77,7 +79,7 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
   #   points_inside_last_gridpoint = \
   #     self.calculate_points_inside_last_gridpoint(states8)
 
-  print(name + ": cumulative reward:" + str(cum_reward) + ",  time in simulation: "
+  print(name + " success: " + str(success) + ", cumulative reward:" + str(cum_reward) + ",  time in simulation: "
       + str(sim_time))
 
   figObject = graph.graph(states, motorCommands, figObject, [], name)
@@ -85,4 +87,4 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
   t_test2 = time.time()
   print("Tested " + name + " in " + str(t_test2-t_test1) + " sec of comp. time")
 
-  return figObject
+  return success, figObject

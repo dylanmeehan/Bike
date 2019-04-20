@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class StateGridPoints:
+class StateGridPoints(object):
 
   #discritize each of the state variables. Construct self.state_grid_points
   # which is a meshgrid of these points
