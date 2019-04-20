@@ -6,33 +6,26 @@ import time
 import sys
 
 state_flag1 = 6
-state_flag2 = 5
+state_flag2 = 7
 figObject = None
 simulation_duration = 2
 
-
-
-
 ###############################################################################
 
-name = "VI50-s12_lin"
-VIteration_model = ValueIteration(state_grid_flag = 12, action_grid_flag = 1,
- reward_flag = 11, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+name = "VI_r14_a1_s16_30episodes"
+VIteration_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
+ reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
  remake_table = False, step_table_integration_method = "fixed_step_RK4",
- USE_LINEAR_EOM = True, name = name, timestep = 1/50)
+ USE_LINEAR_EOM = False, name = name, timestep = 1/50)
 
-
-
-# VIteration_model.train( gamma = 1, num_episodes = 30,
-#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
-
-# # VIteration_model.run_regression()
+VIteration_model.train( gamma = 1, num_episodes = 30,
+       interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
 figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
-   use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
-    gamma = 1, figObject = figObject,
-   integration_method = "fixed_step_RK4", name = name+"",
-   plot_is_inside_last_gridpoint = False, use_regression = False)
+  use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
+  gamma = 1, figObject = figObject,
+  integration_method = "fixed_step_RK4", name = name+"",
+  plot_is_inside_last_gridpoint = False, use_regression = False)
 
 
 #######################################################################3333
@@ -46,8 +39,8 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 
 
 
-# VIteration_model.train( gamma = 1, num_episodes = 30,
-#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+# # VIteration_model.train( gamma = 1, num_episodes = 30,
+# #        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
 # # VIteration_model.run_regression()
 
@@ -67,10 +60,10 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 
 
 
-# # # VIteration_model.train( gamma = 1, num_episodes = 30,
-# # #        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+# # # # VIteration_model.train( gamma = 1, num_episodes = 30,
+# # # #        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
-# # # # VIteration_model.run_regression()
+# # # # # VIteration_model.run_regression()
 
 # figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state_flag2,
 #    use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
@@ -107,10 +100,13 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 
 
 #LQR controller with PSD Q matrix. reward flag = 11
-[success, states, figObject] = runBicycleTest(state_flag2,
-  controller = LinearController.LinearController(k1 = 40.352939, k2 = 5.7491159, k3 = -7.8522597),
-  reward_flag = 11, time = simulation_duration, isGraphing  = True, figObject = figObject,
-  name = "Q is PD, LQR", USE_LINEAR_EOM = True, timestep = 1/500)
+# [success, states, figObject] = runBicycleTest(state_flag2,
+#   controller = LinearController.LinearController(k1 = 40.352939, k2 = 5.7491159,
+#   k3 = -7.8522597), reward_flag = 11.1, time = simulation_duration,
+#   isGraphing  = True, figObject = figObject,
+#   name = "LQR, r11, Q has 1 big term", USE_LINEAR_EOM = False, timestep = 1/500)
+
+# LQR controller with PSD Q matrix. reward flag = 11
 
 # #LQR controller with 0's in Q matrix. reward flag = 7
 # [success, states, figObject] = runBicycleTest(state_flag2,
@@ -126,7 +122,8 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 
 
 # [success, states, figObject] = runBicycleTest(state_flag2,
-#   controller = LinearController.LinearController(k1 = 8.6783612, k2 = 2.2155966,k3 = -2.2155966),
+#   controller = LinearController.LinearController(k1 = 8.6783612, k2 = 2.2155966,
+#   k3 = -2.2155966),
 #   time = simulation_duration, isGraphing  = True, figObject = figObject,
 #   name = "LQR with I costs", USE_LINEAR_EOM = False, timestep = 1/50)
 
@@ -135,10 +132,30 @@ figObject = VIteration_model.test(tmax = simulation_duration, state_flag = state
 #   time = simulation_duration, isGraphing  = True, figObject = figObject,
 #   name = "small timestep", USE_LINEAR_EOM = False, timestep = 1/500)
 
+[success, states, figObject] = runBicycleTest(state_flag2,
+  controller = LinearController.LinearController(k1 = 24, k2 = 7, k3 = -8),
+  time = simulation_duration, isGraphing  = True, figObject = figObject,
+  name = "working LQR, tstep = 1/50", USE_LINEAR_EOM = False , timestep = 1/50)
+
+
+[success, states, figObject] = runBicycleTest(state_flag2,
+  controller = LinearController.LinearController(k1 = 27.75, k2 = 6.30,
+  k3 = -8.04), reward_flag = 14, time = simulation_duration,
+  isGraphing  = True, figObject = figObject,
+  name = "LQR, r14, 1/100", USE_LINEAR_EOM = False, timestep = 1/100)
+
 # [success, states, figObject] = runBicycleTest(state_flag2,
-#   controller = LinearController.LinearController(),
-#   time = simulation_duration, isGraphing  = True, figObject = figObject,
-#   name = "other_LQR", USE_LINEAR_EOM = False)
+#   controller = LinearController.LinearController(k1 = 43.817, k2 = 12.18,
+#   k3 = -9.26), reward_flag = 11.1, time = simulation_duration,
+#   isGraphing  = True, figObject = figObject,
+#   name = "LQR, r12, 1/50", USE_LINEAR_EOM = False, timestep = 1/50)
+
+# [success, states, figObject] = runBicycleTest(state_flag2,
+#   controller = LinearController.LinearController(k1 = 43.817, k2 = 12.18,
+#   k3 = -9.26), reward_flag = 11.1, time = simulation_duration,
+#   isGraphing  = True, figObject = figObject,
+#   name = "LQR, r12, 1/70", USE_LINEAR_EOM = False, timestep = 1/70)
+
 
 # t2 = time.time()
 

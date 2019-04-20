@@ -27,9 +27,9 @@ B = [   0  -b*v/(h*l)   1]';
 
 %Define costs
 Q = [1  0   0;
-    0   0  0;
-    0   0  0];
-R = [.001];
+    0   0.05  0;
+    0   0  0.05];
+R = [.003];
 
 %calculate LQR controller
 [K,S,e] = lqr(A,B,Q,R);

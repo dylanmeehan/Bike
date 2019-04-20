@@ -168,6 +168,51 @@ class TableBased(object):
       delta_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
       self.delta_grid = make_full_grid(delta_half_grid)
 
+    elif state_grid_flag == 14:
+      phi_half_grid = list(np.linspace(0.001,0.009,9, endpoint=True)) + \
+        list(np.linspace(0.01,0.26,26, endpoint=True)) + \
+        list(np.linspace(0.28,0.78,26, endpoint=True))
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+    elif state_grid_flag == 15:
+      phi_half_grid = list(np.linspace(0.001,0.009,9, endpoint=True)) + \
+        list(np.linspace(0.01,0.26,26, endpoint=True)) + \
+        list(np.linspace(0.28,0.78,26, endpoint=True))
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = list(np.linspace(0.02,1,50, endpoint=True)) +\
+        list(np.linspace(1.04,5,100, endpoint=True))
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid = list(np.linspace(0.02,1,50, endpoint=True)) + \
+        list(np.linspace(1.04,2,25, endpoint=True))
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+    elif state_grid_flag == 16:
+      phi_half_grid = list(np.linspace(0.01,0.27,13, endpoint=True)) + \
+        list(np.linspace(0.30,0.78,13, endpoint=True))
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = list(np.linspace(0.02,0.5,25, endpoint=True)) +\
+        list(np.linspace(.55,2.5,25, endpoint=True))
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid = list(np.linspace(0.02,0.50,25, endpoint=True)) + \
+        list(np.linspace(0.55,1.5,20, endpoint=True))
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+
+    elif state_grid_flag == 13:
+      phi_half_grid = list(np.linspace(0.001,0.009,9, endpoint=True)) + \
+      list(np.linspace(0.01,0.26,26, endpoint=True))
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid =  list(np.linspace(0.002,0.018,9, endpoint=True)) + \
+      list(np.linspace(0.02,1,50, endpoint=True))
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =  list(np.linspace(0.002,0.018,9, endpoint=True)) + \
+      list(np.linspace(0.02,1,50, endpoint=True))
+      self.delta_grid = make_full_grid(delta_half_grid)
+
     #small grid, half the states as state_grid_flag 9 in each direction
     # 15 x 25 x 19 state space
     elif state_grid_flag == 9:
@@ -253,7 +298,6 @@ class TableBased(object):
   #step table maps state indicies and action indicies to the next state
   def setup_step_table(self, reward_flag, remake_table,
     step_table_integration_method = "fixed_step_RK4"):
-    #t0 = time.time()
 
     if Path(self.step_table_file).is_file() and not remake_table:
       print("Loading step_table {} from file".format(self.Ufile))
@@ -271,6 +315,7 @@ class TableBased(object):
 
     else:
       print("Making new step table {}".format(self.Ufile))
+      t0 = time.time()
       self.step_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
         self.len_delta_grid, self.num_actions, 3))
       self.reward_table = np.zeros((self.len_phi_grid, self.len_phi_dot_grid,
@@ -304,6 +349,8 @@ class TableBased(object):
         self.step_table.reshape(self.num_states*self.num_actions*3), delimiter = ",")
       np.savetxt(self.reward_file,
         self.reward_table.reshape(self.num_states*self.num_actions), delimiter = ",")
+      t1 = time.time()
+      print("Setup Step and Reward Tables in " + str(t1 - t0) + "sec")
 
   #given: a 3-tuple state3_index of the indicies for phi, phi_dot, delta
   #       the index of the action to take
@@ -484,6 +531,18 @@ def get_reward(state8, action, reward_flag = 3):
        reward = 5 - phi**2 - .002*action**2
     elif reward_flag == 11:
        reward = 5 - (phi**2 + phi_dot**2*1e-6 + delta**2*1e-6 + .001*action**2)
+    #make reward flag constant larger to avoid assertion errors, hopefully
+    elif reward_flag == 11.1:
+       reward = 15 - (phi**2 + phi_dot**2*1e-6 + delta**2*1e-6 + .001*action**2)
+
+     #use reward from well behaved LQR controller
+    elif reward_flag == 12:
+      reward = 10 - (phi**2 + 0.1*phi_dot**2* + 0.1*delta**2 + .001*action**2)
+    elif reward_flag == 13:
+      reward = 10 - (phi**2 + 0.1*phi_dot**2 + .001*action**2)
+    elif reward_flag == 14:
+      reward = 20 - (phi**2 + 0.05*phi_dot**2 + 0.05*delta**2 + 0.003*action**2)
+
     else:
       raise Exception("Invalid reward_flag: {}".format(reward_flag))
 

@@ -35,6 +35,7 @@ def getStartingState8(state_flag = 0):
     4: np.array([0, 0, 0, np.pi/8, 0, 0, 0, 3]),
     5: np.array([0, 0, 0, -np.pi/16, 0, 0, 0, 3]),
     6: np.array([0, 0, 0, -np.pi/32, 0, 0, 0, 3]),
+    7: np.array([0, 0, 0, -0.77, 0, 0, 0, 3]),
   }
   return starting_states[state_flag]
 
