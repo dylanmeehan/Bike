@@ -194,8 +194,10 @@ class ValueIteration(TableBased):
   def continuous_utility_function(self, state8, u, timestep, integration_method,
     gamma, use_regression = False):
 
-
-
+    if u > params.MAX_STEER_RATE:
+      u = params.MAX_STEER_RATE
+    elif u < -params.MAX_STEER_RATE:
+      u = -params.MAX_STEER_RATE
 
     (new_state8, reward, isDone) = step(state8, u, self.reward_flag,
       method = integration_method, USE_LINEAR_EOM = self.USE_LINEAR_EOM,
@@ -250,7 +252,7 @@ class ValueIteration(TableBased):
     # find the action which maximizes the utility function
 
     OptimizeResult = opt.minimize(negated_utility_fun, x0=0,
-      method = 'Powell', tol = 1e-4, options = {'xtol': 1e-4})
+      method = 'Powell', tol = 1e-3, options = {'xtol': 1e-3})
     #'Powell' method gave no failures
     #OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'TNC',
     # tol = 1e-3, options = {'xtol': 1e-3}, bounds = ((-3,3),))

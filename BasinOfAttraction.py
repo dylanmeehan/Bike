@@ -54,9 +54,9 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
   plt.show()
 
 
-name = "VI49-s8"
-VI_model = ValueIteration(state_grid_flag = 8, action_grid_flag = 1,
-reward_flag = 1, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+name = "VI_r14_a1_s6_a1"
+VI_model = ValueIteration(state_grid_flag = 6, action_grid_flag = 1,
+reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
 remake_table = False, step_table_integration_method = "fixed_step_RK4",
 USE_LINEAR_EOM = False, name = name, timestep = 1/50)
 
@@ -70,4 +70,4 @@ VI_model.init_controller(use_continuous_actions = True,
   use_regression_model_of_table = False)
 
 plot_basin_of_attraction([LinearController.LinearController(), VI_model],
-  ["linear", "VI49-s8"],  3)
+  ["linear", "VI49_r14_a1_s16"],  6)

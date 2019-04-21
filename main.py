@@ -12,14 +12,14 @@ simulation_duration = 5
 
 ###############################################################################
 
-name = "VI_r14_s6_a1"
-VI_model = ValueIteration(state_grid_flag = 6, action_grid_flag = 1,
+name = "VI_r14_a1_s16_30episodes"
+VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
  reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
- remake_table = True, step_table_integration_method = "fixed_step_RK4",
+ remake_table = False, step_table_integration_method = "fixed_step_RK4",
  USE_LINEAR_EOM = False, name = name, timestep = 1/50)
 
-VI_model.train( gamma = 1, num_episodes = 30,
-       interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+# VI_model.train( gamma = 1, num_episodes = 30,
+#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
 
 VI_model.init_controller(use_continuous_actions = True,
