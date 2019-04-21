@@ -36,6 +36,7 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
         integrator_method = "fixed_step_RK4",
         USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = [phi, phi_dot, 0])
 
+        success_array[i,j] = success
 
     ax1 = ax1s[idx]
 
@@ -48,14 +49,16 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
     ax1.set_yticklabels(GridPoints.phi_grid)
     ax1.set_xticklabels(GridPoints.phi_dot_grid)
 
+    fig1.colorbar(im1)
+
   t2 = time.time()
   print("plotted basis of attraction in " + str(t2-t1) + " sec")
 
   plt.show()
 
 
-name = "VI_r14_a1_s6_a1"
-VI_model = ValueIteration(state_grid_flag = 6, action_grid_flag = 1,
+name = "VI_r14_a1_s16_30episodes"
+VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
 reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
 remake_table = False, step_table_integration_method = "fixed_step_RK4",
 USE_LINEAR_EOM = False, name = name, timestep = 1/50)
@@ -70,4 +73,4 @@ VI_model.init_controller(use_continuous_actions = True,
   use_regression_model_of_table = False)
 
 plot_basin_of_attraction([LinearController.LinearController(), VI_model],
-  ["linear", "VI49_r14_a1_s16"],  6)
+  ["linear", name],  16.1)
