@@ -32,7 +32,7 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
 
         (success, _ ) = runBicycleTest(stateflag = None, controller = controller,
         name = "", reward_flag = 0, simulation_duration= 4,
-        isGraphing  = False, figObject = None,
+        isGraphing  = False, figObject = None, isPrinting = False,
         integrator_method = "fixed_step_RK4",
         USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = [phi, phi_dot, 0])
 

@@ -27,7 +27,7 @@ VI_model.init_controller(use_continuous_actions = True,
   controller_integration_method = "fixed_step_RK4",
   use_regression_model_of_table = False)
 
-for idx in [8.1, 8.2, 8.3, 8.4]:
+for idx in [8.1, 8.2]:
 
   (_, figObject) = runBicycleTest(idx, VI_model, name, reward_flag = 1,
     simulation_duration = simulation_duration, isGraphing  = True, figObject = figObject,
