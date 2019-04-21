@@ -197,10 +197,15 @@ class ValueIteration(TableBased):
 
 
 
-
     (new_state8, reward, isDone) = step(state8, u, self.reward_flag,
       method = integration_method, USE_LINEAR_EOM = self.USE_LINEAR_EOM,
       timestep = timestep)
+
+    # #force optimizer to not look outside of bounds
+    # if u > params.MAX_STEER_RATE:
+    #   reward -= (u - params.MAX_STEER_RATE)**2
+    # elif u < -params.MAX_STEER_RATE:
+    #   reward -= (u + params.MAX_STEER_RATE)**2
 
     new_state3 = state8_to_state3(new_state8)
 
@@ -250,11 +255,13 @@ class ValueIteration(TableBased):
 
     # find the action which maximizes the utility function
 
-    OptimizeResult = opt.minimize(negated_utility_fun, x0=0,
-      method = 'Powell', tol = 1e-4, options = {'xtol': 1e-4})
+    # OptimizeResult = opt.minimize(negated_utility_fun, x0=0,
+    #   method = 'Powell', tol = 1e-3, options = {'xtol': 1e-3})
     #'Powell' method gave no failures
-    #OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'TNC',
-    # tol = 1e-3, options = {'xtol': 1e-3}, bounds = ((-3,3),))
+    OptimizeResult = opt.minimize_scalar(negated_utility_fun,
+      bounds = (-params.MAX_STEER_RATE, params.MAX_STEER_RATE), method = "bounded")
+    # OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'Powell',
+    # tol = 1e-3, options = {'xtol': 1e-3})
 
     if not OptimizeResult.success:
       print("************* OPTIMIZER FAILED ***************")
