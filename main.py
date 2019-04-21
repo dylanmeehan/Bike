@@ -12,7 +12,8 @@ simulation_duration = 5
 
 ###############################################################################
 
-name = "VI_r14_a1_s16_30episodes"
+name = "VI_r14_a1_s16"
+#name = "VI_r14_a1_s16_30episodes"
 VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
 reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
 remake_table = False, step_table_integration_method = "fixed_step_RK4",
@@ -27,7 +28,7 @@ VI_model.init_controller(use_continuous_actions = True,
   controller_integration_method = "fixed_step_RK4",
   use_regression_model_of_table = False)
 
-for idx in [8.1, 8.2]:
+for idx in [4,7]:
 
   (_, figObject) = runBicycleTest(idx, VI_model, name, reward_flag = 1,
     simulation_duration = simulation_duration, isGraphing  = True, figObject = figObject,
