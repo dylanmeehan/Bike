@@ -13,12 +13,13 @@ import time
 def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration,
   isGraphing  = True, figObject = None, tstep_multiplier = 1,
   integrator_method = "fixed_step_RK4",
-  USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = None, isPrinting= True):
+  USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = None, isPrinting= True,
+  v = 3.0):
 
   if stateflag == None:
     state8 = np.array(state3_to_state8(starting_state3))
   else:
-    state8 = getStartingState8(stateflag)
+    state8 = getStartingState8(stateflag, v)
 
   #controllers get a reward every timestep, so normalize the rewards by a canonical
   # timestep so that we can compare rewards between controllers with different

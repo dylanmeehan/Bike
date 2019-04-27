@@ -29,6 +29,7 @@ def rhs(state, u, USE_LINEAR_EOM):
                 -B*v*delta_dot/(L*np.cos(delta)**2))
             )
     # Returns u which is the motor command and the zdot vector in the form of a list
-    zdot = np.array([tdot, xdot, ydot, phi_dot, psi_dot, delta_dot, phi_ddot, v_dot],
-         dtype="float64")
+    zdot = np.array([tdot, xdot, ydot, phi_dot, psi_dot, delta_dot, phi_ddot, v_dot])
+    #print(zdot)
+    #print(zdot.dtype)
     return(zdot)
