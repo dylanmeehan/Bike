@@ -10,7 +10,7 @@ class StateGridPoints(object):
     print("Using State Grid Flag " + str(state_grid_flag))
 
     def make_full_grid(half_grid):
-      return [-1*i for i in half_grid[::-1]] + [0] + half_grid
+      return [-1*i for i in half_grid[::-1]] + [0.0] + half_grid
 
     #generate grid in which to discritize states
 
@@ -166,18 +166,18 @@ class StateGridPoints(object):
       self.phi_grid = make_full_grid(phi_half_grid)
       phi_dot_half_grid = list([2.5])
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
-      delta_half_grid = list([0])
+      delta_half_grid = list([0.0])
       self.delta_grid = make_full_grid(delta_half_grid)
 
 
     elif state_grid_flag == 13:
-      phi_half_grid = list(np.linspace(0.001,0.009,9, endpoint=True)) + \
+      phi_half_grid = list(np.linspace(0.001,0.009,9.0, endpoint=True)) + \
       list(np.linspace(0.01,0.26,26, endpoint=True))
       self.phi_grid = make_full_grid(phi_half_grid)
-      phi_dot_half_grid =  list(np.linspace(0.002,0.018,9, endpoint=True)) + \
+      phi_dot_half_grid =  list(np.linspace(0.002,0.018,9.0, endpoint=True)) + \
       list(np.linspace(0.02,1,50, endpoint=True))
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
-      delta_half_grid =  list(np.linspace(0.002,0.018,9, endpoint=True)) + \
+      delta_half_grid =  list(np.linspace(0.002,0.018,9.0, endpoint=True)) + \
       list(np.linspace(0.02,1,50, endpoint=True))
       self.delta_grid = make_full_grid(delta_half_grid)
 
@@ -199,7 +199,7 @@ class StateGridPoints(object):
       phi_half_grid = [.01, .02, .03, .04, .05, .07, .09, .11, .14, .17, .2, .23, .26]
       self.phi_grid = make_full_grid(phi_half_grid)
       phi_dot_half_grid = [.01, .02, .03, .05, .07, .09, .12, .16, .2, .25, .3, .35, .4, .45,
-       .5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1]
+       .5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0]
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid =   [.01, .02, .03, .05, .07, .09, .12, .15, .18, .22, .26, .3,
       .34, .38, .42, .46, .51]

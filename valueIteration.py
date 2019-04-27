@@ -259,7 +259,8 @@ class ValueIteration(TableBased):
     #   method = 'Powell', tol = 1e-3, options = {'xtol': 1e-3})
     #'Powell' method gave no failures
     OptimizeResult = opt.minimize_scalar(negated_utility_fun,
-      bounds = (-params.MAX_STEER_RATE, params.MAX_STEER_RATE), method = "bounded")
+      bounds = (-params.MAX_STEER_RATE, params.MAX_STEER_RATE),
+      options = {'xatol': 1e-3}, method = "bounded")
     # OptimizeResult = opt.minimize(negated_utility_fun, x0=0, method = 'Powell',
     # tol = 1e-3, options = {'xtol': 1e-3})
 

@@ -84,14 +84,12 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
   #   points_inside_last_gridpoint = \
   #     self.calculate_points_inside_last_gridpoint(states8)
 
+  t_test2 = time.time()
 
   if isPrinting:
     print(name + " success: " + str(success) + ", cumulative reward:" + str(cum_reward) + ",  time in simulation: "
-          + str(sim_time))
-
-
-    t_test2 = time.time()
-    print("Tested " + name + " in " + str(t_test2-t_test1) + " sec of computer time")
+          + str(sim_time) + "\n" +
+          "Tested " + name + " in " + str(t_test2-t_test1) + " sec of computer time")
 
   if isGraphing:
     figObject = graph.graph(states, motorCommands, figObject, [], name)
