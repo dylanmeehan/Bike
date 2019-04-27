@@ -3,16 +3,21 @@ from parameters import *
 from unpackState import *
 from ControllerClass import *
 
+def getLQRGains(name):
+  LQRlibrary = {"sp18":[24.,7.,-8.]}
+
+  return LQRlibrary[name]
+
 class LinearController(Controller):
 
   # both arundathi and LQR gains work on the real bicycle
   # "Arundathi" Gains: 71, 21, -20
   # LQR gains from Spring 2018: 24, 7, -8
 
-  def __init__(self, k1 = 24., k2 = 7., k3 = -8.):
-    self.k1 = k1;
-    self.k2 = k2;
-    self.k3 = k3;
+  def __init__(self,K = [24., 7., -8]):
+    self.k1 = K[0];
+    self.k2 = K[1];
+    self.k3 = K[2];
 
     self.is_initialized = True
 
