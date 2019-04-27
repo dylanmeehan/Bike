@@ -334,7 +334,7 @@ VI_r14_a1_s16
 
 VI_r14_a1_s16_30episodes
 
-
+tested with v = 2
 
 
 

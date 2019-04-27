@@ -28,7 +28,7 @@ class ValueIteration(TableBased):
   def __init__(self, state_grid_flag, action_grid_flag, reward_flag,
     Ufile = "modelsB/valueIteration_U.csv", use_only_continuous_actions = False,
     step_table_integration_method = "fixed_step_RK4", remake_table = False,
-    USE_LINEAR_EOM = False, name = None, timestep = 1/50):
+    USE_LINEAR_EOM = False, name = None, timestep = 1/50, v = 3.0):
 
     print("Initializing VI model")
     init_t1 = time.time()
@@ -40,6 +40,7 @@ class ValueIteration(TableBased):
     self.reward_file = Ufile+ "_reward_table.csv"
     self.Ufile = Ufile + ".csv"
     self.name = name
+    self.v = v
 
     #to be used in regression
     self.map_to_basis_functions = lambda phi, phi_dot, delta: [
@@ -51,7 +52,8 @@ class ValueIteration(TableBased):
    # self.step_file
 
     if not use_only_continuous_actions:
-      self.setup_step_table(reward_flag, remake_table, step_table_integration_method)
+      self.setup_step_table(reward_flag, remake_table, step_table_integration_method,
+        v = v)
 
 
 
@@ -357,7 +359,7 @@ class ValueIteration(TableBased):
 
         if use_continuous_actions:
           state3 = self.state_grid_points[state3_index]
-          state8 = state3_to_state8(state3)
+          state8 = state3_to_state8(state3, self.v)
           (_, best_utility) = \
             self.calc_best_action_and_utility_continuous_action(state8,
             self.timestep, gamma = gamma)

@@ -57,10 +57,10 @@ class TableBased(Controller, StateGridPoints):
 
   #given: phi_index, phi_dot_index, delta_index
   #returns:continous, full - 8 variable, state for this index
-  def state8_from_indicies(self, phi_index, phi_dot_index, delta_index):
+  def state8_from_indicies(self, phi_index, phi_dot_index, delta_index, v = 3.0):
     state3_index = (phi_index, phi_dot_index, delta_index)
-    state3 = self.state_grid_points[state3_index]
-    return state3_to_state8(state3)
+    state3 = np.array(list(self.state_grid_points[state3_index]))
+    return state3_to_state8(state3, v)
 
   def state3_index_to_state3(self, state3_index):
     return self.state_grid_points[state3_index]
@@ -86,7 +86,7 @@ class TableBased(Controller, StateGridPoints):
   #step table maps state indicies and action indicies to the next state
 
   def setup_step_table(self, reward_flag, remake_table,
-    step_table_integration_method = "fixed_step_RK4"):
+    step_table_integration_method = "fixed_step_RK4", v = 3.0):
 
     if Path(self.step_table_file).is_file() and not remake_table:
       print("Loading step_table {} from file".format(self.Ufile))
@@ -115,7 +115,7 @@ class TableBased(Controller, StateGridPoints):
         for i_phi_dot in range(self.len_phi_dot_grid):
           for i_delta in range(self.len_delta_grid):
 
-            state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta)
+            state8 = self.state8_from_indicies(i_phi, i_phi_dot, i_delta, v)
               #don't use reward from stepping because that is reward for next state
               # s', and not current state, s (I think)
 
