@@ -7,7 +7,7 @@ from LinearController import getLQRGains
 from datetime import datetime
 
 
-def plot_basin_of_attraction(controllers, names, state_table_flag):
+def plot_basin_of_attraction(controllers, names, state_table_flag, v):
   t1 = datetime.now()
 
   GridPoints = StateGridPoints()
@@ -34,6 +34,12 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
       GridPoints.len_phi_dot_grid))
 
     for (i, phi) in enumerate(GridPoints.phi_grid):
+
+      #only plot half of state space because it is symettric
+      #this speeds it up
+      if phi > 0:
+        break
+
       print("phi: " + str(phi))
       for (j, phi_dot) in enumerate(GridPoints.phi_dot_grid):
 
@@ -41,7 +47,8 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
         name = "", reward_flag = 14, simulation_duration= 2.0,
         isGraphing  = False, figObject = None, isPrinting = False,
         integrator_method = "fixed_step_RK4",
-        USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = [phi, phi_dot, 0.0])
+        USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = [phi, phi_dot, 0.0],
+        v = v)
 
         success_array[i,j] = success
 
@@ -92,8 +99,8 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
   plt.show()
 
 #name = "VI_r14_s6_a1"
-name = "VI_r14_a1_s16_v2_30episodes"
-VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
+name = "VI_r14_a1_s6_v2_30episodes"
+VI_model = ValueIteration(state_grid_flag = 6, action_grid_flag = 1,
 reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
 remake_table = False, step_table_integration_method = "fixed_step_RK4",
 USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 2.0)
@@ -105,7 +112,7 @@ VI_model.init_controller(use_continuous_actions = True,
   use_regression_model_of_table = False)
 
 plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s")),
-  VI_model], ["linear r14", "lqrd_2m_s"],  16)
+  VI_model], ["linear r14", "lqrd_2m_s"],  6, v = 2.0)
 
-plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s"))],
- ["linear r14"],  16)
+# plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s"))],
+#  ["linear r14"],  16)
