@@ -15,26 +15,26 @@ make_graph = True
 ###############################################################################
 
 #name = "VI_r14_s6_a1"
-# name = "VI_r14_a1_s16_v2_30episodes"
-# VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
-# reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
-# remake_table = False, step_table_integration_method = "fixed_step_RK4",
-# USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 2.0)
+name = "VI_r14_a1_s6_v2_30episodes"
+VI_model = ValueIteration(state_grid_flag = 6, action_grid_flag = 1,
+reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+remake_table = False, step_table_integration_method = "fixed_step_RK4",
+USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 2.0)
 
 # VI_model.train( gamma = 1, num_episodes = 30,
 #        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
-# VI_model.init_controller(use_continuous_actions = True,
-#   use_continuous_state_with_discrete_actions = True,
-#   controller_integration_method = "fixed_step_RK4",
-#   use_regression_model_of_table = False)
+VI_model.init_controller(use_continuous_actions = True,
+  use_continuous_state_with_discrete_actions = True,
+  controller_integration_method = "fixed_step_RK4",
+  use_regression_model_of_table = False)
 
 for starting_state in [6]:
 
-  # (_, figObject) = runBicycleTest(starting_state, VI_model, name, reward_flag = 1,
-  #   simulation_duration = simulation_duration, isGraphing  = make_graph, figObject = figObject,
-  #   integrator_method = "fixed_step_RK4",
-  #   USE_LINEAR_EOM = False, timestep = 1/50, v = 2.0)
+  (_, figObject) = runBicycleTest(starting_state, VI_model, name, reward_flag = 1,
+    simulation_duration = simulation_duration, isGraphing  = make_graph, figObject = figObject,
+    integrator_method = "fixed_step_RK4",
+    USE_LINEAR_EOM = False, timestep = 1/50, v = 2.0)
 
 # # figObject = VI_odel.test(tmax = simulation_duration, state_flag = state_flag1,
 #   use_continuous_actions = True, use_continuous_state_with_discrete_actions = False,
@@ -54,13 +54,13 @@ for starting_state in [6]:
 #   simulation_duration = simulation_duration, isGraphing  = True, figObject = figObject,
 #   USE_LINEAR_EOM = False , timestep = 1/50)
 
-  LQR_gains = getLQRGains("sp18")
+  LQR_gains = getLQRGains("lqrd_2m_s")
   (_, figObject) = runBicycleTest(starting_state,
     controller = LinearController.LinearController(LQR_gains),
-    name = "LQR, r14, 1/100", reward_flag = 14,
+    name = "lqrd_2m_s", reward_flag = 14,
     simulation_duration = simulation_duration,
     isGraphing  = make_graph, figObject = figObject,
-    USE_LINEAR_EOM = False, timestep = 1/100, v = 2.0)
+    USE_LINEAR_EOM = False, timestep = 1/50, v = 2.0)
 
 # [success, states, figObject] = runBicycleTest(state_flag2,
 #   controller = LinearController.LinearController(k1 = 43.817, k2 = 12.18,

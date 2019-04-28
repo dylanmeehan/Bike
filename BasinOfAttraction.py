@@ -3,6 +3,7 @@ from StateGridPoints import *
 from runBicycleTest import *
 import time
 from valueIteration import *
+from LinearController import getLQRGains
 
 
 def plot_basin_of_attraction(controllers, names, state_table_flag):
@@ -84,17 +85,11 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
   plt.show()
 
 #name = "VI_r14_s6_a1"
-name = "VI_r14_a1_s16_30episodes"
+name = "VI_r14_a1_s16_v2_30episodes"
 VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
 reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
 remake_table = False, step_table_integration_method = "fixed_step_RK4",
-USE_LINEAR_EOM = False, name = name, timestep = 1/50)
-
-
-
-
-# VIteration_model.train( gamma = 1, num_episodes = 30,
-#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 2.0)
 
 
 VI_model.init_controller(use_continuous_actions = True,
@@ -102,6 +97,5 @@ VI_model.init_controller(use_continuous_actions = True,
   controller_integration_method = "fixed_step_RK4",
   use_regression_model_of_table = False)
 
-plot_basin_of_attraction([LinearController.LinearController(k1 = 27.75, k2 = 6.30,
-    k3 = -8.04), VI_model],
-  ["linear r14", name],  16)
+plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s")),
+  VI_model], ["linear r14", "lqrd_2m_s"],  16)

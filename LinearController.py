@@ -4,7 +4,10 @@ from unpackState import *
 from ControllerClass import *
 
 def getLQRGains(name):
-  LQRlibrary = {"sp18":[24.,7.,-8.]}
+  LQRlibrary = {
+    "sp18":[24.,7.,-8.],
+    "lqrd_2m_s": [31.6875, 7.2238, -5.5283]
+  }
 
   return LQRlibrary[name]
 

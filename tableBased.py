@@ -236,13 +236,14 @@ def get_reward(state8, action, reward_flag = 3):
     elif reward_flag == 13:
       reward = 10 - (phi**2 + 0.1*phi_dot**2 + .001*action**2)
     elif reward_flag == 14:
-      reward = 30 - (phi**2 + 0.05*phi_dot**2 + 0.05*delta**2 + 0.003*action**2)
+      reward = 20000 - (phi**2 + 0.05*phi_dot**2 + 0.05*delta**2 + 0.003*action**2)
 
     else:
       raise Exception("Invalid reward_flag: {}".format(reward_flag))
 
     if reward <= 0:
-      print("reward: " + str(reward) + ", action: " + str(action))
+      print("reward: " + str(reward) + ", action: " + str(action) + "\n"
+        + "phi: " + str(phi) + " phi_dot: " + str(phi_dot) + " delta: " + str(delta))
     assert (reward > 0)
 
   return reward

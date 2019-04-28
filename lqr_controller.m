@@ -17,7 +17,7 @@ clear
    c = 0;   %trail
  
 %set speed to a constant: given with intial state in get_starting_state.py
-v = 3;  %m/s
+v = 2;  %m/s
    
 %Define system   
 A = [   0       1       0
@@ -31,8 +31,11 @@ Q = [1  0   0;
     0   0  0.05];
 R = [.003];
 
+%set timestep for LQR controller
+Ts = 1/50;
+
 %calculate LQR controller
-[K,S,e] = lqr(A,B,Q,R);
+[K,S,e] = lqrd(A,B,Q,R, Ts);
 K = -1*K; %get K from lqr controller to match sign convention
 
 disp("balance controller gains are")
