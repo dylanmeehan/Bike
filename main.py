@@ -29,7 +29,7 @@ VI_model.init_controller(use_continuous_actions = True,
   controller_integration_method = "fixed_step_RK4",
   use_regression_model_of_table = False)
 
-for starting_state in [6]:
+for starting_state in [7]:
 
   (_, figObject) = runBicycleTest(starting_state, VI_model, name, reward_flag = 1,
     simulation_duration = simulation_duration, isGraphing  = make_graph, figObject = figObject,

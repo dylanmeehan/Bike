@@ -6,7 +6,8 @@ from ControllerClass import *
 def getLQRGains(name):
   LQRlibrary = {
     "sp18":[24.,7.,-8.],
-    "lqrd_2m_s": [31.6875, 7.2238, -5.5283]
+    "lqrd_2m_s": [31.6875, 7.2238, -5.5283],
+    "lrqd_3m_s": [23.859, 5.418, -7.556]
   }
 
   return LQRlibrary[name]

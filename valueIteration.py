@@ -325,37 +325,12 @@ class ValueIteration(TableBased):
 
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
 
+    previous_actions_taken = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
+
     if use_continuous_actions and interpolation_method != "linear":
       raise Exception("'interpolation_method' must be 'linear' if 'continuous_actions' is 'true'")
 
-    n_episode = 0
-
-    while (n_episode < num_episodes):
-      tstart = time.time()
-
-
-
-      self.itp = RegularGridInterpolator(\
-        (self.phi_grid, self.phi_dot_grid, self.delta_grid), self.U,
-        bounds_error = False, fill_value = 0, method = interpolation_method)
-        # false bounds error causes us to extrapolate values out of range
-        #fill_value = 0, sets the value outside of the interpolation range to 0
-        # thus, if the bicycle gets no reward for a state outside of the grid
-        # this ensures bad states have a reward of 0 (as desired)
-        #t4 = time.time()
-
-      # shuffle indicies (so that we update states in a random order reach loop)
-      #this *attempts* prevents "circle" bug
-      phi_indices = list(range(self.len_phi_grid))
-      #np.random.shuffle(phi_indices)
-      phi_dot_indices = list(range(self.len_phi_dot_grid))
-      #np.random.shuffle(phi_dot_indices)
-      delta_indices = list(range (self.len_delta_grid))
-      #np.random.shuffle(delta_indices)
-      action_indicies = list(range(self.num_actions))
-
-
-      def update_state(state3_index):
+    def update_state(state3_index):
         phi_i = state3_index[0]; phi_dot_i = state3_index[1]; delta_i = state3_index[2]
         state8 = self.state8_from_indicies(phi_i, phi_dot_i, delta_i)
 
@@ -388,34 +363,64 @@ class ValueIteration(TableBased):
       #assume we are not using continuous actions, but are doing interpolation
       #let indicies_matrix be states and actions
 
-      def update_state_vectorized(indicies_matrix):
+    def update_state_vectorized(indicies_matrix):
 
-        #lookup 4 tuple in step lookup table
-        lookup = lambda indicies: \
-          self.step_table[indicies[0], indicies[1], indicies[2], indicies[3]]
-        new_states = np.apply_along_axis(lookup, 0, indicies_matrix)
-        #print("new_states shape is " + str(np.shape(new_states)))
+      #lookup 4 tuple in step lookup table
+      lookup = lambda indicies: \
+        self.step_table[indicies[0], indicies[1], indicies[2], indicies[3]]
+      new_states = np.apply_along_axis(lookup, 0, indicies_matrix)
+      #print("new_states shape is " + str(np.shape(new_states)))
 
 
-        #t_1 = time.time()
-        #interpolate values
-        value_of_states_and_actions = np.transpose(self.itp(new_states.T))
-        #print("value_of_states_and_actions shape is " + str(np.shape(value_of_states_and_actions)))
+      #t_1 = time.time()
+      #interpolate values
+      value_of_states_and_actions = np.transpose(self.itp(new_states.T))
+      #print("value_of_states_and_actions shape is " + str(np.shape(value_of_states_and_actions)))
 
-        #find max value for each state3. Don't do this because U
-        #value_of_states = np.amax(value_of_states_and_actions, axis = 3)
-        #print("value_of_states shape is " + str(np.shape(value_of_states)))
+      #find max value for each state3. Don't do this because U
+      #value_of_states = np.amax(value_of_states_and_actions, axis = 3)
+      #print("value_of_states shape is " + str(np.shape(value_of_states)))
 
-        #Q values contain both states and actions: Q(s,a)
-        #reward value depends on (s,a)
-       # print("reward shape: " + str(np.shape(self.reward_table)))
-       # print("value_of_states_and_actions shape:" + str(np.shape(value_of_states_and_actions)))
-        Q_values = self.reward_table + gamma*value_of_states_and_actions
-        #U(s) = max_a Q(S,a)
-        self.U =  np.amax(Q_values, axis = 3)
+      #Q values contain both states and actions: Q(s,a)
+      #reward value depends on (s,a)
+     # print("reward shape: " + str(np.shape(self.reward_table)))
+     # print("value_of_states_and_actions shape:" + str(np.shape(value_of_states_and_actions)))
+      Q_values = self.reward_table + gamma*value_of_states_and_actions
+      #U(s) = max_a Q(S,a)
+      self.U =  np.amax(Q_values, axis = 3)
 
-        #t_2 = time.time()
-        #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
+      actions_taken =np.argmax(Q_values, axis = 3)
+      return actions_taken
+
+      #t_2 = time.time()
+      #print("calc_best_action_and_utility in " + str(t_2-t_1) + "sec")
+
+    n_episode = 0
+
+    while (n_episode < num_episodes):
+      tstart = time.time()
+
+
+
+      self.itp = RegularGridInterpolator(\
+        (self.phi_grid, self.phi_dot_grid, self.delta_grid), self.U,
+        bounds_error = False, fill_value = 0, method = interpolation_method)
+        # false bounds error causes us to extrapolate values out of range
+        #fill_value = 0, sets the value outside of the interpolation range to 0
+        # thus, if the bicycle gets no reward for a state outside of the grid
+        # this ensures bad states have a reward of 0 (as desired)
+        #t4 = time.time()
+
+      # shuffle indicies (so that we update states in a random order reach loop)
+      #this *attempts* prevents "circle" bug
+      phi_indices = list(range(self.len_phi_grid))
+      #np.random.shuffle(phi_indices)
+      phi_dot_indices = list(range(self.len_phi_dot_grid))
+      #np.random.shuffle(phi_dot_indices)
+      delta_indices = list(range (self.len_delta_grid))
+      #np.random.shuffle(delta_indices)
+      action_indicies = list(range(self.num_actions))
+
 
        # t_3 = time.time()
         #note: utilities of nonfallen states are always positive (and the
@@ -436,7 +441,16 @@ class ValueIteration(TableBased):
         action_indicies, indexing = "ij")
         #print("indicies_matrix shape is: " + str(np.shape(indicies_matrix)))
 
-        update_state_vectorized(indicies_matrix)
+        actions_taken = update_state_vectorized(indicies_matrix)
+        print("action_taken shape ", np.shape(actions_taken))
+
+        #check for convergence
+        converged_states = np.equal(actions_take, previous_actions_taken)
+        percent_converged_state = sum(convered_states)/self.num_states
+        print("{:f} percent of the states have converged"
+          .format(percent_converged_state*100))
+
+        previous_actions_taken = actions_taken
 
       else:
         for phi_i in phi_indices:

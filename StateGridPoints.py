@@ -209,6 +209,9 @@ class StateGridPoints(object):
     else:
       raise Exception("Invalid state_grid_flag: {}".format(state_grid_flag))
 
+    self.phi_half_grid = [0.0] + phi_half_grid
+    self.len_phi_half_grid = len(self.phi_half_grid)
+
     # calculate lengths once and store their values
     self.len_phi_grid = len(self.phi_grid)
     self.len_phi_dot_grid = len(self.phi_dot_grid)

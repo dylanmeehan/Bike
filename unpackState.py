@@ -39,11 +39,11 @@ def getStartingState8(state_flag = 0, v = 3.0):
     5: np.array([0.0, 0.0, 0.0, -np.pi/16, 0.0, 0.0, 0.0, v]),
     6: np.array([0.0, 0.0, 0.0, -np.pi/32, 0.0, 0.0, 0.0, v]),
     7: np.array([0.0, 0.0, 0.0, -0.77, 0.0, 0.0, 0.0, v]),
-    8.1: np.array([0.0, 0.0, 0.0, 0.54, 0.0, 0.0, 1.44, v]),  #both should pass
-    8.2: np.array([0.0, 0.0, 0.0, 0.58, 0.0, 0.0, 1.44, v]),  # both fail
+    81: np.array([0.0, 0.0, 0.0, 0.54, 0.0, 0.0, 1.44, v]),  #both should pass
+    82: np.array([0.0, 0.0, 0.0, 0.58, 0.0, 0.0, 1.44, v]),  # both fail
     #8.1 and 8.2 start one grid point apart
-    8.3: np.array([0.0, 0.0, 0.0, 0.54, 0.0, 0.0, 1.52, v]),  #VI only?? linear only
-    8.4: np.array([0.0, 0.0, 0.0, 0.7, 0.0, 0.0, 0.63, v]),   #linear only??
+    83: np.array([0.0, 0.0, 0.0, 0.54, 0.0, 0.0, 1.52, v]),  #VI only?? linear only
+    84: np.array([0.0, 0.0, 0.0, 0.7, 0.0, 0.0, 0.63, v]),   #linear only??
   }
   return starting_states[state_flag]
 

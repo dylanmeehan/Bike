@@ -17,7 +17,7 @@ clear
    c = 0;   %trail
  
 %set speed to a constant: given with intial state in get_starting_state.py
-v = 2;  %m/s
+v = 3;  %m/s
    
 %Define system   
 A = [   0       1       0

@@ -23,22 +23,21 @@ def plot_basin_of_attraction(controllers, names, state_table_flag, v):
   n = len(controllers)
   fig1, ax1s = plt.subplots(1,n)
 
-  difference_array = np.zeros((GridPoints.len_phi_grid, GridPoints.len_phi_dot_grid))
+  difference_array = np.zeros((GridPoints.len_phi_half_grid, GridPoints.len_phi_dot_grid))
 
   for idx in range(n):
     print("calculating basis of attraction for controller " + names[idx])
     t3 = datetime.now()
     controller = controllers[idx]
 
-    success_array = np.zeros((GridPoints.len_phi_grid,
+    success_array = np.zeros((GridPoints.len_phi_half_grid,
       GridPoints.len_phi_dot_grid))
 
-    for (i, phi) in enumerate(GridPoints.phi_grid):
 
-      #only plot half of state space because it is symettric
-      #this speeds it up
-      if phi > 0:
-        break
+    #only plot half of state space because it is symettric
+    #this speeds it up
+
+    for (i, phi) in enumerate(GridPoints.phi_half_grid):
 
       print("phi: " + str(phi))
       for (j, phi_dot) in enumerate(GridPoints.phi_dot_grid):
@@ -65,9 +64,9 @@ def plot_basin_of_attraction(controllers, names, state_table_flag, v):
     ax1.set_title(str(names[idx])+" Basin of Attraction (delta = 0)")
     ax1.set_ylabel("lean [rad]")
     ax1.set_xlabel("lean rate [rad/s]")
-    ax1.set_yticks(np.arange(GridPoints.len_phi_grid))
+    ax1.set_yticks(np.arange(GridPoints.len_phi_half_grid))
     ax1.set_xticks(np.arange(GridPoints.len_phi_dot_grid))
-    ax1.set_yticklabels(np.around(GridPoints.phi_grid, decimals=2))
+    ax1.set_yticklabels(np.around(GridPoints.phi_half_grid, decimals=2))
     ax1.set_xticklabels(np.around(GridPoints.phi_dot_grid, decimals = 2))
 
     fig1.colorbar(im1)
@@ -86,9 +85,9 @@ def plot_basin_of_attraction(controllers, names, state_table_flag, v):
   ax2.set_title(str(names[idx])+" Difference between linear and VI controllers")
   ax2.set_ylabel("lean [rad]")
   ax2.set_xlabel("lean rate [rad/s]")
-  ax2.set_yticks(np.arange(GridPoints.len_phi_grid))
+  ax2.set_yticks(np.arange(GridPoints.len_phi_half_grid))
   ax2.set_xticks(np.arange(GridPoints.len_phi_dot_grid))
-  ax2.set_yticklabels(np.around(GridPoints.phi_grid, decimals=2))
+  ax2.set_yticklabels(np.around(GridPoints.phi_half_grid, decimals=2))
   ax2.set_xticklabels(np.around(GridPoints.phi_dot_grid, decimals = 2))
 
   fig2.colorbar(im2)
@@ -99,8 +98,8 @@ def plot_basin_of_attraction(controllers, names, state_table_flag, v):
   plt.show()
 
 #name = "VI_r14_s6_a1"
-name = "VI_r14_a1_s6_v2_30episodes"
-VI_model = ValueIteration(state_grid_flag = 6, action_grid_flag = 1,
+name = "VI_r14_a1_s16_v2_30episodes"
+VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
 reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
 remake_table = False, step_table_integration_method = "fixed_step_RK4",
 USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 2.0)
@@ -112,7 +111,7 @@ VI_model.init_controller(use_continuous_actions = True,
   use_regression_model_of_table = False)
 
 plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s")),
-  VI_model], ["linear r14", "lqrd_2m_s"],  6, v = 2.0)
+  VI_model], ["linear r14", "lqrd_2m_s"],  16, v = 2.0)
 
 # plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s"))],
 #  ["linear r14"],  16)
