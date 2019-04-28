@@ -124,6 +124,8 @@ class ValueIteration(TableBased):
       action = self.action_grid[action_index]
       #print("discrete action:" + str(action))
 
+
+
     return action
 
   #given: state3_index: the index of a point in the descritized table

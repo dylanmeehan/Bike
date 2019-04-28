@@ -57,6 +57,26 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
     #calculate control action
     u = controller.act(state8, timestep)
 
+
+    #clip u to avoid singularity when delta = pi/4
+    delta= state8[5]
+    delta_threshold = 1.4 #1.4 rad = 80 degrees pi/2 = 1.5708
+    if delta < -delta_threshold:
+      #print("delta: ",delta)
+      u = np.max([u,0])
+      #print("u: ",u)
+    elif delta > delta_threshold:
+      #print("delta: ",delta)
+      u = np.min([u,0])
+      #print("u: ",u)
+
+    delta_threshold_danger = 1.5  #pi/2 = 1.5708
+    if np.abs(delta)>delta_threshold_danger:
+      print("delta: ", delta)
+      print("delta exceeds threshold to avoid singularity")
+      assert(np.abs(delta)<delta_threshold_danger)
+
+
     new_state8, reward, is_fallen = step(state8, u, reward_flag, tstep_multiplier = 1,
       method = "fixed_step_RK4", USE_LINEAR_EOM = USE_LINEAR_EOM, timestep = timestep)
 

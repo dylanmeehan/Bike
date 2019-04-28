@@ -4,10 +4,11 @@ from runBicycleTest import *
 import time
 from valueIteration import *
 from LinearController import getLQRGains
+from datetime import datetime
 
 
 def plot_basin_of_attraction(controllers, names, state_table_flag):
-  t1 = time.time()
+  t1 = datetime.now()
 
   GridPoints = StateGridPoints()
   GridPoints.set_state_grid_points(state_table_flag)
@@ -25,6 +26,8 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
   difference_array = np.zeros((GridPoints.len_phi_grid, GridPoints.len_phi_dot_grid))
 
   for idx in range(n):
+    print("calculating basis of attraction for controller " + names[idx])
+    t3 = datetime.now()
     controller = controllers[idx]
 
     success_array = np.zeros((GridPoints.len_phi_grid,
@@ -65,6 +68,10 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
     np.savetxt("BasinOfAttraction/"+name + "_BasisOfAttraction.csv", success_array,
       delimiter = ",")
 
+    t4 = datetime.now()
+    print(" calculated basis of attraction for controller " + names[idx] +
+      " in " + str(t4-t3))
+
   fig2, ax2 = plt.subplots(1,1)
   #plot differences
 
@@ -79,7 +86,7 @@ def plot_basin_of_attraction(controllers, names, state_table_flag):
 
   fig2.colorbar(im2)
 
-  t2 = time.time()
+  t2 = datetime.now()
   print("plotted basis of attraction in " + str(t2-t1) + " sec")
 
   plt.show()
@@ -99,3 +106,6 @@ VI_model.init_controller(use_continuous_actions = True,
 
 plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s")),
   VI_model], ["linear r14", "lqrd_2m_s"],  16)
+
+plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s"))],
+ ["linear r14"],  16)
