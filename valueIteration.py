@@ -363,17 +363,18 @@ class ValueIteration(TableBased):
       #assume we are not using continuous actions, but are doing interpolation
       #let indicies_matrix be states and actions
 
-    def update_state_vectorized(indicies_matrix):
+    def update_state_vectorized():
 
       #lookup 4 tuple in step lookup table
-      lookup = lambda indicies: \
-        self.step_table[indicies[0], indicies[1], indicies[2], indicies[3]]
-      new_states = np.apply_along_axis(lookup, 0, indicies_matrix)
+
+      #print(np.shape(new_states))
       #print("new_states shape is " + str(np.shape(new_states)))
 
 
       #t_1 = time.time()
       #interpolate values
+      #  V(s') where (s,a) -> s'. Since this is a mapping over S and A,
+      # this is 4 dimensional
       value_of_states_and_actions = np.transpose(self.itp(new_states.T))
       #print("value_of_states_and_actions shape is " + str(np.shape(value_of_states_and_actions)))
 
@@ -385,6 +386,8 @@ class ValueIteration(TableBased):
       #reward value depends on (s,a)
      # print("reward shape: " + str(np.shape(self.reward_table)))
      # print("value_of_states_and_actions shape:" + str(np.shape(value_of_states_and_actions)))
+      #print(value_of_states_and_actions[5,5,5,:])
+      #print(np.shape(self.reward_table))
       Q_values = self.reward_table + gamma*value_of_states_and_actions
       #U(s) = max_a Q(S,a)
       self.U =  np.amax(Q_values, axis = 3)
@@ -397,10 +400,26 @@ class ValueIteration(TableBased):
 
     n_episode = 0
 
+        # shuffle indicies (so that we update states in a random order reach loop)
+    #this *attempts* prevents "circle" bug
+    phi_indices = list(range(self.len_phi_grid))
+    #np.random.shuffle(phi_indices)
+    phi_dot_indices = list(range(self.len_phi_dot_grid))
+    #np.random.shuffle(phi_dot_indices)
+    delta_indices = list(range (self.len_delta_grid))
+    #np.random.shuffle(delta_indices)
+    action_indicies = list(range(self.num_actions))
+
+    indicies_matrix = np.meshgrid(phi_indices, phi_dot_indices, delta_indices,
+      action_indicies, indexing = "ij")
+
+    #PULL THIS OUT OF UPDATE_STATE_VECTORIZED
+    lookup = lambda indicies: \
+    self.step_table[indicies[0], indicies[1], indicies[2], indicies[3]]
+    new_states = np.apply_along_axis(lookup, 0, indicies_matrix)
+
     while (n_episode < num_episodes):
       tstart = time.time()
-
-
 
       self.itp = RegularGridInterpolator(\
         (self.phi_grid, self.phi_dot_grid, self.delta_grid), self.U,
@@ -411,15 +430,7 @@ class ValueIteration(TableBased):
         # this ensures bad states have a reward of 0 (as desired)
         #t4 = time.time()
 
-      # shuffle indicies (so that we update states in a random order reach loop)
-      #this *attempts* prevents "circle" bug
-      phi_indices = list(range(self.len_phi_grid))
-      #np.random.shuffle(phi_indices)
-      phi_dot_indices = list(range(self.len_phi_dot_grid))
-      #np.random.shuffle(phi_dot_indices)
-      delta_indices = list(range (self.len_delta_grid))
-      #np.random.shuffle(delta_indices)
-      action_indicies = list(range(self.num_actions))
+
 
 
        # t_3 = time.time()
@@ -437,20 +448,25 @@ class ValueIteration(TableBased):
 
 
       if vectorize:
-        indicies_matrix = np.meshgrid(phi_indices, phi_dot_indices, delta_indices,
-        action_indicies, indexing = "ij")
+
         #print("indicies_matrix shape is: " + str(np.shape(indicies_matrix)))
 
-        actions_taken = update_state_vectorized(indicies_matrix)
-        print("action_taken shape ", np.shape(actions_taken))
+        old_U = self.U
+        actions_taken = update_state_vectorized()
+        #print("action_taken shape ", np.shape(actions_taken))
 
         #check for convergence
-        converged_states = np.equal(actions_take, previous_actions_taken)
-        percent_converged_state = sum(convered_states)/self.num_states
-        print("{:f} percent of the states have converged"
-          .format(percent_converged_state*100))
-
+        converged_actions = np.equal(actions_taken, previous_actions_taken)
+        fraction_converged_actions= np.sum(converged_actions)/self.num_states
+        print(fraction_converged_actions*100,"%  actions converged")
+        #print("previous_actions_take " , previous_actions_taken[2:20, 10, 10])
+        #print("actions_take          ", actions_taken[2:20, 10, 10])
         previous_actions_taken = actions_taken
+
+        converged_values = np.equal(self.U, old_U)
+        fraction_converged_values= np.sum(converged_values)/self.num_states
+        print(fraction_converged_values*100,"%  values converged")
+
 
       else:
         for phi_i in phi_indices:
