@@ -326,6 +326,8 @@ class ValueIteration(TableBased):
     self.U = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
 
     previous_actions_taken = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
+    fraction_converged_actions = 0
+    CONVERGENCE_THRESHOLD = 0.999
 
     if use_continuous_actions and interpolation_method != "linear":
       raise Exception("'interpolation_method' must be 'linear' if 'continuous_actions' is 'true'")
@@ -363,7 +365,10 @@ class ValueIteration(TableBased):
       #assume we are not using continuous actions, but are doing interpolation
       #let indicies_matrix be states and actions
 
-    def update_state_vectorized():
+    def update_state_vectorized(n):
+
+      #alpha = 60/(60+n)
+      #alpha = 0.8
 
       #lookup 4 tuple in step lookup table
 
@@ -389,8 +394,11 @@ class ValueIteration(TableBased):
       #print(value_of_states_and_actions[5,5,5,:])
       #print(np.shape(self.reward_table))
       Q_values = self.reward_table + gamma*value_of_states_and_actions
+      #print(self.reward_table)
+      #print(value_of_states_and_actions)
       #U(s) = max_a Q(S,a)
-      self.U =  np.amax(Q_values, axis = 3)
+      self.U = np.amax(Q_values, axis = 3)
+      #self.U =  (1-alpha)*self.U + alpha*(np.amax(Q_values, axis = 3))
 
       actions_taken =np.argmax(Q_values, axis = 3)
       return actions_taken
@@ -418,7 +426,8 @@ class ValueIteration(TableBased):
     self.step_table[indicies[0], indicies[1], indicies[2], indicies[3]]
     new_states = np.apply_along_axis(lookup, 0, indicies_matrix)
 
-    while (n_episode < num_episodes):
+    while (n_episode < num_episodes and
+      fraction_converged_actions < CONVERGENCE_THRESHOLD):
       tstart = time.time()
 
       self.itp = RegularGridInterpolator(\
@@ -452,8 +461,10 @@ class ValueIteration(TableBased):
         #print("indicies_matrix shape is: " + str(np.shape(indicies_matrix)))
 
         old_U = self.U
-        actions_taken = update_state_vectorized()
+        actions_taken = update_state_vectorized(n_episode)
         #print("action_taken shape ", np.shape(actions_taken))
+
+        #print("utilitis: ", self.U[20,10,10:15])
 
         #check for convergence
         converged_actions = np.equal(actions_taken, previous_actions_taken)

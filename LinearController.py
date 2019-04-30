@@ -7,7 +7,8 @@ def getLQRGains(name):
   LQRlibrary = {
     "sp18":[24.,7.,-8.],
     "lqrd_2m_s": [31.6875, 7.2238, -5.5283],
-    "lrqd_3m_s": [23.859, 5.418, -7.556]
+    "lqrd_3m_s": [23.859, 5.418, -7.556],
+    "lqrd_1m_s": [67.113, 15.371, -2.792]
   }
 
   return LQRlibrary[name]
