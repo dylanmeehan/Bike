@@ -44,6 +44,8 @@ def getStartingState8(state_flag = 0, v = 3.0):
     #8.1 and 8.2 start one grid point apart
     83: np.array([0.0, 0.0, 0.0, 0.54, 0.0, 0.0, 1.52, v]),  #VI only?? linear only
     84: np.array([0.0, 0.0, 0.0, 0.7, 0.0, 0.0, 0.63, v]),   #linear only??
+    87: np.array([0.0, 0.0, 0.0, 0.75, 0.0, -1, 2, v]),
+    85: np.array([0.0, 0.0, 0.0, 0.74, 0.0, 0, 0.22, v]),
   }
   return starting_states[state_flag]
 

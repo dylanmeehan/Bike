@@ -16,8 +16,9 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
   USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = None, isPrinting= True,
   v = 3.0):
 
+
   if stateflag == None:
-    state8 = np.array(state3_to_state8(starting_state3))
+    state8 = np.array(state3_to_state8(starting_state3, v =v))
   else:
     state8 = getStartingState8(stateflag, v)
 

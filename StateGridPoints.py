@@ -110,6 +110,30 @@ class StateGridPoints(object):
       .35, .39, .43, .47, .51]
       self.delta_grid = make_full_grid(delta_half_grid)
 
+     #small grid, half the states as state_grid_flag 9 in each direction
+    # 15 x 25 x 19 state space
+    elif state_grid_flag == 9:
+      #.785 is falling criteria
+      phi_half_grid = [.02, .06,  .10, .14, .18, .22, .26]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.02, .06, .10, .17, .25, .35, .45, 0.55, 0.65, 0.75,
+      0.85, 0.95]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =   [.02, .06, .10, .16, .22, .28, .35, .43, .51]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+      # same size as 8 but arranged differently. more logrithmically
+    elif state_grid_flag == 10:
+      #.785 is falling criteria
+      phi_half_grid = [.01, .02, .03, .04, .05, .07, .09, .11, .14, .17, .2, .23, .26]
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid = [.01, .02, .03, .05, .07, .09, .12, .16, .2, .25, .3, .35, .4, .45,
+       .5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0]
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =   [.01, .02, .03, .05, .07, .09, .12, .15, .18, .22, .26, .3,
+      .34, .38, .42, .46, .51]
+      self.delta_grid = make_full_grid(delta_half_grid)
+
     elif state_grid_flag == 11:
       phi_half_grid = list(np.linspace(0.01,0.26,26, endpoint=True))
       self.phi_grid = make_full_grid(phi_half_grid)
@@ -126,6 +150,17 @@ class StateGridPoints(object):
       phi_dot_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid = list(np.linspace(0.02,1,50, endpoint=True))
+      self.delta_grid = make_full_grid(delta_half_grid)
+
+    elif state_grid_flag == 13:
+      phi_half_grid = list(np.linspace(0.001,0.009,9.0, endpoint=True)) + \
+      list(np.linspace(0.01,0.26,26, endpoint=True))
+      self.phi_grid = make_full_grid(phi_half_grid)
+      phi_dot_half_grid =  list(np.linspace(0.002,0.018,9.0, endpoint=True)) + \
+      list(np.linspace(0.02,1,50, endpoint=True))
+      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
+      delta_half_grid =  list(np.linspace(0.002,0.018,9.0, endpoint=True)) + \
+      list(np.linspace(0.02,1,50, endpoint=True))
       self.delta_grid = make_full_grid(delta_half_grid)
 
     elif state_grid_flag == 14:
@@ -170,41 +205,18 @@ class StateGridPoints(object):
       delta_half_grid = list([0.0])
       self.delta_grid = make_full_grid(delta_half_grid)
 
-
-    elif state_grid_flag == 13:
-      phi_half_grid = list(np.linspace(0.001,0.009,9.0, endpoint=True)) + \
-      list(np.linspace(0.01,0.26,26, endpoint=True))
+    elif state_grid_flag == 16.2:
+      phi_half_grid = list(np.linspace(0.02,0.78,39, endpoint=True))
       self.phi_grid = make_full_grid(phi_half_grid)
-      phi_dot_half_grid =  list(np.linspace(0.002,0.018,9.0, endpoint=True)) + \
-      list(np.linspace(0.02,1,50, endpoint=True))
+      phi_dot_half_grid = list(np.linspace(0.02,2,50, endpoint=True))
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
-      delta_half_grid =  list(np.linspace(0.002,0.018,9.0, endpoint=True)) + \
-      list(np.linspace(0.02,1,50, endpoint=True))
+      delta_half_grid = list(np.linspace(0.02,0.50,25, endpoint=True)) + \
+        list(np.linspace(0.55,1.5,20, endpoint=True))
       self.delta_grid = make_full_grid(delta_half_grid)
 
-    #small grid, half the states as state_grid_flag 9 in each direction
-    # 15 x 25 x 19 state space
-    elif state_grid_flag == 9:
-      #.785 is falling criteria
-      phi_half_grid = [.02, .06,  .10, .14, .18, .22, .26]
-      self.phi_grid = make_full_grid(phi_half_grid)
-      phi_dot_half_grid = [.02, .06, .10, .17, .25, .35, .45, 0.55, 0.65, 0.75,
-      0.85, 0.95]
-      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
-      delta_half_grid =   [.02, .06, .10, .16, .22, .28, .35, .43, .51]
-      self.delta_grid = make_full_grid(delta_half_grid)
 
-      # same size as 8 but arranged differently. more logrithmically
-    elif state_grid_flag == 10:
-      #.785 is falling criteria
-      phi_half_grid = [.01, .02, .03, .04, .05, .07, .09, .11, .14, .17, .2, .23, .26]
-      self.phi_grid = make_full_grid(phi_half_grid)
-      phi_dot_half_grid = [.01, .02, .03, .05, .07, .09, .12, .16, .2, .25, .3, .35, .4, .45,
-       .5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0]
-      self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
-      delta_half_grid =   [.01, .02, .03, .05, .07, .09, .12, .15, .18, .22, .26, .3,
-      .34, .38, .42, .46, .51]
-      self.delta_grid = make_full_grid(delta_half_grid)
+
+
 
 
     else:

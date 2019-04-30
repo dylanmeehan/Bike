@@ -380,7 +380,6 @@ class ValueIteration(TableBased):
       #interpolate values
       #  V(s') where (s,a) -> s'. Since this is a mapping over S and A,
       # this is 4 dimensional
-      print(np.shape(new_states.T))
       value_of_states_and_actions = np.transpose(self.itp(new_states.T))
       #print("value_of_states_and_actions shape is " + str(np.shape(value_of_states_and_actions)))
 

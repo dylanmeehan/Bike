@@ -29,6 +29,15 @@ def rhs(state, u, USE_LINEAR_EOM):
             -B*v*delta_dot/(L*np.cos(delta)**2))
         )
 
+      #comparing linear and nonlinear EoM:
+      # if ( 0.04 <= t <=0.06):
+      #     phi_ddot_linear = (((-(v**2))*delta) - B*v*u + G*L*phi)/(H*L)
+      #     percent_difference_EoM = 100* (np.abs((phi_ddot_linear - phi_ddot))/
+      #                                   np.abs(phi_ddot_linear + phi_ddot))
+      #     print(percent_difference_EoM,
+      #       "percent difference between linear and nonlinear EoM at phi = ", phi,
+      #       ", phi_dot = ", phi_dot, ", delta = ",delta, ", delta_dot = ", u)
+
 
 
       #add in -1 to match sign convention change between phi for Shihao's and Dylan's derivations

@@ -71,8 +71,8 @@ def plot_basin_of_attraction(controllers, names, state_table_flag, v):
 
     fig1.colorbar(im1)
 
-    np.savetxt("BasinOfAttraction/"+name + "_BasisOfAttraction.csv", success_array,
-      delimiter = ",")
+    # np.savetxt("BasinOfAttraction/"+ names[idx] + "_BasisOfAttraction.csv", success_array,
+    #   delimiter = ",")
 
     t4 = datetime.now()
     print(" calculated basis of attraction for controller " + names[idx] +
@@ -82,7 +82,7 @@ def plot_basin_of_attraction(controllers, names, state_table_flag, v):
   #plot differences
 
   im2 = ax2.imshow(difference_array)
-  ax2.set_title(str(names[idx])+" Difference between linear and VI controllers")
+  ax2.set_title(" Difference between " + str(names[0])+ " and " + str(names[1]))
   ax2.set_ylabel("lean [rad]")
   ax2.set_xlabel("lean rate [rad/s]")
   ax2.set_yticks(np.arange(GridPoints.len_phi_half_grid))
@@ -97,21 +97,26 @@ def plot_basin_of_attraction(controllers, names, state_table_flag, v):
 
   plt.show()
 
-#name = "VI_r14_s6_a1"
-name = "VI_r14_a1_s16_v1_50episodes"
-VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
-reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
-remake_table = False, step_table_integration_method = "fixed_step_RK4",
-USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 1.0)
+# #name = "VI_r14_s6_a1"
+# name = "VI_r14_a1_s16_v1_50episodes"
+# VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
+# reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+# remake_table = False, step_table_integration_method = "fixed_step_RK4",
+# USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 1.0)
 
 
-VI_model.init_controller(use_continuous_actions = True,
-  use_continuous_state_with_discrete_actions = True,
-  controller_integration_method = "fixed_step_RK4",
-  use_regression_model_of_table = False)
+# VI_model.init_controller(use_continuous_actions = True,
+#   use_continuous_state_with_discrete_actions = True,
+#   controller_integration_method = "fixed_step_RK4",
+#   use_regression_model_of_table = False)
 
-plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_1m_s")),
-  VI_model], ["linear r14", "lqrd_1m_s"],  16, v = 1.0)
+# plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_3m_s")),
+#   VI_model], ["linear r14 >>3m/s<<", "lqrd_1m_s"],  16, v = 1.0)
+
+#use state grid points 16.2 so straight lines are straight
+plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_3m_s")),
+   LinearController.LinearController(getLQRGains("lqrd_1m_s"))],
+   ["linear_r14_3m/s", "linear_r14_1m/s"],  16.2, v = 3.0)
 
 # plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s"))],
 #  ["linear r14"],  16)
