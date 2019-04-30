@@ -380,6 +380,7 @@ class ValueIteration(TableBased):
       #interpolate values
       #  V(s') where (s,a) -> s'. Since this is a mapping over S and A,
       # this is 4 dimensional
+      print(np.shape(new_states.T))
       value_of_states_and_actions = np.transpose(self.itp(new_states.T))
       #print("value_of_states_and_actions shape is " + str(np.shape(value_of_states_and_actions)))
 
@@ -430,7 +431,7 @@ class ValueIteration(TableBased):
       fraction_converged_actions < CONVERGENCE_THRESHOLD):
       tstart = time.time()
 
-      self.itp = RegularGridInterpolator(\
+      self.itp = RegularGridInterpolator(
         (self.phi_grid, self.phi_dot_grid, self.delta_grid), self.U,
         bounds_error = False, fill_value = 0, method = interpolation_method)
         # false bounds error causes us to extrapolate values out of range

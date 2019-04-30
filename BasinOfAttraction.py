@@ -98,11 +98,11 @@ def plot_basin_of_attraction(controllers, names, state_table_flag, v):
   plt.show()
 
 #name = "VI_r14_s6_a1"
-name = "VI_r14_a1_s16_v2_30episodes"
+name = "VI_r14_a1_s16_v1_50episodes"
 VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
 reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
 remake_table = False, step_table_integration_method = "fixed_step_RK4",
-USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 2.0)
+USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 1.0)
 
 
 VI_model.init_controller(use_continuous_actions = True,
@@ -110,8 +110,8 @@ VI_model.init_controller(use_continuous_actions = True,
   controller_integration_method = "fixed_step_RK4",
   use_regression_model_of_table = False)
 
-plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s")),
-  VI_model], ["linear r14", "lqrd_2m_s"],  16, v = 2.0)
+plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_1m_s")),
+  VI_model], ["linear r14", "lqrd_1m_s"],  16, v = 1.0)
 
 # plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s"))],
 #  ["linear r14"],  16)
