@@ -315,7 +315,7 @@ class ValueIteration(TableBased):
   #when training finishes, utilities are stored in a csv
   # if continuous actions is true, do_interpolation must be true
   # vectorize == True updates states using vectorized code (fast)
-  def train(self, gamma = 1, num_episodes = 30,
+  def train(self, gamma = 1, num_episodes = 30, convergence_threshold = 0.999,
     interpolation_method = "linear", use_continuous_actions = False, vectorize = None):
 
     if vectorize == None:
@@ -327,7 +327,7 @@ class ValueIteration(TableBased):
 
     previous_actions_taken = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
     fraction_converged_actions = 0
-    CONVERGENCE_THRESHOLD = 0.999
+
 
     if use_continuous_actions and interpolation_method != "linear":
       raise Exception("'interpolation_method' must be 'linear' if 'continuous_actions' is 'true'")
@@ -427,7 +427,7 @@ class ValueIteration(TableBased):
     new_states = np.apply_along_axis(lookup, 0, indicies_matrix)
 
     while (n_episode < num_episodes and
-      fraction_converged_actions < CONVERGENCE_THRESHOLD):
+      fraction_converged_actions < convergence_threshold):
       tstart = time.time()
 
       self.itp = RegularGridInterpolator(

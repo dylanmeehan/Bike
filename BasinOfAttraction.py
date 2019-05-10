@@ -97,26 +97,31 @@ def plot_basin_of_attraction(controllers, names, state_table_flag, v):
 
   plt.show()
 
-# #name = "VI_r14_s6_a1"
-# name = "VI_r14_a1_s16_v1_50episodes"
-# VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
-# reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
-# remake_table = False, step_table_integration_method = "fixed_step_RK4",
-# USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = 1.0)
+v = 0.5
+
+#name = "VI_r14_s6_a1"
+#name = "VI_r14_a1_s16_v1_50episodes"
+# name = "VI_r14_a1_s16_v0.5_100episodes"
+name = "VI_r14_a1_s16_v0.5_100episodes"
+#name = "VI_r14_a1_s16_v2_30episodes"
+VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
+reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+remake_table = False, step_table_integration_method = "fixed_step_RK4",
+USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = v)
 
 
-# VI_model.init_controller(use_continuous_actions = True,
-#   use_continuous_state_with_discrete_actions = True,
-#   controller_integration_method = "fixed_step_RK4",
-#   use_regression_model_of_table = False)
+VI_model.init_controller(use_continuous_actions = True,
+  use_continuous_state_with_discrete_actions = True,
+  controller_integration_method = "fixed_step_RK4",
+  use_regression_model_of_table = False)
 
-# plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_3m_s")),
-#   VI_model], ["linear r14 >>3m/s<<", "lqrd_1m_s"],  16, v = 1.0)
+plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_0.5m_s")),
+  VI_model], ["linear 0.5 m/s, 5s", "VI 0.5m/s, 5s"],  16.2, v = v)
 
 #use state grid points 16.2 so straight lines are straight
-plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_3m_s")),
-   LinearController.LinearController(getLQRGains("lqrd_1m_s"))],
-   ["linear_r14_3m/s", "linear_r14_1m/s"],  16.2, v = 3.0)
+# plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_3m_s")),
+#    LinearController.LinearController(getLQRGains("lqrd_1m_s"))],
+#    ["linear_r14_3m/s", "linear_r14_1m/s"],  16.2, v = 3.0)
 
 # plot_basin_of_attraction([LinearController.LinearController(getLQRGains("lqrd_2m_s"))],
 #  ["linear r14"],  16)
