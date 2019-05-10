@@ -208,7 +208,7 @@ class StateGridPoints(object):
     elif state_grid_flag == 16.2:
       phi_half_grid = list(np.linspace(0.02,0.78,39, endpoint=True))
       self.phi_grid = make_full_grid(phi_half_grid)
-      phi_dot_half_grid = list(np.linspace(0.02,2,50, endpoint=True))
+      phi_dot_half_grid = list(np.linspace(0.04,2,50, endpoint=True))
       self.phi_dot_grid = make_full_grid(phi_dot_half_grid)
       delta_half_grid = list(np.linspace(0.02,0.50,25, endpoint=True)) + \
         list(np.linspace(0.55,1.5,20, endpoint=True))

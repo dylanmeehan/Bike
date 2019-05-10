@@ -17,13 +17,17 @@ clear
    c = 0;   %trail
  
 %set speed to a constant: given with intial state in get_starting_state.py
-v = 0.25;  %m/s
+v = 0.5;  %m/s
    
 %Define system   
 A = [   0       1       0
        g/h      0  -v^2/(h*l)
         0       0       0     ];
 B = [   0  -b*v/(h*l)   1]';
+
+%find eigenvalues of system
+[eig_vects,eig_vals] = eig(A)
+%columns of eig_vects are eigen_vectors
 
 %Define costs
 Q = [1  0   0;
