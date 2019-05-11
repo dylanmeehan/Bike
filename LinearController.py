@@ -28,17 +28,20 @@ class LinearController(Controller):
 
     self.is_initialized = True
 
-  def act(self, state, timestep):
+  def act(self, state, timestep, max_steer_rate = None):
     [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(state)
 
     #control variable
     u = self.k1*phi + self.k2*phi_dot + self.k3*delta
 
     #clip u to within maximum steer rate
-    if u > MAX_STEER_RATE:
-      u = MAX_STEER_RATE
-    elif u < -MAX_STEER_RATE:
-      u = -MAX_STEER_RATE
+    if max_steer_rate == None:
+      max_steer_rate = parameters.MAX_STEER_RATE
+    if u > max_steer_rate:
+      u = max_steer_rate
+    elif u < -max_steer_rate:
+      u = -max_steer_rate
+
 
 
     return(u)

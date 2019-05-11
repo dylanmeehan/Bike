@@ -14,7 +14,7 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
   isGraphing  = True, figObject = None, tstep_multiplier = 1,
   integrator_method = "fixed_step_RK4",
   USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = None, isPrinting= True,
-  v = 3.0, clip_delta = True):
+  v = 3.0, clip_delta = True, delta_limit = None):
 
 
   if stateflag == None:
@@ -65,7 +65,10 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
 
       delta= state8[5]
       #print("delta: ",delta, "u: ",u)
-      delta_threshold = 1.4 #1.4 rad = 80 degrees pi/2 = 1.5708
+      if delta_limit == None:
+        delta_threshold = 1.4 #1.4 rad = 80 degrees pi/2 = 1.5708
+      else:
+        delta_threshold = delta_limit
       if delta < -delta_threshold:
 
         u = np.max([u,0])

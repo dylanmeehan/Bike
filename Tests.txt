@@ -344,3 +344,6 @@ Q2: Q Learning 2. 11/
 
 
 ***********************
+
+Basin of Attraction:
+    everything with r=14, a=1, s=16
