@@ -99,8 +99,14 @@ class ValueIteration(TableBased):
 
   # VI controller uses reward_flag of VI class, not reward flag of runBicycleTest call
   # to decide which actions to take
-  def act(self, state8, timestep):
+  def act(self, state8, timestep, max_steer_rate = None):
     epsilon = 0; alpha = 0; gamma = 1
+
+
+    if max_steer_rate != None:
+      print("I didn't implement this")
+    assert(max_steer_rate == None)
+
 
     if self.use_continuous_actions:
       (action, _) = self.calc_best_action_and_utility_continuous_action(state8,
@@ -114,6 +120,9 @@ class ValueIteration(TableBased):
         gamma = gamma, integration_method = self.controller_integration_method,
         use_regression = self.use_regression_model_of_table)
       action = self.action_grid[action_index]
+
+
+
 
     else:
       make_action_and_utility_graph = False   #ignore this for now

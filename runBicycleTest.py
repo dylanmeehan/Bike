@@ -8,13 +8,14 @@ from tableBased import *
 import integrator
 import scipy.integrate as inter
 import time
+import parameters
 
-# use Euler Integration to simulate a bicycle
+
 def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration,
   isGraphing  = True, figObject = None, tstep_multiplier = 1,
   integrator_method = "fixed_step_RK4",
   USE_LINEAR_EOM = False, timestep = 1/50, starting_state3 = None, isPrinting= True,
-  v = 3.0, clip_delta = True, delta_limit = None):
+  v = 3.0, clip_delta = True, delta_limit = None, max_steer_rate = None):
 
 
   if stateflag == None:
@@ -56,7 +57,7 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
   while( (count < numTimeSteps) and not (is_fallen)):
 
     #calculate control action
-    u = controller.act(state8, timestep)
+    u = controller.act(state8, timestep, max_steer_rate = max_steer_rate)
 
 
     #clip u to avoid singularity when delta = pi/4
@@ -66,7 +67,7 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
       delta= state8[5]
       #print("delta: ",delta, "u: ",u)
       if delta_limit == None:
-        delta_threshold = 1.4 #1.4 rad = 80 degrees pi/2 = 1.5708
+        delta_threshold = parameters.delta_threshold #1.4 rad = 80 degrees pi/2 = 1.5708
       else:
         delta_threshold = delta_limit
       if delta < -delta_threshold:
@@ -77,7 +78,7 @@ def runBicycleTest(stateflag, controller, name, reward_flag, simulation_duration
         u = np.min([u,0])
         #print("clipped u: ",u)
 
-      delta_threshold_danger = 1.5  #pi/2 = 1.5708
+      delta_threshold_danger = 1.55  #pi/2 = 1.5708
       if np.abs(delta)>delta_threshold_danger:
         #print("delta: ", delta)
         #print("delta exceeds threshold to avoid singularity")

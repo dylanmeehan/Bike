@@ -16,52 +16,112 @@ make_graph = True
 
 # name = "VI_r14_s16_a1_30episodes"
 # name = "VI_r14_a1_s16_v1_50episodes"
-v = 0.5
-name = "VI_r14_a1_s16_v0.5_100episodes"
-VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
-reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
-remake_table = False, step_table_integration_method = "fixed_step_RK4",
-USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = v)
+v = 2
+# name = "VI_r14_a1_s16_v2_30episodes"
+# VI_model = ValueIteration(state_grid_flag = 16, action_grid_flag = 1,
+# reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
+# remake_table = False, step_table_integration_method = "fixed_step_RK4",
+# USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = v)
 
-# VI_model.train( gamma = 1, num_episodes = 300, convergence_threshold = 0.9995,
-#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+# # VI_model.train( gamma = 1, num_episodes = 300, convergence_threshold = 0.9995,
+# #        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
-VI_model.init_controller(use_continuous_actions = True,
-  use_continuous_state_with_discrete_actions = True,
-  controller_integration_method = "fixed_step_RK4",
-  use_regression_model_of_table = False)
+# VI_model.init_controller(use_continuous_actions = True,
+#   use_continuous_state_with_discrete_actions = True,
+#   controller_integration_method = "fixed_step_RK4",
+#   use_regression_model_of_table = False)
 
-for starting_state in [93,94,95]:
-#######################################################################3333
+figObject = None
+starting_state3 = [-0.12, -0.24, 0.0]
+v = 2
 
-  (_, figObject) = runBicycleTest(starting_state, VI_model, name = "VI, n",
-     reward_flag = 1,
-    simulation_duration = simulation_duration, isGraphing  = make_graph,
-    figObject = figObject,
-    integrator_method = "fixed_step_RK4",
-    USE_LINEAR_EOM = False, timestep = 1/50, v = v)
+# LQR_gains = getLQRGains("lqrd_2m_s")
+# (_, figObject) = runBicycleTest(None,
+# controller = LinearController.LinearController(LQR_gains),
+# name = "4 rad/s", reward_flag = 14,
+# simulation_duration = simulation_duration,
+# isGraphing  = make_graph, figObject = figObject, starting_state3 = starting_state3,
+# USE_LINEAR_EOM = False, timestep = 1/50, v = v,   max_steer_rate = 4,
+# delta_limit = 0.7)
 
-  # LQR_gains = getLQRGains("lqrd_0.5m_s")
-  # (_, figObject) = runBicycleTest(starting_state,
-  #   controller = LinearController.LinearController(LQR_gains),
-  #   name = "lqrd_0.5m_s", reward_flag = 14,
-  #   simulation_duration = simulation_duration,
-  #   isGraphing  = make_graph, figObject = figObject,
-  #   USE_LINEAR_EOM = False, timestep = 1/50, v = v)
+# LQR_gains = getLQRGains("lqrd_2m_s")
+# (_, figObject) = runBicycleTest(None,
+# controller = LinearController.LinearController(LQR_gains),
+# name = "2 rad/s", reward_flag = 14,
+# simulation_duration = simulation_duration,
+# isGraphing  = make_graph, figObject = figObject, starting_state3 = starting_state3,
+# USE_LINEAR_EOM = False, timestep = 1/50, v = v,   max_steer_rate = 2,
+# delta_limit = 0.7)
 
-  LQR_gains = getLQRGains("lqrd_0.5m_s")
-  (_, figObject) = runBicycleTest(starting_state,
-    controller = LinearController.LinearController(LQR_gains),
-    name = "lqrd_0.5m_s", reward_flag = 14,
-    simulation_duration = simulation_duration,
-    isGraphing  = make_graph, figObject = figObject,
-    USE_LINEAR_EOM = False, timestep = 1/50, v = v)
+# LQR_gains = getLQRGains("lqrd_2m_s")
+# (_, figObject) = runBicycleTest(None,
+# controller = LinearController.LinearController(LQR_gains),
+# name = "1.5 rad/s", reward_flag = 14,
+# simulation_duration = simulation_duration,
+# isGraphing  = make_graph, figObject = figObject, starting_state3 = starting_state3,
+# USE_LINEAR_EOM = False, timestep = 1/50, v = v,   max_steer_rate = 1.5,
+# delta_limit = 0.39)
+
+# LQR_gains = getLQRGains("lqrd_2m_s")
+# (_, figObject) = runBicycleTest(None,
+# controller = LinearController.LinearController(LQR_gains),
+# name = "1.2 rad/s", reward_flag = 14,
+# simulation_duration = simulation_duration,
+# isGraphing  = make_graph, figObject = figObject, starting_state3 = starting_state3,
+# USE_LINEAR_EOM = False, timestep = 1/50, v = v,   max_steer_rate = 1.2,
+# delta_limit = 0.39)
+
+LQR_gains = getLQRGains("lqrd_2m_s")
+(_, figObject) = runBicycleTest(None,
+controller = LinearController.LinearController(LQR_gains),
+name = "steer angle limit: 0.8, rate limit 1.18 rad/s", reward_flag = 14,
+simulation_duration = simulation_duration,
+isGraphing  = make_graph, figObject = figObject, starting_state3 = starting_state3,
+USE_LINEAR_EOM = False, timestep = 1/50, v = v,   max_steer_rate = 1.18,
+delta_limit = 0.8)
+
+
+LQR_gains = getLQRGains("lqrd_2m_s")
+(_, figObject) = runBicycleTest(None,
+controller = LinearController.LinearController(LQR_gains),
+name = "steer angle limit 0.7, rate limit 1.18 rad/s", reward_flag = 14,
+simulation_duration = simulation_duration,
+isGraphing  = make_graph, figObject = figObject, starting_state3 = starting_state3,
+USE_LINEAR_EOM = False, timestep = 1/50, v = v,   max_steer_rate = 1.18,
+delta_limit = 0.7)
+
+# LQR_gains = getLQRGains("lqrd_2m_s")
+# (_, figObject) = runBicycleTest(None,
+# controller = LinearController.LinearController(LQR_gains),
+# name = "1.18 rad/s", reward_flag = 14,
+# simulation_duration = simulation_duration,
+# isGraphing  = make_graph, figObject = figObject, starting_state3 = starting_state3,
+# USE_LINEAR_EOM = False, timestep = 1/50, v = v,   max_steer_rate = 1.18,
+# delta_limit = 0.39)
+
+# LQR_gains = getLQRGains("lqrd_2m_s")
+# (_, figObject) = runBicycleTest(None,
+# controller = LinearController.LinearController(LQR_gains),
+# name = "1 rad/s", reward_flag = 14,
+# simulation_duration = simulation_duration,
+# isGraphing  = make_graph, figObject = figObject, starting_state3 = starting_state3,
+# USE_LINEAR_EOM = False, timestep = 1/50, v = v,   max_steer_rate = 1,
+# delta_limit = 0.39)
+
+# (_, figObject) = runBicycleTest(None,
+# VI_model,
+# name = "VI_steerLim08_rateLim10", reward_flag = 14,
+# simulation_duration = simulation_duration,
+# isGraphing  = make_graph, figObject = figObject, starting_state3 = starting_state3,
+# USE_LINEAR_EOM = False, timestep = 1/50, v = v)
 
 
 
-  plt.show()
+
+plt.show()
 
 
 
 plt.close("all")
+
 

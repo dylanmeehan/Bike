@@ -1,5 +1,5 @@
 import numpy as np
-from parameters import *
+import parameters
 from unpackState import *
 from ControllerClass import *
 
