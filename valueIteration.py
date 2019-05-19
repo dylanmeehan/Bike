@@ -324,8 +324,13 @@ class ValueIteration(TableBased):
   #when training finishes, utilities are stored in a csv
   # if continuous actions is true, do_interpolation must be true
   # vectorize == True updates states using vectorized code (fast)
-  def train(self, gamma = 1, num_episodes = 30, convergence_threshold = 0.999,
-    interpolation_method = "linear", use_continuous_actions = False, vectorize = None):
+  # if EITHER of policy_convergence_threshold or value_convergence_threshold
+  # is satisfied, training stops
+  # with r14, gamma = 0.95,
+  def train(self, gamma = 1, num_episodes = 30,
+    value_convergence_threshold = 1, policy_convergence_threshold = 1,
+    interpolation_method = "linear", use_continuous_actions = False, vectorize = None,
+    threshold_for_value_to_be_converged = 0.99):
 
     if vectorize == None:
       vectorize = not use_continuous_actions
@@ -336,6 +341,7 @@ class ValueIteration(TableBased):
 
     previous_actions_taken = np.zeros((self.len_phi_grid,self.len_phi_dot_grid, self.len_delta_grid))
     fraction_converged_actions = 0
+    fraction_converged_values = 0
 
 
     if use_continuous_actions and interpolation_method != "linear":
@@ -435,8 +441,9 @@ class ValueIteration(TableBased):
     self.step_table[indicies[0], indicies[1], indicies[2], indicies[3]]
     new_states = np.apply_along_axis(lookup, 0, indicies_matrix)
 
+
     while (n_episode < num_episodes and
-      fraction_converged_actions < convergence_threshold):
+      fraction_converged_values < value_convergence_threshold):
       tstart = time.time()
 
       self.itp = RegularGridInterpolator(
@@ -483,8 +490,9 @@ class ValueIteration(TableBased):
         #print("actions_take          ", actions_taken[2:20, 10, 10])
         previous_actions_taken = actions_taken
 
-        converged_values = np.equal(self.U, old_U)
-        fraction_converged_values= np.sum(converged_values)/self.num_states
+        converged_values_array = np.isclose(old_U, self.U, atol = 0.01, rtol = 1e-6)
+        fraction_converged_values = np.sum(converged_values_array)/self.num_states
+        print("old u: ", old_U[10,10,10], "new u: ", self.U[10,10,10])
         print(fraction_converged_values*100,"%  values converged")
 
 

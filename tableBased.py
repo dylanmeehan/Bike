@@ -10,6 +10,7 @@ from pathlib import Path
 from ControllerClass import *
 from StateGridPoints import *
 from numba import jit
+import parameters
 
 class TableBased(Controller, StateGridPoints):
 
@@ -32,10 +33,13 @@ class TableBased(Controller, StateGridPoints):
     elif action_grid_flag == 5:
       self.action_grid = [-2, -1.5, -1, -.75, -.5, -.25, -.1, 0, .1, .25, .5, .75,  1, 1.5, 2]
 
+
     elif action_grid_flag == 6:
       self.action_grid = np.linspace(-5,5,26, endpoint=True)
     elif action_grid_flag == 7:
       self.action_grid = np.linspace(-5,5,51, endpoint=True)
+    elif action_grid_flag == 8:
+      self.action_grid = np.linspace(-parameters.MAX_STEER_RATE,parameters.MAX_STEER_RATE,7, endpoint=True)
 
     else:
       raise Exception("Invalid action_grid_flag: {}".format(action_grid_flag))
@@ -168,7 +172,7 @@ def step(state8, u, reward_flag, tstep_multiplier = 1,
   [t, x, y, phi, psi, delta, phi_dot, v] = unpackState(new_state8)
 
   # check if bike has fallen, only need to do once a timestep
-  if (np.abs(phi) >= np.pi/4):
+  if (np.abs(phi) >= parameters.FALLING_THRESHOLD):
     #print("Bike has fallen; Test Failure")
     isDone = True
   else:
@@ -194,7 +198,7 @@ def get_reward(state8, action, reward_flag = 3):
   # greater than that if it falls).
 
   # test ifbike has fallen
-  if (abs(phi) > np.pi/4):
+  if (abs(phi) > parameters.FALLING_THRESHOLD):
     reward = 0
     #If reward is changed from 0, also change fill_value in the interpolator,
     #I should set them both to be dependent on 1 parameter
