@@ -23,9 +23,9 @@ reward_flag = 14, Ufile = "modelsB/"+name, use_only_continuous_actions = False,
 remake_table = False, step_table_integration_method = "fixed_step_RK4",
 USE_LINEAR_EOM = False, name = name, timestep = 1/50, v = v)
 
-VI_model.train( gamma = 0.95, num_episodes = 300, value_convergence_threshold = 0.99,
-    policy_convergence_threshold = 1,
-       interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
+# VI_model.train( gamma = 0.95, num_episodes = 300, value_convergence_threshold = 0.99,
+#     policy_convergence_threshold = 1,
+#        interpolation_method = "linear", use_continuous_actions = False, vectorize = None)
 
 VI_model.init_controller(use_continuous_actions = True,
   use_continuous_state_with_discrete_actions = True,

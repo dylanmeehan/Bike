@@ -328,7 +328,7 @@ class ValueIteration(TableBased):
   # is satisfied, training stops
   # with r14, gamma = 0.95,
   def train(self, gamma = 1, num_episodes = 30,
-    value_convergence_threshold = 1, policy_convergence_threshold = 1,
+    value_convergence_threshold = 1,
     interpolation_method = "linear", use_continuous_actions = False, vectorize = None,
     threshold_for_value_to_be_converged = 0.99):
 
