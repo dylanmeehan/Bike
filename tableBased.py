@@ -40,6 +40,8 @@ class TableBased(Controller, StateGridPoints):
       self.action_grid = np.linspace(-5,5,51, endpoint=True)
     elif action_grid_flag == 8:
       self.action_grid = np.linspace(-parameters.MAX_STEER_RATE,parameters.MAX_STEER_RATE,7, endpoint=True)
+    elif action_grid_flag == 9:
+      self.action_grid = np.linspace(-parameters.MAX_STEER_RATE,parameters.MAX_STEER_RATE,11, endpoint=True)
 
     else:
       raise Exception("Invalid action_grid_flag: {}".format(action_grid_flag))

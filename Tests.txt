@@ -344,6 +344,24 @@ Q2: Q Learning 2. 11/
 
 
 ***********************
+---- saturation limits ------
+limA:
+MAX_STEER_RATE = 4.8 #rad/s See ABT fall 2017 report
+delta_threshold = 1.4
+FALLING_THRESHOLD = 0.785398
+
+
+limB
+MAX_STEER_RATE = 2 #rad/s See ABT fall 2017 report
+delta_threshold = 1.22  #70 degrees
+FALLING_THRESHOLD = 0.785398
+-----------------------------
+
 
 Basin of Attraction:
     everything with r=14, a=1, s=16
+    g95: gamma = 0.95
+
+VI_r14_a8_s16_v2_g95_limB_300episodes:
+- trained with nonlinear EOm
+- trained until values converged to 0.99
